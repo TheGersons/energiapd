@@ -1,0 +1,22 @@
+<nav class="p-4 flex border-b border-gray-100 justify-between bg-gray-50">
+  <button (click)="onToggleSidebar()" class="cursor-pointer">
+    <svg
+      [ngClass]="sidebar() ? 'rotate-180' : ''"
+      class="w-6 h-6 transition-all duration-300"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24">
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="m9 5 7 7-7 7" />
+    </svg>
+  </button>
+
+  <input type="search" placeholder="Search..." class="ml-4 p-2 border rounded" />
+</nav>

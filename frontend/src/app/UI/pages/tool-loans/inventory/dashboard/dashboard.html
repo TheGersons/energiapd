@@ -1,0 +1,101 @@
+<div class="space-y-5">
+  <div class="w-full flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold">Inventario</h2>
+      <h3 class="text-gray-500">Gestión de Inventario de herrramientas</h3>
+    </div>
+  </div>
+
+  <div class="flex space-x-10 w-1/2">
+    @for (a of cards; track $index) {
+      <div
+        class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+        <div [class]="`rounded-lg p-3 ${a.bgColor}`">
+          <app-loader [name]="a.iconName"></app-loader>
+        </div>
+
+        <div class="">
+          <h2 class="text-2xl font-bold">{{ a.data }}</h2>
+          <h3 class="text-slate-500">{{ a.subtitle }}</h3>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div
+    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
+    <div class="px-3 py-2">
+      <div
+        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
+        <button (click)="navigate()" class="p-1">
+          <svg
+            class="w-6 h-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4.243a1 1 0 1 0-2 0V11H7.757a1 1 0 1 0 0 2H11v3.243a1 1 0 1 0 2 0V13h3.243a1 1 0 1 0 0-2H13V7.757Z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+        <button [disabled]="canEdit()" class="p-1">
+          <svg
+            class="w-6 h-6"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1024 1024">
+            <path
+              fill="#000000"
+              d="M352 192V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64H96a32 32 0 0 1 0-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 0 1-32-32V256h704v672a32 32 0 0 1-32 32H192zm224-192a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32zm192 0a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32z" />
+          </svg>
+        </button>
+        <button (click)="navigate()" [disabled]="canEdit()" class="p-1">
+          <svg
+            class="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              stroke-linecap="round"
+              stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2ZM10.95 17.51C10.66 17.8 10.11 18.08 9.71 18.14L7.25 18.49C7.16 18.5 7.07 18.51 6.98 18.51C6.57 18.51 6.19 18.37 5.92 18.1C5.59 17.77 5.45 17.29 5.53 16.76L5.88 14.3C5.94 13.89 6.21 13.35 6.51 13.06L10.97 8.6C11.05 8.81 11.13 9.02 11.24 9.26C11.34 9.47 11.45 9.69 11.57 9.89C11.67 10.06 11.78 10.22 11.87 10.34C11.98 10.51 12.11 10.67 12.19 10.76C12.24 10.83 12.28 10.88 12.3 10.9C12.55 11.2 12.84 11.48 13.09 11.69C13.16 11.76 13.2 11.8 13.22 11.81C13.37 11.93 13.52 12.05 13.65 12.14C13.81 12.26 13.97 12.37 14.14 12.46C14.34 12.58 14.56 12.69 14.78 12.8C15.01 12.9 15.22 12.99 15.43 13.06L10.95 17.51ZM17.37 11.09L16.45 12.02C16.39 12.08 16.31 12.11 16.23 12.11C16.2 12.11 16.16 12.11 16.14 12.1C14.11 11.52 12.49 9.9 11.91 7.87C11.88 7.76 11.91 7.64 11.99 7.57L12.92 6.64C14.44 5.12 15.89 5.15 17.38 6.64C18.14 7.4 18.51 8.13 18.51 8.89C18.5 9.61 18.13 10.33 17.37 11.09Z"
+                fill="#000000"></path>
+            </g>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
+      <thead class="bg-neutral-100 sticky z-10">
+        <tr class="*:px-6 *:py-3 *:font-semibold">
+          <th>Nombre</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Serie</th>
+          <th>Estado</th>
+          <th>Calibración</th>
+        </tr>
+      </thead>
+      <tbody
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
+        @for (t of tools.value(); track $index) {
+          <tr
+            [class.bg-blue-200]="sTool.has(t.toolId ?? '')"
+            (click)="onSelectRow(t)">
+            <td>{{ t.toolName }}</td>
+            <td>{{ t.toolBrand }}</td>
+            <td>{{ t.toolModel }}</td>
+            <td>{{ t.toolSerial }}</td>
+            <td>{{ t.toolStatus ? "Disponible" : "No Disponible" }}</td>
+            <td>No requiere</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

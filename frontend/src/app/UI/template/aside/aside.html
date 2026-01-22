@@ -1,0 +1,27 @@
+<div
+  (click)="$event.stopPropagation()"
+  class="h-screen overflow-hidden bg-gray-50"
+  tabindex="-1">
+  <div class="flex h-full">
+    <div class="h-full border-r border-gray-200 flex-col w-15 p-4 space-y-4">
+      @for (m of modules.value(); track $index) {
+        <button (click)="onClickModule(m.page)" class="cursor-pointer hover:bg-gray-200 rounded p-1">
+          <app-loader [name]="m.moduleName"></app-loader>
+        </button>
+      }
+    </div>
+    <div
+      [ngClass]="toggleSidebar() ? 'w-64' : 'w-0'"
+      class="border-r border-gray-200 transition-all duration-300 p-4">
+      <h5 class="font-bold truncate tracking-wider">Componentes</h5>
+
+      <ul class="flex-col space-y-2 mt-4">
+        @for (p of pages(); track $index) {
+          <li class="shrink-0 hover:bg-gray-200 rounded p-1 font-medium break-keep">
+            <a class="block whitespace-nowrap overflow-hidden text-ellipsis" [routerLink]="p.pageUrl">{{p.pageLabel}}</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
