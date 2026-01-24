@@ -16,6 +16,30 @@ export const routes: Routes = [
           import('@ui/pages/settings/permission/permission').then(
             (m) => m.Permission,
           ),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('@ui/pages/settings/permission/dashboard/dashboard').then(
+                (m) => m.Dashboard,
+              ),
+          },
+          {
+            path: 'crear',
+            loadComponent: () =>
+              import('@ui/pages/settings/permission/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+          {
+            path: 'editar/:id',
+            loadComponent: () =>
+              import('@ui/pages/settings/permission/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+        ],
       },
       {
         path: 'computer-inventory/dashboard',

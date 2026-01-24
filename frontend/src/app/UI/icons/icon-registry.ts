@@ -41,6 +41,14 @@ export class IconRegistry {
     this.registry.set('total', () =>
       import('./svg/total').then((m) => m.Total),
     );
+    this.registry.set('create', () =>
+      import('./svg/create').then((m) => m.Create),
+    );
+    this.registry.set('delete', () =>
+      import('./svg/delete').then((m) => m.Delete),
+    );
+    this.registry.set('edit', () => import('./svg/edit').then((m) => m.Edit));
+    this.registry.set('cart', () => import('./svg/cart').then((m) => m.Cart));
   }
 
   getIconLoader(name: string): IconLoader {

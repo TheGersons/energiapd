@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-total',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="h-6 w-6 text-gray-800"
-      fill="#000000"
+      [ngClass]="class"
+      fill="currentColor"
       version="1.1"
       id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
@@ -40,4 +41,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Total {}
+export class Total {
+  @Input() class = '';
+}

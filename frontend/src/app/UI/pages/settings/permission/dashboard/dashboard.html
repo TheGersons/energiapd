@@ -1,0 +1,52 @@
+<div class="space-y-5">
+  <div class="w-full flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold">Roles y Permisos</h2>
+      <h3 class="text-gray-500">
+        Gestiona los roles del sistema y sus permisos
+      </h3>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+    <input
+      type="search"
+      id="userFullName"
+      class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+      placeholder="Buscar roles..." />
+  </div>
+
+  <div
+    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
+    <div class="flex items-center px-4 py-2">
+      <div
+        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
+        <button class="p-1">
+          <app-loader
+            [name]="'create'"
+            class="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+        <button class="p-1">
+          <app-loader
+            [name]="'delete'"
+            class="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+        <button class="p-1">
+          <app-loader
+            [name]="'edit'"
+            class="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+      </div>
+    </div>
+    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
+      <thead class="bg-neutral-100 sticky z-10">
+        <tr class="*:px-6 *:py-3 *:font-semibold">
+          <th>Nombre</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer"></tbody>
+    </table>
+  </div>
+</div>

@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-inventory',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="w-6 h-6"
+      [ngClass]="class"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -152,4 +153,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Inventory {}
+export class Inventory {
+  @Input() class = '';
+}

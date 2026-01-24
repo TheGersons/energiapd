@@ -2,25 +2,29 @@ import { Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-arrow-left',
+  selector: 'app-delete',
   imports: [NgClass],
   template: `
     <svg
       [ngClass]="class"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
       fill="none"
-      stroke="currentColor"
       viewBox="0 0 24 24"
     >
       <path
+        stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
         stroke-width="2"
-        d="M15 19l-7-7 7-7"
-      ></path>
+        d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+      />
     </svg>
   `,
   styles: ``,
 })
-export class ArrowLeft {
+export class Delete {
   @Input() class: string = '';
 }

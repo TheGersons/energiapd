@@ -1,26 +1,27 @@
-import { Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-arrow-left',
+  selector: 'app-create',
   imports: [NgClass],
   template: `
     <svg
       [ngClass]="class"
+      xmlns="http://www.w3.org/2000/svg"
       fill="none"
-      stroke="currentColor"
       viewBox="0 0 24 24"
     >
       <path
+        stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
         stroke-width="2"
-        d="M15 19l-7-7 7-7"
-      ></path>
+        d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
     </svg>
   `,
   styles: ``,
 })
-export class ArrowLeft {
+export class Create {
   @Input() class: string = '';
 }
