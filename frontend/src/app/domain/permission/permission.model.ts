@@ -1,23 +1,19 @@
+// Estos se utilizan para renderizar en la vista
 export interface PermissionModel {
-  permissionId?: string;
-  permissionName: string;
-  permissionLabel: string;
-}
-
-export interface PermissionsByRoleModel {
-  roleId: string;
-  page: Page[];
-}
-
-export interface RolePagePermissionModel {
-  rolePagePermissionId?: string;
-  roleId: string;
-  pageId: string;
   permissionId: string;
+  nameModule: string;
+  pages: IPage[];
 }
 
-interface Page {
+interface IPage {
   pageId: string;
-  moduleId: string;
-  permission: Array<{ name: string }>;
+  pageName: string;
+  permissions: IPermission[];
 }
+
+export interface IPermission {
+  permissionId: string;
+  permissionLabel: string;
+  value: string;
+}
+//

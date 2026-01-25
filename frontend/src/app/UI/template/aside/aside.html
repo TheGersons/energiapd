@@ -4,7 +4,7 @@
   tabindex="-1">
   <div class="flex h-full">
     <div class="h-full border-r border-gray-200 flex-col w-15 p-4 space-y-4">
-      @for (m of modules.value(); track $index) {
+      @for (m of modules; track $index) {
         <button (click)="onClickModule(m.page)" class="cursor-pointer hover:bg-gray-200 rounded p-1">
           <app-loader [name]="m.moduleName" class="w-6 h-6"></app-loader>
         </button>

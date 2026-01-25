@@ -1,17 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-loan-tools',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
+      [ngClass]="class"
       version="1.1"
       id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 512 512"
       xml:space="preserve"
-      class="h-6 w-6"
     >
       <path
         style="fill:#717272;"
@@ -114,4 +115,6 @@ import { Component } from '@angular/core';
     </svg>
   `,
 })
-export class LoanTools {}
+export class LoanTools {
+  @Input() class = '';
+}

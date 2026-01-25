@@ -1,16 +1,17 @@
 import { Mapper } from '@base/mapper';
+import { callbackify } from 'util';
 import { PermissionEntity } from '../permission.entity';
 import { PermissionModel } from '@domain/permission/permission.model';
 
-export class PermissionMapper extends Mapper<
-  PermissionEntity,
-  PermissionModel
+export class PermissionsMapper extends Mapper<
+  PermissionEntity[],
+  PermissionModel[]
 > {
-  override mapFrom(param: PermissionEntity): PermissionModel {
-    return {
-      permissionId: param.id,
-      nameModule: param.moduleName,
-      pages: param.page.map((p) => ({
+  override mapFrom(param: PermissionEntity[]): PermissionModel[] {
+    return param.map((a) => ({
+      permissionId: a.id,
+      nameModule: a.moduleName,
+      pages: a.page.map((p) => ({
         pageId: p.id,
         pageName: p.name,
         permissions: p.permission.map((perm) => ({
@@ -19,14 +20,14 @@ export class PermissionMapper extends Mapper<
           value: perm.slug,
         })),
       })),
-    };
+    }));
   }
 
-  override mapTo(param: PermissionModel): PermissionEntity {
-    return {
-      id: param.permissionId,
-      moduleName: param.nameModule,
-      page: param.pages.map((p) => ({
+  override mapTo(param: PermissionModel[]): PermissionEntity[] {
+    return param.map((a) => ({
+      id: a.permissionId,
+      moduleName: a.nameModule,
+      page: a.pages.map((p) => ({
         id: p.pageId,
         name: p.pageName,
         permission: p.permissions.map((perm) => ({
@@ -35,6 +36,6 @@ export class PermissionMapper extends Mapper<
           slug: perm.value,
         })),
       })),
-    };
+    }));
   }
 }

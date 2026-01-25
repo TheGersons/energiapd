@@ -10,22 +10,10 @@ class RoleController {
   }
 
   async create(req: Request, res: Response) {
+
+    console.log(req.body)
     roleRepository
       .create(req.body.role)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(400).json(error));
-  }
-
-  async update(req: Request, res: Response) {
-    roleRepository
-      .update(req.body.role)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(400).json(error));
-  }
-
-  async delete(req: Request, res: Response) {
-    roleRepository
-      .delete(req.query.roleId as string)
       .then((rs) => res.status(200).json(rs))
       .catch((error) => res.status(400).json(error));
   }

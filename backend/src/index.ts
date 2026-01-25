@@ -4,8 +4,6 @@ import cors from "cors";
 import { route } from "@route/index";
 import "dotenv/config";
 import { sequelize } from "./database";
-import "@model/association/module-page.association";
-import "@model/association/role-page-permission.association";
 
 class Server {
   private app!: Application;

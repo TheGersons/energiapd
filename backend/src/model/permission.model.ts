@@ -13,20 +13,24 @@ export class PermissionModel extends Model<
   InferCreationAttributes<PermissionModel>
 > {
   declare id: CreationOptional<string>;
-  declare name: string;
+  declare slug: string;
   declare label: string;
+  declare module: string;
+  declare page: string;
 }
 
 PermissionModel.init(
   {
     id: { type: DataTypes.UUIDV4, primaryKey: true, defaultValue: sql.uuidV4 },
-    name: { type: DataTypes.STRING },
+    slug: { type: DataTypes.STRING },
     label: { type: DataTypes.STRING },
+    module: { type: DataTypes.STRING },
+    page: { type: DataTypes.STRING },
   },
   {
     sequelize,
     modelName: "Permission",
     tableName: "permission",
-    timestamps: false
-  }
+    timestamps: false,
+  },
 );

@@ -1,9 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, inject, Input, resource, signal } from '@angular/core';
-import { PageModel } from '@domain/module/module.model';
-import { GetAllModulesWitPages } from '@domain/module/usecase/getAllModulesWithPages.usecase';
+import { ModuleModel, PageModel } from '@domain/module/module.model';
 import { Loader } from '@ui/icons/loader';
-import { firstValueFrom } from 'rxjs';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -15,16 +13,48 @@ import { RouterLink } from '@angular/router';
 export class Aside {
   @Input() toggleSidebar = signal<boolean>(false);
 
-  /**
-   * Usecases
-   */
-  private findAllModulesWithPages = inject(GetAllModulesWitPages);
-
   pages = signal<PageModel[]>([]);
 
-  modules = resource({
-    loader: () => firstValueFrom(this.findAllModulesWithPages.execute({})),
-  });
+  modules: ModuleModel[] = [
+    {
+      moduleId: 'tool-loans',
+      moduleName: 'tool-loans',
+      moduleLabel: 'Préstamo de Herramientas',
+      page: [
+        {
+          pageId: 'inventory',
+          moduleId: 'tool-loans',
+          pageName: 'inventory',
+          pageLabel: 'Inventario',
+          pageUrl: '/tool-loans/inventory',
+          pageDescription: 'Inventario de Herramientas',
+        },
+      ],
+    },
+    {
+      moduleId: 'settings',
+      moduleName: 'settings',
+      moduleLabel: 'Configuraciones',
+      page: [
+        {
+          pageId: 'permissions',
+          moduleId: 'settings',
+          pageName: 'permissions',
+          pageLabel: 'Roles y Permisos',
+          pageUrl: '/settings/permissions',
+          pageDescription: 'Configuración de Roles y Permisos',
+        },
+        {
+          pageId: 'users',
+          moduleId: 'settings',
+          pageName: 'users',
+          pageLabel: 'Usuarios',
+          pageUrl: '/settings/users',
+          pageDescription: 'Configuración de usuarios',
+        },
+      ],
+    },
+  ];
 
   onToggleSidebar() {
     this.toggleSidebar.set(!this.toggleSidebar());

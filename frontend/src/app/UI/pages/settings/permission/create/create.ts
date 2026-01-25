@@ -1,94 +1,55 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { IPermission } from '@domain/permission/permission.model';
+import { FindAllPermissionsUseCase } from '@domain/permission/usecase/findAllPermissions.usecase';
+import { RoleModel } from '@domain/role/role.model';
+import { CreateRoleUseCase } from '@domain/role/usecase/createRole.usecase';
 import { Loader } from '@ui/icons/loader';
+import { ToastrService } from 'ngx-toastr';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-create',
-  imports: [Loader],
+  imports: [Loader, FormsModule],
   templateUrl: './create.html',
   styleUrl: './create.scss',
 })
 export class Create {
-  permissions = signal<Array<any>>([
-    {
-      id: 'sales',
-      module: 'Ventas',
-      pages: [
-        {
-          id: 'orders',
-          name: 'Pedidos',
-          permissions: [
-            {
-              label: 'Ver Pedidos',
-              value: 'pedidos.view',
-            },
-            {
-              label: 'Editar Pedidos',
-              value: 'pedidos.edit',
-            },
-            {
-              label: 'Crear Pedidos',
-              value: 'pedidos.create',
-            },
-            {
-              label: 'Eliminar Pedidos',
-              value: 'pedidos.delete',
-            },
-          ],
-        },
-        {
-          id: 'quotes',
-          name: 'Cotizaciones',
-          permissions: [
-            {
-              label: 'Ver Cotizaciones',
-              value: 'cotizaciones.view',
-            },
-            {
-              label: 'Editar Cotizaciones',
-              value: 'cotizaciones.edit',
-            },
-            {
-              label: 'Crear Cotizaciones',
-              value: 'cotizaciones.create',
-            },
-            {
-              label: 'Eliminar Cotizaciones',
-              value: 'cotizaciones.delete',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'inventory',
-      module: 'Inventario',
-      pages: [
-        {
-          id: 'products',
-          name: 'Productos',
-          permissions: [
-            {
-              label: 'Ver Productos',
-              value: 'productos.view',
-            },
-            {
-              label: 'Editar Productos',
-              value: 'productos.edit',
-            },
-            {
-              label: 'Crear Productos',
-              value: 'productos.create',
-            },
-            {
-              label: 'Eliminar Productos',
-              value: 'productos.delete',
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+  toastr = inject(ToastrService);
+
+  findAllPermissions = inject(FindAllPermissionsUseCase);
+  createPermission = inject(CreateRoleUseCase);
+
+  roleId = signal<string>('');
+  roleName = signal<string>('');
+  roleDescription = signal<string>('');
+
+  permissions = resource({
+    loader: async () =>
+      await firstValueFrom(this.findAllPermissions.execute({})),
+  });
+
+  sPermission = new Set<IPermission>();
 
   expandedItems = new Set<string>([]);
 
+  save() {
+    const permission: RoleModel = {
+      roleId: this.roleId(),
+      roleName: this.roleName(),
+      roleDescription: this.roleDescription(),
+      rolePriority: 0,
+      permission: [...this.sPermission].map((a) => ({
+        permissionId: a.permissionId,
+      })),
+    };
+    firstValueFrom(this.createPermission.execute(permission)).then((rs) => {
+      if (rs.roleId) {
+        this.toastr.success(
+          'El rol se ha creado exitosamente.',
+          'Creación de Rol',
+        );
+      }
+    });
+  }
 }

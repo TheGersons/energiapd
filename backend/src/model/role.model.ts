@@ -15,6 +15,7 @@ export class RoleModel extends Model<
   declare id: CreationOptional<string>;
   declare name: string;
   declare description: string;
+  declare priority: number;
 }
 
 RoleModel.init(
@@ -26,6 +27,7 @@ RoleModel.init(
     },
     name: { type: DataTypes.STRING },
     description: { type: DataTypes.STRING },
+    priority: { type: DataTypes.INTEGER },
   },
-  { sequelize, modelName: "Role", tableName: "role", timestamps: true }
+  { sequelize, modelName: "Role", tableName: "role", timestamps: true },
 );

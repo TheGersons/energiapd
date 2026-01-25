@@ -22,6 +22,7 @@
           Nombre *
         </label>
         <input
+          [(ngModel)]="roleName"
           class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
           id="name"
           name="name"
@@ -35,6 +36,7 @@
           Descripción *
         </label>
         <textarea
+          [(ngModel)]="roleDescription"
           class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0 resize-none"
           name="description"
           id="description"
@@ -46,7 +48,7 @@
     <h3 class="text-lg font-semibold text-gray-900">Configuración del Rol</h3>
 
     <div class="flex flex-col space-y-5">
-      @for (p of permissions(); track $index) {
+      @for (p of permissions.value(); track $index) {
         <div
           class="rounded-md border border-blue-200 bg-white flex flex-col overflow-hidden">
           <div class="w-full p-4 flex justify-between items-center bg-gray-50">
@@ -59,12 +61,12 @@
               </div>
               <div
                 (click)="
-                  expandedItems.has(p.id)
-                    ? expandedItems.delete(p.id)
-                    : expandedItems.add(p.id)
+                  expandedItems.has(p.permissionId)
+                    ? expandedItems.delete(p.permissionId)
+                    : expandedItems.add(p.permissionId)
                 "
                 class="cursor-pointer">
-                <h3 class="font-semibold text-gray-900">{{ p.module }}</h3>
+                <h3 class="font-semibold text-gray-900">{{ p.nameModule }}</h3>
                 <p class="text-sm text-gray-500">8 de 17 permisos</p>
               </div>
             </div>
@@ -75,41 +77,51 @@
           </div>
           <div
             class="flex flex-col space-y-4 px-4 overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-in-out"
-            [class.max-h-0]="!expandedItems.has(p.id)"
-            [class.max-h-[500px]]="expandedItems.has(p.id)"
-            [class.opacity-0]="!expandedItems.has(p.id)"
-            [class.opacity-100]="expandedItems.has(p.id)"
-            [class.py-4]="expandedItems.has(p.id)">
+            [class.max-h-0]="!expandedItems.has(p.permissionId)"
+            [class.max-h-[500px]]="expandedItems.has(p.permissionId)"
+            [class.opacity-0]="!expandedItems.has(p.permissionId)"
+            [class.opacity-100]="expandedItems.has(p.permissionId)"
+            [class.py-4]="expandedItems.has(p.permissionId)">
             @for (page of p.pages; track $index) {
               <div class="flex flex-col space-y-2">
                 <div class="flex gap-2 items-center">
                   <input class="h-5 w-5" type="checkbox" />
                   <div
                     (click)="
-                      expandedItems.has(page.id)
-                        ? expandedItems.delete(page.id)
-                        : expandedItems.add(page.id)
+                      expandedItems.has(page.pageId)
+                        ? expandedItems.delete(page.pageId)
+                        : expandedItems.add(page.pageId)
                     "
                     class="flex gap-2 items-center cursor-pointer hover:underline cursor-pointer">
                     <app-loader
                       name="arrow-left"
                       class="h-4 w-4 rotate-90 transition-all duration-300" />
                     <span class="font-medium text-gray-900">{{
-                      page.name
+                      page.pageName
                     }}</span>
                   </div>
                 </div>
                 <div
                   class="flex flex-col space-y-3 ms-10 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out"
-                  [class.max-h-0]="!expandedItems.has(page.id)"
-                  [class.max-h-[500px]]="expandedItems.has(page.id)"
-                  [class.opacity-0]="!expandedItems.has(page.id)"
-                  [class.opacity-100]="expandedItems.has(page.id)">
+                  [class.max-h-0]="!expandedItems.has(page.pageId)"
+                  [class.max-h-[500px]]="expandedItems.has(page.pageId)"
+                  [class.opacity-0]="!expandedItems.has(page.pageId)"
+                  [class.opacity-100]="expandedItems.has(page.pageId)">
                   @for (item of page.permissions; track $index) {
                     <div class="flex gap-4 items-center">
-                      <input class="h-5 w-5" type="checkbox" />
+                      <input
+                        [checked]="sPermission.has(item)"
+                        (change)="
+                          sPermission.has(item)
+                            ? sPermission.delete(item)
+                            : sPermission.add(item)
+                        "
+                        class="h-5 w-5"
+                        type="checkbox" />
                       <div class="flex flex-col justify-center">
-                        <span class="text-gray-700">{{ item.label }}</span>
+                        <span class="text-gray-700">{{
+                          item.permissionLabel
+                        }}</span>
                         <span class="text-xs text-gray-400">{{
                           item.value
                         }}</span>
@@ -123,5 +135,7 @@
         </div>
       }
     </div>
+
+    <button (click)="save()">gaurdar</button>
   </div>
 </div>

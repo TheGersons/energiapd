@@ -20,8 +20,6 @@ import { RoleImplementation } from '@data/role/role-implementation.repository';
 import { provideToastr } from 'ngx-toastr';
 import { ModuleRepository } from '@domain/module/module.repository';
 import { ModuleImplementation } from '@data/module/module-implementation.repository';
-import { UserRepository } from '@domain/user/user.repository';
-import { UserImplementation } from '@data/user/user-implementation.repository';
 import { NavigationStateRepository } from '@domain/navigation/navigation-state.repository';
 import { NavigationStateImplementation } from '@data/navigation/navigation-state-implementation.repository';
 import { ToolRepository } from '@domain/tool/tool.repository';
@@ -41,7 +39,6 @@ export const appConfig: ApplicationConfig = {
     { provide: PermissionRepository, useClass: PermissionImplementation },
     { provide: RoleRepository, useClass: RoleImplementation },
     { provide: ModuleRepository, useClass: ModuleImplementation },
-    { provide: UserRepository, useClass: UserImplementation },
     {
       provide: NavigationStateRepository,
       useClass: NavigationStateImplementation,

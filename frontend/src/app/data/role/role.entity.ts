@@ -2,6 +2,12 @@ export interface RoleEntity {
   id?: string;
   name: string;
   description: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  priority: number;
+  rolePermission: IRolePermission[];
+}
+
+interface IRolePermission {
+  id?: string;
+  idRole?: string;
+  idPermission: string;
 }

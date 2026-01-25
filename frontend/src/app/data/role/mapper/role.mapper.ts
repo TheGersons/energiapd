@@ -8,8 +8,12 @@ export class RoleMapper extends Mapper<RoleEntity, RoleModel> {
       roleId: param.id,
       roleName: param.name,
       roleDescription: param.description,
-      createdAt: param.createdAt,
-      updatedAt: param.updatedAt,
+      rolePriority: param.priority,
+      permission: param.rolePermission.map((a) => ({
+        rolePermissionId: a.id,
+        roleId: a.idRole,
+        permissionId: a.idPermission,
+      })),
     };
   }
 
@@ -18,8 +22,12 @@ export class RoleMapper extends Mapper<RoleEntity, RoleModel> {
       id: param.roleId,
       name: param.roleName,
       description: param.roleDescription,
-      createdAt: param.createdAt,
-      updatedAt: param.updatedAt,
+      priority: param.rolePriority,
+      rolePermission: param.permission.map((a) => ({
+        id: a.rolePermissionId,
+        idRole: a.roleId,
+        idPermission: a.permissionId,
+      })),
     };
   }
 }

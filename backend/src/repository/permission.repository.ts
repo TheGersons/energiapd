@@ -1,35 +1,49 @@
-import { IPermission } from "@type/permission.type";
-import { sequelize } from "@database/index";
-import { RoleModel } from "@model/role.model";
-import { PageModel } from "@model/page.model";
+import { IPermissionCatalog, IRolePayload } from "@type/permission.type";
 import { PermissionModel } from "@model/permission.model";
 
 class PermissionRepository {
-  async findAll(): Promise<IPermission | any> {
-    return await PermissionModel.findAll();
-  }
-
-  async findPermissionsByRole(id: string) {
-    return await RoleModel.findOne({
-      where: { id },
-      attributes: ["id"],
-      include: [
-        {
-          model: PageModel,
-          as: "rolePage",
-          attributes: ["id", "idModule"],
-          through: { attributes: [] },
-          include: [
-            {
-              model: PermissionModel,
-              as: "pagePermission",
-              attributes: ["name"],
-              through: { attributes: [], where: { idRole: id } },
-            },
-          ],
-        },
+  async findAll(): Promise<IPermissionCatalog[]> {
+    const permissions = await PermissionModel.findAll({
+      attributes: ["id", "slug", "label", "module", "page"],
+      order: [
+        ["module", "ASC"],
+        ["page", "ASC"],
+        ["label", "ASC"],
       ],
+      raw: true,
     });
+
+    const moduleMap = new Map<string, IPermissionCatalog>();
+
+    permissions.map((permission) => {
+      if (!moduleMap.has(permission.module)) {
+        moduleMap.set(permission.module, {
+          id: permission.module,
+          moduleName: permission.module,
+          page: [],
+        });
+      }
+
+      const module = moduleMap.get(permission.module);
+
+      let page = module!.page.find((p) => p.id === permission.page);
+
+      if (!page) {
+        page = {
+          id: permission.page,
+          name: permission.page,
+          permission: [],
+        };
+        module!.page.push(page);
+      }
+      page.permission.push({
+        id: permission.id,
+        label: permission.label,
+        slug: permission.slug,
+      });
+    });
+
+    return Array.from(moduleMap.values());
   }
 }
 

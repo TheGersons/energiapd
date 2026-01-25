@@ -10,8 +10,7 @@ class PermissionRoute {
   }
 
   private routes(): void {
-    this.router.get("/findAll", permissionController.findAll);
-    this.router.get("/findPermissionsByRole", permissionController.findPermissionsByRole);
+    this.router.get("/catalog", permissionController.findAll);
   }
 }
 

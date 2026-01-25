@@ -11,9 +11,7 @@ class RoleRoute {
 
   private routes(): void {
     this.router.get("/findAll", roleController.findAll);
-    this.router.post("/create", roleController.create);
-    this.router.put("/update", roleController.update);
-    this.router.delete("/delete", roleController.delete);
+    this.router.post("/", roleController.create);
   }
 }
 
