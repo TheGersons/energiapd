@@ -2,16 +2,18 @@ import { inject, Injectable } from '@angular/core';
 import { RoleRepository } from '@domain/role/role.repository';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment.development';
-import { RoleModel } from '@domain/role/role.model';
+import { PlaneRoleModel, RoleModel } from '@domain/role/role.model';
 import { map, Observable } from 'rxjs';
-import { RoleEntity } from './role.entity';
+import { PlaneRoleEntity, RoleEntity } from './role.entity';
 import { RoleMapper } from './mapper/role.mapper';
+import { PlaneRolesMapper } from './mapper/roles.mapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleImplementation extends RoleRepository {
   private roleMapper = new RoleMapper();
+  private planeRolesMapper = new PlaneRolesMapper();
   private http = inject(HttpClient);
   private baseURL = environment.baseURL;
 
@@ -21,5 +23,11 @@ export class RoleImplementation extends RoleRepository {
         role: this.roleMapper.mapTo(role),
       })
       .pipe(map(this.roleMapper.mapFrom));
+  }
+
+  override findAllRoles(): Observable<PlaneRoleModel[]> {
+    return this.http
+      .get<PlaneRoleEntity[]>(`${this.baseURL}role`)
+      .pipe(map(this.planeRolesMapper.mapFrom));
   }
 }

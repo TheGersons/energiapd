@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IPermission } from '@domain/permission/permission.model';
@@ -16,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class Create {
   toastr = inject(ToastrService);
+  private location = inject(Location);
 
   findAllPermissions = inject(FindAllPermissionsUseCase);
   createPermission = inject(CreateRoleUseCase);
@@ -51,5 +53,15 @@ export class Create {
         );
       }
     });
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  selectAll(arr: Array<any>) {
+    const ids = arr.map(a => a.pageId || a.permissionId)
+
+    console.log(ids)
   }
 }

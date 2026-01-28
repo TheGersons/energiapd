@@ -11,3 +11,12 @@ interface IRolePermission {
   roleId?: string;
   permissionId: string;
 }
+
+export interface PlaneRoleModel {
+  roleId: string;
+  roleName: string;
+  roleDescription: string;
+  rolePriority: number;
+  createdAt?: string;
+  updatedAt?: string;
+}

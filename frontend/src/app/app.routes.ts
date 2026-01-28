@@ -8,10 +8,10 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'permissions',
+        redirectTo: 'configuraciones/permisos',
       },
       {
-        path: 'settings/permissions',
+        path: 'configuraciones/permisos',
         loadComponent: () =>
           import('@ui/pages/settings/permission/permission').then(
             (m) => m.Permission,
@@ -49,7 +49,7 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'settings/user-management',
+        path: 'configuraciones/usuarios',
         loadComponent: () =>
           import('@ui/pages/settings/user/user').then((m) => m.User),
       },

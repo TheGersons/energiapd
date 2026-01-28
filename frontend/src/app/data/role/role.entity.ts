@@ -11,3 +11,12 @@ interface IRolePermission {
   idRole?: string;
   idPermission: string;
 }
+
+export interface PlaneRoleEntity {
+  id: string;
+  name: string;
+  description: string;
+  priority: number;
+  createdAt?: string;
+  updatedAt?: string;
+}

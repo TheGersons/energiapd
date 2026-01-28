@@ -3,13 +3,11 @@ import {
   Component,
   effect,
   inject,
-  OnInit,
   resource,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ToolModel } from '@domain/tool/tool.model';
 import { CreateToolUseCase } from '@domain/tool/usecase/createTool.usecase';
 import { FindOneToolUseCase } from '@domain/tool/usecase/findOneTool.usecase';
 import { UpdateToolUseCase } from '@domain/tool/usecase/updateTool.usecase';

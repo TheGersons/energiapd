@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Location } from '@angular/common';
+import { Component, inject, resource } from '@angular/core';
+import { Router } from '@angular/router';
+import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { Loader } from '@ui/icons/loader';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,5 +12,25 @@ import { Loader } from '@ui/icons/loader';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
+  private findAllRoles = inject(FindAllRolesUseCase);
 
+  private router = inject(Router);
+
+  selection = new Set<string>();
+
+  roles = resource({
+    loader: async () => await firstValueFrom(this.findAllRoles.execute({})),
+  });
+
+  navigate() {
+    let id;
+    if (this.selection.size === 1) {
+      id = Array.from(this.selection)[0];
+      this.router.navigate(['/configuraciones/permisos/editar', id]);
+      return;
+    }
+    this.router.navigate(['/configuraciones/permisos/crear']);
+  }
+
+  
 }

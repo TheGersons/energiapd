@@ -10,7 +10,7 @@ class RoleRoute {
   }
 
   private routes(): void {
-    this.router.get("/findAll", roleController.findAll);
+    this.router.get("/", roleController.findAll);
     this.router.post("/", roleController.create);
   }
 }

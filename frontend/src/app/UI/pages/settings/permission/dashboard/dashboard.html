@@ -21,7 +21,7 @@
     <div class="flex items-center px-4 py-2">
       <div
         class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
-        <button class="p-1">
+        <button (click)="navigate()" class="p-1">
           <app-loader
             [name]="'create'"
             class="w-6 h-6 text-gray-800"></app-loader>
@@ -46,7 +46,14 @@
         </tr>
       </thead>
       <tbody
-        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer"></tbody>
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
+        @for (r of roles.value(); track $index) {
+          <tr>
+            <td>{{ r.roleName }}</td>
+            <td>{{ r.roleDescription }}</td>
+          </tr>
+        }
+      </tbody>
     </table>
   </div>
 </div>
