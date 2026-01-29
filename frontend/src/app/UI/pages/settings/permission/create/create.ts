@@ -1,13 +1,13 @@
 import { Location } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IPermission } from '@domain/permission/permission.model';
+import { IPage, IPermission } from '@domain/permission/permission.model';
 import { FindAllPermissionsUseCase } from '@domain/permission/usecase/findAllPermissions.usecase';
 import { RoleModel } from '@domain/role/role.model';
 import { CreateRoleUseCase } from '@domain/role/usecase/createRole.usecase';
 import { Loader } from '@ui/icons/loader';
 import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, flatMap } from 'rxjs';
 
 @Component({
   selector: 'app-create',
@@ -59,9 +59,25 @@ export class Create {
     this.location.back();
   }
 
-  selectAll(arr: Array<any>) {
-    const ids = arr.map(a => a.pageId || a.permissionId)
+  selectAll(arr: IPage[] | IPermission[]) {
+    const a = this.flatArr(arr);
 
-    console.log(ids)
+    const b = a.every((_a) => this.sPermission.has(_a));
+
+    a.forEach((_a) =>
+      b ? this.sPermission.delete(_a) : this.sPermission.add(_a),
+    );
+  }
+
+  isSelected(arr: IPage[] | IPermission[]) {
+    const a = this.flatArr(arr);
+
+    return a.every((_a) => this.sPermission.has(_a));
+  }
+
+  flatArr(arr: IPage[] | IPermission[]) {
+    return arr.flatMap((_a) =>
+      'permissions' in _a ? _a.permissions : (_a as IPermission),
+    );
   }
 }

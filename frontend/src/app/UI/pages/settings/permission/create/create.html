@@ -72,7 +72,11 @@
               </div>
             </div>
             <div class="flex gap-2 items-center">
-              <input (change)="selectAll(p.pages)" class="h-5 w-5" type="checkbox" />
+              <input
+                [checked]="isSelected(p.pages)"
+                (change)="selectAll(p.pages)"
+                class="h-5 w-5"
+                type="checkbox" />
               <label class="text-sm text-gray-700">Todo el módulo</label>
             </div>
           </div>
@@ -86,7 +90,11 @@
             @for (page of p.pages; track $index) {
               <div class="flex flex-col space-y-2">
                 <div class="flex gap-2 items-center">
-                  <input (change)="selectAll(page.permissions)" class="h-5 w-5" type="checkbox" />
+                  <input
+                    [checked]="isSelected(page.permissions)"
+                    (change)="selectAll(page.permissions)"
+                    class="h-5 w-5"
+                    type="checkbox" />
                   <div
                     (click)="
                       expandedItems.has(page.pageId)

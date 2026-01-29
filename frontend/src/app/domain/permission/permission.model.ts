@@ -5,7 +5,7 @@ export interface PermissionModel {
   pages: IPage[];
 }
 
-interface IPage {
+export interface IPage {
   pageId: string;
   pageName: string;
   permissions: IPermission[];
