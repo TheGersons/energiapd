@@ -26,12 +26,15 @@
             [name]="'create'"
             class="w-6 h-6 text-gray-800"></app-loader>
         </button>
-        <button class="p-1">
+        <button [disabled]="canEdit()" class="p-1">
           <app-loader
             [name]="'delete'"
             class="w-6 h-6 text-gray-800"></app-loader>
         </button>
-        <button class="p-1">
+        <button
+          [disabled]="selection.size !== 1"
+          (click)="navigate()"
+          class="p-1">
           <app-loader
             [name]="'edit'"
             class="w-6 h-6 text-gray-800"></app-loader>
@@ -48,7 +51,9 @@
       <tbody
         class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
         @for (r of roles.value(); track $index) {
-          <tr>
+          <tr
+            [class.bg-blue-200]="selection.has(r.roleId)"
+            (click)="onSelectRow(r)">
             <td>{{ r.roleName }}</td>
             <td>{{ r.roleDescription }}</td>
           </tr>

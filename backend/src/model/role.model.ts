@@ -7,6 +7,8 @@ import {
   Model,
   sql,
 } from "@sequelize/core";
+import { PermissionModel } from "./permission.model";
+import { RolePermissionModel } from "./role-permission.model";
 
 export class RoleModel extends Model<
   InferAttributes<RoleModel>,
@@ -31,3 +33,9 @@ RoleModel.init(
   },
   { sequelize, modelName: "Role", tableName: "role", timestamps: true },
 );
+
+RoleModel.hasMany(RolePermissionModel, {
+  foreignKey: "idRole",
+  sourceKey: "id",
+  as: "rolePermission",
+});

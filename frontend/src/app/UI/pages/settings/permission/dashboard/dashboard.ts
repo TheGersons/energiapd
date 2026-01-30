@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
-import { Component, inject, resource } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { Router } from '@angular/router';
+import { PlaneRoleModel } from '@domain/role/role.model';
 import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { Loader } from '@ui/icons/loader';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,8 @@ export class Dashboard {
     loader: async () => await firstValueFrom(this.findAllRoles.execute({})),
   });
 
+  canEdit = computed(() => this.selection.size !== 1);
+
   navigate() {
     let id;
     if (this.selection.size === 1) {
@@ -32,5 +35,12 @@ export class Dashboard {
     this.router.navigate(['/configuraciones/permisos/crear']);
   }
 
-  
+  onSelectRow(row: PlaneRoleModel) {
+    if (this.selection.has(row.roleId)) {
+      this.selection.delete(row.roleId);
+      return;
+    }
+
+    this.selection.add(row.roleId);
+  }
 }

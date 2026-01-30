@@ -119,11 +119,11 @@
                   @for (item of page.permissions; track $index) {
                     <div class="flex gap-4 items-center">
                       <input
-                        [checked]="sPermission.has(item)"
+                        [checked]="sPermission.has(item.permissionId)"
                         (change)="
-                          sPermission.has(item)
-                            ? sPermission.delete(item)
-                            : sPermission.add(item)
+                          sPermission.has(item.permissionId)
+                            ? sPermission.delete(item.permissionId)
+                            : sPermission.add(item.permissionId)
                         "
                         class="h-5 w-5"
                         type="checkbox" />
@@ -145,6 +145,6 @@
       }
     </div>
 
-    <button (click)="save()">gaurdar</button>
+    <button (click)="roleId().length ? update() : save()">Guardar</button>
   </div>
 </div>
