@@ -29,7 +29,6 @@ class RoleController {
   }
 
   async update({ body }: Request, res: Response) {
-    console.log(body)
     roleRepository
       .update(body.role as IRolePayload)
       .then((rs) => res.status(200).json(rs));

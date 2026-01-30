@@ -54,9 +54,9 @@ export class Create {
       ),
   });
 
-  sPermission = new Set<string>();
+  sPermission = signal<Array<string>>([]);
 
-  expandedItems = new Set<string>([]);
+  expandedItems = signal<Array<string>>([]);
 
   constructor() {
     effect(() => {
@@ -67,9 +67,7 @@ export class Create {
       this.roleId.set(data.roleId ?? '');
       this.roleName.set(data.roleName ?? '');
       this.roleDescription.set(data.roleDescription ?? '');
-      this.sPermission = new Set<string>(
-        data.permission.map((_a) => _a.permissionId),
-      );
+      this.sPermission.set(data.permission.map((_a) => _a.permissionId));
     });
   }
 
@@ -79,7 +77,7 @@ export class Create {
       roleName: this.roleName(),
       roleDescription: this.roleDescription(),
       rolePriority: 0,
-      permission: [...this.sPermission].map((a) => ({
+      permission: [...this.sPermission()].map((a) => ({
         permissionId: a,
       })),
     };
@@ -121,24 +119,56 @@ export class Create {
   selectAll(arr: IPage[] | IPermission[]) {
     const a = this.flatArr(arr);
 
-    const b = a.every((_a) => this.sPermission.has(_a.permissionId));
+    const b = a.every((_a) => this.sPermission().includes(_a.permissionId));
 
-    a.forEach((_a) =>
-      b
-        ? this.sPermission.delete(_a.permissionId)
-        : this.sPermission.add(_a.permissionId),
-    );
+    this.sPermission.update((_a) => {
+      a.forEach((_b) =>
+        b
+          ? _a.filter((_c) => _c !== _b.permissionId)
+          : _a.push(_b.permissionId),
+      );
+      return _a;
+    });
+
+    /*  this.sPermission.update((_a) => {
+      const _b = new Set(_a);
+      a.forEach((_c) =>
+        b ? _b.delete(_c.permissionId) : _b.add(_c.permissionId),
+      );
+      return _b;
+    }); */
   }
 
-  isSelected(arr: IPage[] | IPermission[]) {
+  getStates(arr: IPage[] | IPermission[]): {
+    checked: boolean;
+    indeterminate: boolean;
+  } {
     const a = this.flatArr(arr);
+    if (a.length) return { checked: false, indeterminate: false };
 
-    return a.every((_a) => this.sPermission.has(_a.permissionId));
+    const b = a.filter((_a) =>
+      this.sPermission().includes(_a.permissionId),
+    ).length;
+
+    return { checked: a.length === b, indeterminate: !!b && b < a.length };
   }
 
   flatArr(arr: IPage[] | IPermission[]) {
     return arr.flatMap((_a) =>
-      'permissions' in _a ? _a.permissions : (_a as IPermission),
+      'permissions' in _a ? (_a.permissions ?? []) : [_a as IPermission],
     );
+  }
+
+  toggleExpand(id: string) {
+    this.expandedItems.update((_a) => {
+      _a.includes(id) ? _a.filter((_b) => _b !== id) : _a.push(id);
+      return _a;
+    });
+
+    /* this.expandedItems.update((_a) => {
+      const _b = new Set(_a);
+      _b.has(id) ? _b.delete(id) : _b.add(id);
+      return _b;
+    }); */
   }
 }
