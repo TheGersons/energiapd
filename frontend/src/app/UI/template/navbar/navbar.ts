@@ -1,9 +1,9 @@
-import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Output, signal } from '@angular/core';
+import { Loader } from '@ui/icons/loader';
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgClass],
+  imports: [Loader],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })

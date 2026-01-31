@@ -24,12 +24,12 @@
         <button (click)="navigate()" class="p-1">
           <app-loader
             [name]="'create'"
-            class="w-6 h-6 text-gray-800"></app-loader>
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
         <button [disabled]="canEdit()" class="p-1">
           <app-loader
             [name]="'delete'"
-            class="w-6 h-6 text-gray-800"></app-loader>
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
         <button
           [disabled]="selection.size !== 1"
@@ -37,7 +37,7 @@
           class="p-1">
           <app-loader
             [name]="'edit'"
-            class="w-6 h-6 text-gray-800"></app-loader>
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
       </div>
     </div>

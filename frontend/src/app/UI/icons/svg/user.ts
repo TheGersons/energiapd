@@ -1,8 +1,8 @@
-import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-inactive',
+  selector: 'app-user',
   imports: [NgClass],
   template: `
     <svg
@@ -16,15 +16,13 @@ import { Component, Input } from '@angular/core';
     >
       <path
         stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
         stroke-width="2"
-        d="M6 18 17.94 6M18 18 6.06 6"
+        d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
       />
     </svg>
   `,
   styles: ``,
 })
-export class Inactive {
+export class User {
   @Input() hostClass: string = '';
 }

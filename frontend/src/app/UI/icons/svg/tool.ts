@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-tool',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="w-6 h-6 text-gray-800"
+      [ngClass]="hostClass"
       version="1.1"
       id="Capa_1"
       xmlns="http://www.w3.org/2000/svg"
@@ -45,4 +46,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Tool {}
+export class Tool {
+  @Input() hostClass: string = '';
+}

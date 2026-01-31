@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-img',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="w-6 h-6 text-gray-800"
+      [ngClass]="hostClass"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -26,4 +27,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Img {}
+export class Img {
+  @Input() hostClass: string = '';
+}

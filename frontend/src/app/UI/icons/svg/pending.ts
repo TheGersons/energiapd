@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-pending',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="h-6 w-6 text-gray-800"
-      fill="#000000"
+      [ngClass]="hostClass"
+      fill="CurrentColor"
       viewBox="0 0 32 32"
       id="icon"
       xmlns="http://www.w3.org/2000/svg"
@@ -44,4 +45,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Pending {}
+export class Pending {
+  @Input() hostClass: string = '';
+}

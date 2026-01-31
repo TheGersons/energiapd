@@ -6,7 +6,7 @@ import { Component, Input } from '@angular/core';
   imports: [NgClass],
   template: `
     <svg
-      [ngClass]="class"
+      [ngClass]="hostClass"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -22,5 +22,5 @@ import { Component, Input } from '@angular/core';
   styles: ``,
 })
 export class Cart {
-  @Input() class = '';
+  @Input() hostClass: string = '';
 }

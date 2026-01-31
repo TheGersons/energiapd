@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
   imports: [NgClass],
   template: `
     <svg
-      [ngClass]="class"
+      [ngClass]="hostClass"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -22,5 +22,5 @@ import { NgClass } from '@angular/common';
   styles: ``,
 })
 export class ArrowLeft {
-  @Input() class: string = '';
+  @Input() hostClass: string = '';
 }

@@ -1,22 +1,26 @@
-<nav class="p-4 flex border-b border-gray-100 justify-between bg-gray-50">
+<nav
+  class="px-8 py-4 bg-white sticky border-b border-gray-300 top-0 z-10 flex items-center justify-between">
   <button (click)="onToggleSidebar()" class="cursor-pointer">
-    <svg
-      [ngClass]="sidebar() ? 'rotate-180' : ''"
-      class="w-6 h-6 transition-all duration-300"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24">
-      <path
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="m9 5 7 7-7 7" />
-    </svg>
+    <app-loader
+      name="hamburger"
+      [hostClass]="`w-6 h-6 transition-all duration-300 transform ${sidebar() ? 'open' : ''}`"></app-loader>
   </button>
 
-  <input type="search" placeholder="Search..." class="ml-4 p-2 border rounded" />
+  <div class="flex gap-2 items-center">
+    <input
+      class="rounded-md border border-blue-200 px-2 py-1 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
+      type="search" />
+    <button
+      class="cursor-pointer px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+      <app-loader name="user" hsotclass="w-5 h-5 text-white"></app-loader>
+    </button>
+    <button
+      class="cursor-pointer px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+      <app-loader name="bell" [hostClass]="'h-6 w-6'"></app-loader>
+    </button>
+    <button
+      class="cursor-pointer px-2 py-1 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+      <app-loader name="logout" hostClass="h-6 w-6"></app-loader>
+    </button>
+  </div>
 </nav>

@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-active',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
+      [ngClass]="hostClass"
       class="w-6 h-6 text-gray-800"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
@@ -24,4 +26,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Active {}
+export class Active {
+  @Input() hostClass = '';
+}

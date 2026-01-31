@@ -7,7 +7,7 @@ class RoleController {
     roleRepository
       .findAll()
       .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(400).json(error));
+      .catch((error) => res.status(500).json(error));
   }
 
   findOne({ query }: Request, res: Response) {
@@ -25,13 +25,14 @@ class RoleController {
     roleRepository
       .create(req.body.role)
       .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(400).json(error));
+      .catch((error) => res.status(500).json(error));
   }
 
   async update({ body }: Request, res: Response) {
     roleRepository
       .update(body.role as IRolePayload)
-      .then((rs) => res.status(200).json(rs));
+      .then((rs) => res.status(200).json(rs))
+      .catch((error) => res.status(500).json(error));
   }
 }
 

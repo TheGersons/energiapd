@@ -16,7 +16,7 @@ import { NgComponentOutlet } from '@angular/common';
     @if (iconComponent()) {
       <ng-container>
         <ng-container
-          *ngComponentOutlet="iconComponent(); inputs: { class: hostClass }"
+          *ngComponentOutlet="iconComponent(); inputs: { hostClass }"
         ></ng-container>
       </ng-container>
     }
@@ -26,7 +26,7 @@ import { NgComponentOutlet } from '@angular/common';
 export class Loader {
   private iconRegistry = inject(IconRegistry);
   iconComponent = signal<Type<any> | null>(null);
-  constructor(@Attribute('class') public hostClass: string) {}
+  @Input() hostClass = '';
   @Input({ required: true })
   set name(value: string) {
     const loader = this.iconRegistry.getIconLoader(value);

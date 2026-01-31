@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-expired',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="h-6 w-6 text-gray-800"
+      [ngClass]="hostClass"
       viewBox="0 0 48 48"
       xmlns="http://www.w3.org/2000/svg"
       fill="#000000"
@@ -41,4 +42,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Expired {}
+export class Expired {
+  @Input() hostClass: string = '';
+}

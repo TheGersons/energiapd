@@ -46,17 +46,70 @@ export class Create {
   });
 
   role = resource({
-    loader: async () =>
-      await firstValueFrom(
-        this.findOneRole.execute({
-          roleId: this.route.snapshot.paramMap.get('id') ?? undefined,
-        }),
-      ),
+    params: () => {
+      const id = this.route.snapshot.paramMap.get('id');
+      return id ? { roleId: id } : undefined;
+    },
+    loader: async ({ params }) => {
+      return await firstValueFrom(this.findOneRole.execute(params));
+    },
   });
 
-  sPermission = signal<Array<string>>([]);
+  permissionStates = computed(() => {
+    const selected = this.sPermission();
+    const structure = this.structureMap();
+    const stateMap = new Map<
+      string,
+      { checked: boolean; indeterminate: boolean; count: string }
+    >();
 
-  expandedItems = signal<Array<string>>([]);
+    structure.forEach((permissionIds, id) => {
+      const total = permissionIds.length;
+      if (total === 0) {
+        stateMap.set(id, {
+          checked: false,
+          indeterminate: false,
+          count: '0 de 0',
+        });
+        return;
+      }
+
+      const selectedCount = permissionIds.filter((id) =>
+        selected.has(id),
+      ).length;
+
+      stateMap.set(id, {
+        checked: selectedCount === total,
+        indeterminate: selectedCount > 0 && selectedCount < total,
+        count: `${selectedCount} de ${total}`,
+      });
+    });
+
+    return stateMap;
+  });
+
+  structureMap = computed(() => {
+    const modules = this.permissions.value() ?? [];
+    const map = new Map<string, string[]>();
+
+    modules.forEach((mod) => {
+      const allModulePermissionIds = mod.pages.flatMap(
+        (page) => page.permissions?.map((p) => p.permissionId) ?? [],
+      );
+      map.set(mod.permissionId, allModulePermissionIds);
+
+      mod.pages.forEach((page) => {
+        const pagePermissionIds =
+          page.permissions?.map((p) => p.permissionId) ?? [];
+        map.set(page.pageId, pagePermissionIds);
+      });
+    });
+    return map;
+  });
+
+  sPermission = signal(new Set<string>());
+
+  expandedItems = signal(new Set<string>());
 
   constructor() {
     effect(() => {
@@ -67,7 +120,9 @@ export class Create {
       this.roleId.set(data.roleId ?? '');
       this.roleName.set(data.roleName ?? '');
       this.roleDescription.set(data.roleDescription ?? '');
-      this.sPermission.set(data.permission.map((_a) => _a.permissionId));
+      this.sPermission.set(
+        new Set(data.permission.map((_a) => _a.permissionId)),
+      );
     });
   }
 
@@ -116,59 +171,40 @@ export class Create {
     this.location.back();
   }
 
-  selectAll(arr: IPage[] | IPermission[]) {
-    const a = this.flatArr(arr);
+  selectAll(id: string) {
+    const idsToToggle = this.structureMap().get(id) ?? [];
+    const currentState = this.permissionStates().get(id);
 
-    const b = a.every((_a) => this.sPermission().includes(_a.permissionId));
+    this.sPermission.update((prev) => {
+      const next = new Set(prev);
 
-    this.sPermission.update((_a) => {
-      a.forEach((_b) =>
-        b
-          ? _a.filter((_c) => _c !== _b.permissionId)
-          : _a.push(_b.permissionId),
-      );
-      return _a;
+      if (currentState?.checked) {
+        idsToToggle.forEach((pId) => next.delete(pId));
+      } else {
+        idsToToggle.forEach((pId) => next.add(pId));
+      }
+
+      return next;
     });
-
-    /*  this.sPermission.update((_a) => {
-      const _b = new Set(_a);
-      a.forEach((_c) =>
-        b ? _b.delete(_c.permissionId) : _b.add(_c.permissionId),
-      );
-      return _b;
-    }); */
   }
 
-  getStates(arr: IPage[] | IPermission[]): {
-    checked: boolean;
-    indeterminate: boolean;
-  } {
-    const a = this.flatArr(arr);
-    if (a.length) return { checked: false, indeterminate: false };
-
-    const b = a.filter((_a) =>
-      this.sPermission().includes(_a.permissionId),
-    ).length;
-
-    return { checked: a.length === b, indeterminate: !!b && b < a.length };
-  }
-
-  flatArr(arr: IPage[] | IPermission[]) {
-    return arr.flatMap((_a) =>
-      'permissions' in _a ? (_a.permissions ?? []) : [_a as IPermission],
-    );
+  togglePermission(id: string) {
+    this.sPermission.update((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }
 
   toggleExpand(id: string) {
     this.expandedItems.update((_a) => {
-      _a.includes(id) ? _a.filter((_b) => _b !== id) : _a.push(id);
-      return _a;
-    });
-
-    /* this.expandedItems.update((_a) => {
       const _b = new Set(_a);
       _b.has(id) ? _b.delete(id) : _b.add(id);
       return _b;
-    }); */
+    });
   }
 }

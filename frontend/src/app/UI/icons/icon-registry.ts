@@ -49,6 +49,15 @@ export class IconRegistry {
     );
     this.registry.set('edit', () => import('./svg/edit').then((m) => m.Edit));
     this.registry.set('cart', () => import('./svg/cart').then((m) => m.Cart));
+    this.registry.set('bell', () => import('./svg/bell').then((m) => m.Bell));
+    this.registry.set('user', () => import('./svg/user').then((m) => m.User));
+    this.registry.set('epd', () => import('./svg/epd').then((m) => m.Epd));
+    this.registry.set('hamburger', () =>
+      import('./svg/hamburger').then((m) => m.Hamburger),
+    );
+    this.registry.set('logout', () =>
+      import('./svg/logout').then((m) => m.Logout),
+    );
   }
 
   getIconLoader(name: string): IconLoader {

@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-check',
-  imports: [],
+  imports: [NgClass],
   template: `
     <svg
-      class="w-6 h-6 text-gray-800"
+      [ngClass]="hostClass"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -24,4 +25,6 @@ import { Component } from '@angular/core';
   `,
   styles: ``,
 })
-export class Check {}
+export class Check {
+  @Input() hostClass: string = '';
+}

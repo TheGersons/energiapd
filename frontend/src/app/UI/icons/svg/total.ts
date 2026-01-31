@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
   imports: [NgClass],
   template: `
     <svg
-      [ngClass]="class"
+      [ngClass]="hostClass"
       fill="currentColor"
       version="1.1"
       id="Layer_1"
@@ -42,5 +42,5 @@ import { NgClass } from '@angular/common';
   styles: ``,
 })
 export class Total {
-  @Input() class = '';
+  @Input() hostClass: string = '';
 }

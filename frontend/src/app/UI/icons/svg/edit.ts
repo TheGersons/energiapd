@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
   imports: [NgClass],
   template: `
     <svg
-      [ngClass]="class"
+      [ngClass]="hostClass"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -26,5 +26,5 @@ import { NgClass } from '@angular/common';
   styles: ``,
 })
 export class Edit {
-  @Input() class: string = '';
+  @Input() hostClass: string = '';
 }

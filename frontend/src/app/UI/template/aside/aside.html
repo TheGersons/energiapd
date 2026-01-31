@@ -1,27 +1,82 @@
-<div
+<aside
   (click)="$event.stopPropagation()"
-  class="h-screen overflow-hidden bg-gray-50"
+  class="sticky top-0 z-10 h-screen overflow-hidden bg-gray-50 bg-gradient-to-t from-blue-700 via-blue-800 to-blue-900 text-white"
   tabindex="-1">
   <div class="flex h-full">
-    <div class="h-full border-r border-gray-200 flex-col w-15 p-4 space-y-4">
+    <div
+      class="flex flex-col items-center h-full border-r border-blue-600 w-15 p-4 space-y-4">
+      <button class="cursor-pointer rounded p-1">
+        <app-loader name="epd" [hostClass]="'w-6 h-6'"></app-loader>
+      </button>
       @for (m of modules; track $index) {
-        <button (click)="onClickModule(m.page)" class="cursor-pointer hover:bg-gray-200 rounded p-1">
-          <app-loader [name]="m.moduleName" class="w-6 h-6"></app-loader>
+        <button
+          (click)="onClickModule(m)"
+          [class.bg-blue-700]="sModule().has(m.moduleId ?? '')"
+          class="cursor-pointer hover:bg-blue-600 rounded p-1">
+          <app-loader [name]="m.moduleName" hostClass="w-6 h-6"></app-loader>
         </button>
       }
     </div>
     <div
       [ngClass]="toggleSidebar() ? 'w-64' : 'w-0'"
-      class="border-r border-gray-200 transition-all duration-300 p-4">
+      class="border-r border-blue-600 transition-all duration-300 p-4">
       <h5 class="font-bold truncate tracking-wider">Componentes</h5>
 
       <ul class="flex-col space-y-2 mt-4">
         @for (p of pages(); track $index) {
-          <li class="shrink-0 hover:bg-gray-200 rounded p-1 font-medium break-keep">
-            <a class="block whitespace-nowrap overflow-hidden text-ellipsis" [routerLink]="p.pageUrl">{{p.pageLabel}}</a>
+          <li
+            class="shrink-0 font-medium break-keep rounded-md overflow-hidden">
+            <a
+              class="block whitespace-nowrap hover:bg-blue-500 rounded-md p-1 text-ellipsis"
+              [routerLink]="p.pageUrl"
+              routerLinkActive="bg-blue-700 rounded-md focus:outline-none hover:outline-none"
+              >{{ p.pageLabel }}</a
+            >
           </li>
         }
       </ul>
     </div>
   </div>
-</div>
+</aside>
+
+<!-- <aside
+  (click)="$event.stopPropagation()"
+  class="sticky top-0 z-10 h-screen bg-gradient-to-t from-blue-700 via-blue-800 to-blue-900 text-white"
+  tabindex="-1">
+  <div class="flex h-full items-center">
+    <div
+      class="flex flex-col h-full items-center border-r border-blue-600 flex-col w-15 space-y-4 p-4">
+      <button class="cursor-pointer rounded p-1">
+        <app-loader name="epd" [hostClass]="'w-6 h-6'"></app-loader>
+      </button>
+      @for (m of modules; track $index) {
+        <button
+          (click)="onClickModule(m.page)"
+          class="cursor-pointer hover:bg-blue-600 rounded p-1">
+          <app-loader
+            [name]="m.moduleName"
+            [hostClass]="'w-6 h-6'"></app-loader>
+        </button>
+      }
+    </div>
+    <div
+      [ngClass]="toggleSidebar() ? 'w-64' : 'w-0'"
+      class="border-r border-gray-200 transition-all duration-300 p-4 h-full">
+      <h5 class="font-bold truncate tracking-wider">Componentes</h5>
+
+      <ul class="flex-col space-y-2 mt-4">
+        @for (p of pages(); track $index) {
+          <li
+            class="shrink-0 font-medium break-keep rounded-md overflow-hidden">
+            <a
+              class="block whitespace-nowrap hover:bg-blue-500 rounded-md p-1 text-ellipsis"
+              [routerLink]="p.pageUrl"
+              routerLinkActive="bg-blue-700 rounded-md focus:outline-none hover:outline-none"
+              >{{ p.pageLabel }}</a
+            >
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</aside> -->

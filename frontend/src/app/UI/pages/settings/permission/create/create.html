@@ -4,8 +4,8 @@
       <div class="flex items-center gap-2">
         <button
           (click)="goBack()"
-          class="ps-0 rounded-full h-6 w-6 hover:bg-gray-200 rounded-full cursor-pointer">
-          <app-loader [name]="'arrow-left'"></app-loader>
+          class="p-0 rounded-full h-6 w-6 hover:bg-gray-200 rounded-full cursor-pointer">
+          <app-loader [name]="'arrow-left'" hostClass="w-6 h-6"></app-loader>
         </button>
         <h2 class="text-2xl font-bold">
           Creación o Modificación de Rol y Permisos
@@ -50,7 +50,7 @@
 
     <div class="flex flex-col space-y-5">
       @for (p of permissions.value(); track $index) {
-        @let a = getStates(p.pages);
+        @let a = permissionStates().get(p.permissionId);
         <div
           class="rounded-md border border-blue-200 bg-white flex flex-col overflow-hidden">
           <div class="w-full p-4 flex justify-between items-center bg-gray-50">
@@ -59,20 +59,21 @@
                 class="p-2 bg-blue-50 rounded border border-blue-100 flex items-center justify-center">
                 <app-loader
                   [name]="'cart'"
-                  class="w-5 h-5 text-blue-600"></app-loader>
+                  hostClass="w-5 h-5 text-blue-600"></app-loader>
               </div>
               <div
                 (click)="toggleExpand(p.permissionId)"
                 class="cursor-pointer">
                 <h3 class="font-semibold text-gray-900">{{ p.nameModule }}</h3>
-                <p class="text-sm text-gray-500">8 de 17 permisos</p>
+                <p class="text-sm text-gray-500">{{ a?.count }}</p>
               </div>
             </div>
             <div class="flex gap-2 items-center">
+              <!-- Checkbox de seleccionar todo el módulo -->
               <input
-                [checked]="a.checked"
-                [indeterminate]="a.indeterminate"
-                (change)="selectAll(p.pages)"
+                [checked]="a?.checked"
+                [indeterminate]="a?.indeterminate"
+                (change)="selectAll(p.permissionId)"
                 class="h-5 w-5"
                 type="checkbox" />
               <label class="text-sm text-gray-700">Todo el módulo</label>
@@ -80,47 +81,49 @@
           </div>
           <div
             class="flex flex-col space-y-4 px-4 overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-in-out"
-            [class.max-h-0]="!expandedItems().includes(p.permissionId)"
-            [class.max-h-[500px]]="expandedItems().includes(p.permissionId)"
-            [class.opacity-0]="!expandedItems().includes(p.permissionId)"
-            [class.opacity-100]="expandedItems().includes(p.permissionId)"
-            [class.py-4]="expandedItems().includes(p.permissionId)">
+            [class.max-h-0]="!expandedItems().has(p.permissionId)"
+            [class.max-h-[500px]]="expandedItems().has(p.permissionId)"
+            [class.opacity-0]="!expandedItems().has(p.permissionId)"
+            [class.opacity-100]="expandedItems().has(p.permissionId)"
+            [class.py-4]="expandedItems().has(p.permissionId)">
             @for (page of p.pages; track $index) {
-              @let b = getStates(page.permissions);
+              @let b = permissionStates().get(page.pageId);
               <div class="flex flex-col space-y-2">
-                <div class="flex gap-2 items-center">
-                  <input
-                    [checked]="b.checked"
-                    [indeterminate]="b.indeterminate"
-                    (change)="selectAll(page.permissions)"
-                    class="h-5 w-5"
-                    type="checkbox" />
-                  <div
-                    (click)="toggleExpand(page.pageId)"
-                    class="flex gap-2 items-center cursor-pointer hover:underline cursor-pointer">
-                    <app-loader
-                      name="arrow-left"
-                      class="h-4 w-4 rotate-90 transition-all duration-300" />
-                    <span class="font-medium text-gray-900">{{
-                      page.pageName
-                    }}</span>
+                <div class="flex gap-2 items-center justify-between">
+                  <!-- Checkebox de seleccionar todas las páginas -->
+                  <div class="flex gap-2 items-center">
+                    <input
+                      [checked]="b?.checked"
+                      [indeterminate]="b?.indeterminate"
+                      (change)="selectAll(page.pageId)"
+                      class="h-5 w-5"
+                      type="checkbox" />
+                    <div
+                      (click)="toggleExpand(page.pageId)"
+                      class="flex gap-2 items-center cursor-pointer hover:underline cursor-pointer">
+                      <app-loader
+                        name="arrow-left"
+                        [hostClass]="`h-4 w-4  transition-transform duration-300 ${!expandedItems().has(page.pageId) ? 'rotate-180' : 'rotate-270'}`" />
+                      <span class="font-medium text-gray-900">{{
+                        page.pageName
+                      }}</span>
+                    </div>
+                  </div>
+                  <div class="text-sm text-gray-500 text-center">
+                    {{ b?.count }}
                   </div>
                 </div>
                 <div
                   class="flex flex-col space-y-3 ms-10 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out"
-                  [class.max-h-0]="!expandedItems().includes(page.pageId)"
-                  [class.max-h-[500px]]="expandedItems().includes(page.pageId)"
-                  [class.opacity-0]="!expandedItems().includes(page.pageId)"
-                  [class.opacity-100]="expandedItems().includes(page.pageId)">
+                  [class.max-h-0]="!expandedItems().has(page.pageId)"
+                  [class.max-h-[500px]]="expandedItems().has(page.pageId)"
+                  [class.opacity-0]="!expandedItems().has(page.pageId)"
+                  [class.opacity-100]="expandedItems().has(page.pageId)">
                   @for (item of page.permissions; track $index) {
                     <div class="flex gap-4 items-center">
                       <input
-                        [checked]="sPermission().includes(item.permissionId)"
-                        (change)="
-                          sPermission().includes(item.permissionId)
-                            ? sPermission().filter((_a) => (_a !== item.permissionId))
-                            : sPermission().push(item.permissionId)
-                        "
+                        [checked]="sPermission().has(item.permissionId)"
+                        (change)="togglePermission(item.permissionId)"
                         class="h-5 w-5"
                         type="checkbox" />
                       <div class="flex flex-col justify-center">

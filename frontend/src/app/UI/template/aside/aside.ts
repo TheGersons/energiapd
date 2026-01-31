@@ -1,12 +1,12 @@
 import { NgClass } from '@angular/common';
-import { Component, inject, Input, resource, signal } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { ModuleModel, PageModel } from '@domain/module/module.model';
 import { Loader } from '@ui/icons/loader';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-aside',
-  imports: [NgClass, Loader, RouterLink],
+  imports: [NgClass, Loader, RouterLink, RouterLinkActive],
   templateUrl: './aside.html',
   styleUrl: './aside.scss',
 })
@@ -56,12 +56,19 @@ export class Aside {
     },
   ];
 
+  sModule = signal(new Set<string>());
+
   onToggleSidebar() {
     this.toggleSidebar.set(!this.toggleSidebar());
   }
 
-  onClickModule(pages: PageModel[]) {
-    this.pages.set(pages);
+  onClickModule(module: ModuleModel) {
+    this.sModule.update((_a) => {
+      const _b = new Set<string>().add(module.moduleId ?? '');
+      console.log(_b);
+      return _b;
+    });
+    this.pages.set(module.page);
     if (!this.toggleSidebar()) this.onToggleSidebar();
   }
 }
