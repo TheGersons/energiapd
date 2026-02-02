@@ -81,7 +81,11 @@
           <th>Estado</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        @for (a of users.value(); track $index) {
+          <tr></tr>
+        }
+      </tbody>
     </table>
   </div>
 </div>

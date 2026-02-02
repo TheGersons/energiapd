@@ -26,6 +26,8 @@ import { ToolRepository } from '@domain/tool/tool.repository';
 import { ToolImplementation } from '@data/tool/tool-implementation.repository';
 import { LoanRepository } from '@domain/loan/loan.repository';
 import { LoanImplementation } from '@data/loan/loan-implementation.repository';
+import { UserRepository } from '@domain/user/user.repository';
+import { UserImplementation } from '@data/user/user-implementation.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -50,6 +52,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: LoanRepository,
       useClass: LoanImplementation,
+    },
+    {
+      provide: UserRepository,
+      useClass: UserImplementation,
     },
   ],
 };

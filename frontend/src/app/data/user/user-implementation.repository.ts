@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   UserModel,
   UserPayloadModel,
@@ -14,15 +14,17 @@ import { UserMapper } from './mapper/user.mapper';
 import { UserPayloadMapper } from './mapper/user-payload.mapper';
 import { UserResponseMapper } from './mapper/user-response.mapper';
 
-export class UserImplementationRepository extends UserRepository {
+@Injectable({
+  providedIn: 'root',
+})
+export class UserImplementation extends UserRepository {
   private http = inject(HttpClient);
-  private baseURL = `${environment.baseURL}role`;
+  private baseURL = `${environment.baseURL}user`;
 
-  private usersMapper = inject(UsersMapper);
-  private userMapper = inject(UserMapper);
-  private userPayloadMapper = inject(UserPayloadMapper);
-  private userResponseMapper = inject(
-    UserResponseMapper)
+  private usersMapper = new UsersMapper();
+  private userMapper = new UserMapper();
+  private userPayloadMapper = new UserPayloadMapper();
+  private userResponseMapper = new UserResponseMapper();
 
   override findAllUsers(): Observable<UserModel[]> {
     return this.http
@@ -43,8 +45,10 @@ export class UserImplementationRepository extends UserRepository {
   }
 
   override createUser(user: UserPayloadModel): Observable<UserResponseModel> {
-    return this.http.post<UserResponseEntity>(this.baseURL, {
-      user: this.userPayloadMapper.mapTo(user),
-    }).pipe(map(this.userResponseMapper.mapFrom));
+    return this.http
+      .post<UserResponseEntity>(this.baseURL, {
+        user: this.userPayloadMapper.mapTo(user),
+      })
+      .pipe(map(this.userResponseMapper.mapFrom));
   }
 }

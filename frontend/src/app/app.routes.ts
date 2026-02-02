@@ -69,7 +69,7 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'eidtar/:id',
+            path: 'editar/:id',
             loadComponent: () =>
               import('@ui/pages/settings/user/create/create').then(
                 (m) => m.Create,

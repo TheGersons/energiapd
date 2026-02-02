@@ -13,10 +13,14 @@ class UserController {
   }
 
   async create(req: Request, res: Response) {
+    console.log(req.body);
     userRepository
       .create(req.body.user)
       .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(400).json(error));
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json(error);
+      });
   }
 }
 

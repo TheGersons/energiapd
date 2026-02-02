@@ -11,67 +11,149 @@
           Creación o Modificación de Rol y Permisos
         </h2>
       </div>
-      <h3 class="text-gray-500">Gestión de Permisos de herrramientas</h3>
+      <h3 class="text-gray-500">Gestión de Usuarios</h3>
     </div>
   </div>
   <div class="space-y-4">
-    <div
+    <form
+      novalidate
+      autocomplete="off"
+      (submit)="onSubmit($event)"
       class="p-4 rounded-md shadow-md border border-blue-200 bg-white grid grid-cols-1 gap-4">
       <div class="flex flex-col space-y-2">
         <label class="font-semibold" for="userFullName">Nombre:</label>
         <input
+          [formField]="userForm.displayName"
           type="text"
           id="userFullName"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Nombre del Usuario" />
+        @if (isFieldlValid("displayName")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of userForm.displayName().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
       <div class="flex flex-col space-y-2">
         <label class="font-semibold" for="username">Usuario:</label>
         <input
+          [formField]="userForm.username"
           type="text"
           id="username"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Ej: apodo123" />
+        @if (isFieldlValid("username")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of userForm.username().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
       <div class="flex flex-col space-y-2">
         <label class="font-semibold" for="userMail">Correo Electrónico:</label>
         <input
+          [formField]="userForm.userMail"
           type="email"
           id="userMail"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Ej: usuario@example.com" />
+        @if (isFieldlValid("userMail")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of userForm.userMail().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
       <div class="flex flex-col space-y-2">
         <label class="font-semibold" for="userPass">Contraseña:</label>
         <div class="flex gap-2">
-          <input
-            type="password"
-            id="userPass"
-            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
-            placeholder="Contraseña" />
+          <div class="w-full relative">
+            <input
+              [formField]="userForm.userPass"
+              [type]="showPassword() ? 'text' : 'password'"
+              id="userPass"
+              class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+              placeholder="Contraseña" />
+            <button
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              class="absolute inset-y-0 right-2 flex items-center">
+              <app-loader
+                [name]="!showPassword() ? 'eye' : 'eye-slash'"
+                [hostClass]="'w-5 h-5 text-gray-500 hover:text-gray-700'">
+              </app-loader>
+            </button>
+          </div>
           <button
+            (click)="generatePassword()"
+            type="button"
             class="cursor-pointer px-2 py-1 text-gray-800 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
             <app-loader
               name="generate-pass"
               [hostClass]="'h-6 w-6'"></app-loader>
           </button>
         </div>
+        @if (isFieldlValid("userPass")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of userForm.userPass().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <ul>
+                {{
+                  a.message
+                }}
+              </ul>
+            }
+          </p>
+        }
       </div>
       <div class="flex gap-2">
-        <input type="checkbox" id="requestChangePass" />
+        <input
+          [formField]="userForm.needChangePass"
+          type="checkbox"
+          id="requestChangePass" />
         <label for="requestChangePass">Solicitar cambio de contraseña</label>
       </div>
       <div class="flex flex-col space-y-2">
         <label class="font-semibold" for="userRoleId">Rol:</label>
-        <ng-select multiple="true" placeholder="Seleccione el Rol">
+        <ng-select
+          [formField]="userForm.userRoles"
+          [attr.autocomplete]="'off'"
+          multiple="true"
+          placeholder="Seleccione el Rol">
           @for (a of roles.value(); track $index) {
-            <ng-option [value]="a.roleId">{{ a.roleName }}</ng-option>
+            <ng-option [value]="a">{{ a.roleName }}</ng-option>
           }
         </ng-select>
+        @if (isFieldlValid("userRoles")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of userForm.userRoles().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
       <div
         class="flex items-center justify-end border-t border-gray-300 p-4 space-x-5">
         <button
+          type="submit"
           class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
           Cancelar
         </button>
@@ -80,6 +162,6 @@
           Guardar
         </button>
       </div>
-    </div>
+    </form>
   </div>
 </div>

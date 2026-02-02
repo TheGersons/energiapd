@@ -28,8 +28,6 @@ export class Dashboard {
     loader: async () => await firstValueFrom(this.findAllRoles.execute({})),
   });
 
-  canEdit = computed(() => this.selection.size !== 1);
-
   navigate() {
     let id;
     if (this.selection.size === 1) {

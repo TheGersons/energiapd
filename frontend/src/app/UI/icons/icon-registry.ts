@@ -52,6 +52,13 @@ export class IconRegistry {
     this.registry.set('bell', () => import('./svg/bell').then((m) => m.Bell));
     this.registry.set('user', () => import('./svg/user').then((m) => m.User));
     this.registry.set('epd', () => import('./svg/epd').then((m) => m.Epd));
+    this.registry.set('eye', () => import('./svg/eye').then((m) => m.Eye));
+    this.registry.set('eye-slash', () =>
+      import('./svg/eye-slash').then((m) => m.EyeSlash),
+    );
+    this.registry.set('warning', () =>
+      import('./svg/warning').then((m) => m.Warning),
+    );
     this.registry.set('users', () =>
       import('./svg/users').then((m) => m.Users),
     );

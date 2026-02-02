@@ -68,6 +68,7 @@ class UserRepository {
       throw e;
     }
   }
+
 }
 
 export const userRepository = new UserRepository();

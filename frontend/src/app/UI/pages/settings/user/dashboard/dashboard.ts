@@ -1,7 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { FindAllUsersUseCase } from '@domain/user/usecase/findAllUsers.usecase';
 import { Loader } from '@ui/icons/loader';
 import { ToastrService } from 'ngx-toastr';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +16,13 @@ export class Dashboard {
 
   private toastr = inject(ToastrService);
 
+  private findAllUsers = inject(FindAllUsersUseCase);
+
   private router = inject(Router);
+
+  users = resource({
+    loader: async () => await firstValueFrom(this.findAllUsers.execute({})),
+  });
 
   navigate() {
     let id;

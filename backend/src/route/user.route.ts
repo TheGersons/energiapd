@@ -9,8 +9,8 @@ class UserRoute {
   }
 
   private routes() {
-    this.router.get("/findAll", userController.findAll);
-    this.router.post("/create", userController.create);
+    this.router.get("/", userController.findAll);
+    this.router.post("/", userController.create);
   }
 }
 
