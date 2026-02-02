@@ -18,8 +18,8 @@ export class UserModel extends Model<
   declare nickname: string;
   declare email: string;
   declare password: string;
-  declare idRole: string;
   declare status: boolean;
+  declare requestChangePass: boolean;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -37,10 +37,9 @@ UserModel.init(
     password: { type: DataTypes.STRING },
     idRole: { type: DataTypes.STRING },
     status: { type: DataTypes.BOOLEAN },
+    requestChangePass: { type: DataTypes.BOOLEAN },
     createdAt: { type: DataTypes.DATE },
     updatedAt: { type: DataTypes.DATE },
   },
-  { sequelize, modelName: "User", tableName: "user", timestamps: true }
+  { sequelize, modelName: "User", tableName: "user", timestamps: true },
 );
-
-UserModel.hasOne(RoleModel, { foreignKey: "id", sourceKey: "idRole" });

@@ -65,7 +65,6 @@ export class Aside {
   onClickModule(module: ModuleModel) {
     this.sModule.update((_a) => {
       const _b = new Set<string>().add(module.moduleId ?? '');
-      console.log(_b);
       return _b;
     });
     this.pages.set(module.page);

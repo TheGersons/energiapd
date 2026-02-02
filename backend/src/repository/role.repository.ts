@@ -73,6 +73,21 @@ class RoleRepository {
       throw e;
     }
   }
+
+  async delete(id: string): Promise<number> {
+    try {
+      return await sequelize.transaction(async () => {
+        var a = 0;
+        a += await RoleModel.destroy({ where: { id: id ?? "" } });
+
+        a += await RolePermissionModel.destroy({ where: { idRole: id } });
+
+        return a;
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 export const roleRepository = new RoleRepository();

@@ -47,4 +47,10 @@ export class RoleImplementation extends RoleRepository {
       role: this.roleMapper.mapTo(role),
     });
   }
+
+  override delete(id: string): Observable<number> {
+    return this.http.delete<number>(`${this.baseURL}role`, {
+      params: { id },
+    });
+  }
 }

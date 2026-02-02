@@ -14,6 +14,7 @@ class RoleRoute {
     this.router.get("/one", roleController.findOne);
     this.router.post("/", roleController.create);
     this.router.put("/", roleController.update);
+    this.router.delete("/", roleController.delete);
   }
 }
 

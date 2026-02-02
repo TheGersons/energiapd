@@ -6,4 +6,5 @@ export abstract class RoleRepository {
   abstract findAllRoles(): Observable<PlaneRoleModel[]>;
   abstract findOneRole(role: Partial<PlaneRoleModel>): Observable<RoleModel>;
   abstract update(role: RoleModel): Observable<number>;
+  abstract delete(id: string): Observable<number>;
 }

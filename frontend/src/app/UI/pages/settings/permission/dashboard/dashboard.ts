@@ -2,8 +2,10 @@ import { Location } from '@angular/common';
 import { Component, computed, inject, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlaneRoleModel } from '@domain/role/role.model';
+import { DeleteRoleUseCase } from '@domain/role/usecase/deleteRole.usecase';
 import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { Loader } from '@ui/icons/loader';
+import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -14,6 +16,9 @@ import { firstValueFrom } from 'rxjs';
 })
 export class Dashboard {
   private findAllRoles = inject(FindAllRolesUseCase);
+  private deleteRole = inject(DeleteRoleUseCase);
+
+  private toastr = inject(ToastrService);
 
   private router = inject(Router);
 
@@ -42,5 +47,20 @@ export class Dashboard {
     }
 
     this.selection.add(row.roleId);
+  }
+
+  delete() {
+    firstValueFrom(this.deleteRole.execute(Array.from(this.selection)[0])).then(
+      (rs) => {
+        if (rs > 0) {
+          this.toastr.success(
+            'Se rol se eliminó exitosamente.',
+            'Eliminación de Rol',
+          );
+        } else {
+          this.toastr.error('Ha ocurrido un error.', 'Eliminación de Rol');
+        }
+      },
+    );
   }
 }

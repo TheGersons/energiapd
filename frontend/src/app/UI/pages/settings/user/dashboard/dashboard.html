@@ -1,0 +1,87 @@
+<div class="space-y-5">
+  <div class="w-full flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold">Gestión de Usuarios</h2>
+      <h3 class="text-gray-500">Creación y edición de Usuarios del sistema</h3>
+    </div>
+    <button
+      class="flex space-x-3 cursor-pointer p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">
+      <app-loader name="plus" hostClass="w-6 h-6 text-white"></app-loader>
+      <span>Crear Usuario</span>
+    </button>
+  </div>
+
+  <div class="flex space-x-10 w-[50%]">
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-blue-400 rounded-lg p-3">
+        <app-loader name="users" hostClass="w-6 h-6 text-gray-800"></app-loader>
+      </div>
+
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Usuarios</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-green-400 rounded-lg p-3">
+        <app-loader name="check" hostClass="w-6 h-6 text-gray-800"></app-loader>
+      </div>
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Usuarios Activos</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-red-400 rounded-lg p-3">
+        <app-loader
+          name="inactive"
+          hostClass="w-6 h-6 text-gray-800"></app-loader>
+      </div>
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Usuarios Inactivos</h3>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
+    <div class="flex items-center px-4 py-2">
+      <div
+        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
+        <button (click)="navigate()" class="p-1">
+          <app-loader
+            [name]="'create'"
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+        <button class="p-1">
+          <app-loader
+            [name]="'delete'"
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+        <button (click)="navigate()" class="p-1">
+          <app-loader
+            [name]="'edit'"
+            hostClass="w-6 h-6 text-gray-800"></app-loader>
+        </button>
+      </div>
+    </div>
+    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
+      <!-- Encabezado -->
+      <thead
+        class="bg-neutral-100 text-gray-800 sticky top-0 z-10 [&_th]:px-6 [&_th]:py-3 [&_th]:font-semibold">
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>

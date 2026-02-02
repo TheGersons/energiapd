@@ -52,6 +52,16 @@ export class IconRegistry {
     this.registry.set('bell', () => import('./svg/bell').then((m) => m.Bell));
     this.registry.set('user', () => import('./svg/user').then((m) => m.User));
     this.registry.set('epd', () => import('./svg/epd').then((m) => m.Epd));
+    this.registry.set('users', () =>
+      import('./svg/users').then((m) => m.Users),
+    );
+    this.registry.set('plus', () => import('./svg/plus').then((m) => m.Plus));
+    this.registry.set('generate-pass', () =>
+      import('./svg/generate-pass').then((m) => m.GeneratePass),
+    );
+    this.registry.set('select-all', () =>
+      import('./svg/select-all').then((m) => m.SelectAll),
+    );
     this.registry.set('hamburger', () =>
       import('./svg/hamburger').then((m) => m.Hamburger),
     );

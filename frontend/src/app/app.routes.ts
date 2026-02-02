@@ -52,6 +52,30 @@ export const routes: Routes = [
         path: 'configuraciones/usuarios',
         loadComponent: () =>
           import('@ui/pages/settings/user/user').then((m) => m.User),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('@ui/pages/settings/user/dashboard/dashboard').then(
+                (m) => m.Dashboard,
+              ),
+          },
+          {
+            path: 'crear',
+            loadComponent: () =>
+              import('@ui/pages/settings/user/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+          {
+            path: 'eidtar/:id',
+            loadComponent: () =>
+              import('@ui/pages/settings/user/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+        ],
       },
       {
         path: 'tool-loans/home',

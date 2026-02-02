@@ -26,7 +26,10 @@
             [name]="'create'"
             hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
-        <button [disabled]="canEdit()" class="p-1">
+        <button
+          (click)="delete()"
+          [disabled]="selection.size !== 1"
+          class="p-1">
           <app-loader
             [name]="'delete'"
             hostClass="w-6 h-6 text-gray-800"></app-loader>

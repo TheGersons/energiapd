@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-user',
-  imports: [FormsModule, NgSelectModule],
+  imports: [RouterOutlet],
   templateUrl: './user.html',
   styleUrl: './user.scss',
 })

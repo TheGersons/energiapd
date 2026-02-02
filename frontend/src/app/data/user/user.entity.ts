@@ -1,6 +1,4 @@
-import { IUserRole } from "./user-role.type";
-
-export interface IUser {
+export interface UserEntity {
   id?: string;
   fullname: string;
   nickname: string;
@@ -11,7 +9,7 @@ export interface IUser {
   updatedAt?: string;
 }
 
-export interface IUserPayload {
+export interface UserPayloadEntity {
   id?: string;
   nickname: string;
   password: string;
@@ -20,11 +18,11 @@ export interface IUserPayload {
   status: boolean;
   roles: IUserRole[];
   requestChangePass: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface IUserResponse {
+export interface UserResponseEntity {
   id?: string;
   nickname: string;
   email: string;
@@ -32,6 +30,14 @@ export interface IUserResponse {
   status: boolean;
   roles: IUserRole[];
   requestChangePass: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface IUserRole {
+  id?: string;
+  idUser: string;
+  idRole: string;
   createdAt?: string;
   updatedAt?: string;
 }
