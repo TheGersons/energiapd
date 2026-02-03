@@ -6,35 +6,54 @@ import { IUserRole } from "@type/user-role.type";
 import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
 
 class UserRepository {
-  async findAll(): Promise<IUser[]> {
+  async findAll(): Promise<IUserResponse[]> {
     return (
       await UserModel.findAll({
         attributes: [
           "id",
-          "fullname",
           "nickname",
           "email",
+          "fullname",
           "status",
+          "requestChangePass",
           "createdAt",
           "updatedAt",
         ],
-        include: {
-          model: RoleModel,
-        },
+        include: [
+          {
+            model: UserRoleModel,
+            as: "roles",
+            attributes: ["id"],
+            include: [
+              {
+                model: RoleModel,
+                as: "role",
+                attributes: ["id", "name", "description", "priority"],
+              },
+            ],
+          },
+        ],
       })
     ).map((_a) => ({
       id: _a.id,
-      fullname: _a.fullname,
       nickname: _a.nickname,
       email: _a.email,
+      fullname: _a.fullname,
       status: _a.status,
       requestChangePass: _a.requestChangePass,
-      createdAt: _a.createdAt?.toISOString(),
-      updatedAt: _a.updatedAt?.toISOString(),
+      roles:
+        _a.roles?.map((_b) => ({
+          id: _b.role.id,
+          name: _b.role.name,
+          description: _b.role.description,
+          priority: _b.role.priority,
+        })) ?? [],
+      createdAt: _a.createdAt,
+      updatedAt: _a.updatedAt,
     }));
   }
 
-  async create(user: IUserPayload): Promise<IUserResponse> {
+  async create(user: IUserPayload): Promise<{ id: string }> {
     try {
       return await sequelize.transaction(async () => {
         const rsUser = await UserModel.create({
@@ -51,24 +70,13 @@ class UserRepository {
           idUser: rsUser.id,
         }));
 
-        const rsUserRole = await UserRoleModel.bulkCreate(rolesToInsert);
-        return {
-          id: rsUser.id,
-          fullname: rsUser.fullname,
-          nickname: rsUser.nickname,
-          email: rsUser.email,
-          status: rsUser.status,
-          requestChangePass: rsUser.requestChangePass,
-          createdAt: rsUser.createdAt?.toISOString(),
-          updatedAt: rsUser.updatedAt?.toISOString(),
-          roles: rsUserRole,
-        };
+        await UserRoleModel.bulkCreate(rolesToInsert);
+        return { id: rsUser.id };
       });
     } catch (e) {
       throw e;
     }
   }
-
 }
 
 export const userRepository = new UserRepository();

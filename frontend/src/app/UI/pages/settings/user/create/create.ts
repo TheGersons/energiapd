@@ -109,12 +109,12 @@ export class Create {
       firstValueFrom(
         this.createUser.execute(this.userForm().controlValue()),
       ).then((rs) => {
-        if (rs.userId) {
+        if (rs.id) {
           this.toastr.success(
             'El usuario se ha creado exitosamente.',
             'Creación de Usuario',
           );
-          this.router.navigate(['configuraciones/usuarios/editar', rs.userId], {
+          this.router.navigate(['configuraciones/usuarios/editar', rs.id], {
             replaceUrl: true,
           });
         } else {

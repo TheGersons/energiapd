@@ -5,9 +5,11 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   sql,
 } from "@sequelize/core";
 import { RoleModel } from "./role.model";
+import { UserRoleModel } from "./user_role.model";
 
 export class UserModel extends Model<
   InferAttributes<UserModel>,
@@ -22,6 +24,7 @@ export class UserModel extends Model<
   declare requestChangePass: boolean;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+  declare roles?: NonAttribute<UserRoleModel[]>;
 }
 
 UserModel.init(
@@ -43,3 +46,9 @@ UserModel.init(
   },
   { sequelize, modelName: "User", tableName: "user", timestamps: true },
 );
+
+UserModel.hasMany(UserRoleModel, {
+  foreignKey: "idUser",
+  sourceKey: "id",
+  as: "roles",
+});

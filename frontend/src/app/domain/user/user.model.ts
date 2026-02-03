@@ -1,3 +1,5 @@
+import { PlaneRoleModel } from '@domain/role/role.model';
+
 export interface UserModel {
   userId?: string;
   displayName: string;
@@ -15,7 +17,7 @@ export interface UserResponseModel {
   username: string;
   userMail: string;
   userStatus: boolean;
-  userRoles: IUserRole[];
+  userRoles: PlaneRoleModel[];
   needChangePass: boolean;
   createdAt?: string;
   updatedAt?: string;

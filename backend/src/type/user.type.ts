@@ -1,3 +1,4 @@
+import { IRole } from "./role.type";
 import { IUserRole } from "./user-role.type";
 
 export interface IUser {
@@ -7,8 +8,8 @@ export interface IUser {
   email: string;
   status: boolean;
   requestChangePass: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IUserPayload {
@@ -30,8 +31,8 @@ export interface IUserResponse {
   email: string;
   fullname: string;
   status: boolean;
-  roles: IUserRole[];
+  roles: IRole[];
   requestChangePass: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -5,8 +5,12 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   sql,
 } from "@sequelize/core";
+import { UserModel } from "./user.model";
+import { RoleModel } from "./role.model";
+import { IRole } from "@type/role.type";
 
 export class UserRoleModel extends Model<
   InferAttributes<UserRoleModel>,
@@ -15,6 +19,9 @@ export class UserRoleModel extends Model<
   declare id: CreationOptional<string>;
   declare idUser: string;
   declare idRole: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare role: NonAttribute<IRole>;
 }
 
 UserRoleModel.init(
@@ -34,3 +41,9 @@ UserRoleModel.init(
     timestamps: true,
   },
 );
+
+UserRoleModel.belongsTo(RoleModel, {
+  foreignKey: "idRole",
+  targetKey: "id",
+  as: "role",
+});

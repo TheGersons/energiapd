@@ -13,6 +13,7 @@ import { UsersMapper } from './mapper/users.mapper';
 import { UserMapper } from './mapper/user.mapper';
 import { UserPayloadMapper } from './mapper/user-payload.mapper';
 import { UserResponseMapper } from './mapper/user-response.mapper';
+import { UsersResponseMapper } from './mapper/users-response.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,15 +22,15 @@ export class UserImplementation extends UserRepository {
   private http = inject(HttpClient);
   private baseURL = `${environment.baseURL}user`;
 
-  private usersMapper = new UsersMapper();
+  private usersResponseMapper = new UsersResponseMapper();
   private userMapper = new UserMapper();
   private userPayloadMapper = new UserPayloadMapper();
   private userResponseMapper = new UserResponseMapper();
 
-  override findAllUsers(): Observable<UserModel[]> {
+  override findAllUsers(): Observable<UserResponseModel[]> {
     return this.http
-      .get<UserEntity[]>(this.baseURL)
-      .pipe(map(this.usersMapper.mapFrom));
+      .get<UserResponseEntity[]>(this.baseURL)
+      .pipe(map(this.usersResponseMapper.mapFrom));
   }
 
   override findOneUser(user: Partial<UserModel>): Observable<UserModel> {
@@ -44,11 +45,9 @@ export class UserImplementation extends UserRepository {
     });
   }
 
-  override createUser(user: UserPayloadModel): Observable<UserResponseModel> {
-    return this.http
-      .post<UserResponseEntity>(this.baseURL, {
-        user: this.userPayloadMapper.mapTo(user),
-      })
-      .pipe(map(this.userResponseMapper.mapFrom));
+  override createUser(user: UserPayloadModel): Observable<{ id: string }> {
+    return this.http.post<{ id: string }>(this.baseURL, {
+      user: this.userPayloadMapper.mapTo(user),
+    });
   }
 }

@@ -81,9 +81,24 @@
           <th>Estado</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
         @for (a of users.value(); track $index) {
-          <tr></tr>
+          <tr>
+            <td>{{ a.displayName }}</td>
+            <td>{{ a.userMail }}</td>
+            <td>{{ a.username }}</td>
+            <td>
+              <div class="flex gap-2">
+                @for (b of a.userRoles; track $index) {
+                  <span class="rounded-md bg-gray-400 py-1 px-2">{{
+                    b.roleName
+                  }}</span>
+                }
+              </div>
+            </td>
+            <td>{{ a.userStatus ? "Activo" : "Inactivo" }}</td>
+          </tr>
         }
       </tbody>
     </table>

@@ -9,10 +9,10 @@ import { UserRepository } from '../user.repository';
 })
 export class CreateUserUseCase implements UseCase<
   UserPayloadModel,
-  UserResponseModel
+  { id: string }
 > {
   private repository = inject(UserRepository);
-  execute(params: UserPayloadModel): Observable<UserResponseModel> {
+  execute(params: UserPayloadModel): Observable<{ id: string }> {
     return this.repository.createUser(params);
   }
 }

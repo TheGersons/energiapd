@@ -1,3 +1,5 @@
+import { PlaneRoleEntity } from '@data/role/role.entity';
+
 export interface UserEntity {
   id?: string;
   fullname: string;
@@ -28,7 +30,7 @@ export interface UserResponseEntity {
   email: string;
   fullname: string;
   status: boolean;
-  roles: IUserRole[];
+  roles: PlaneRoleEntity[];
   requestChangePass: boolean;
   createdAt?: string;
   updatedAt?: string;
