@@ -10,6 +10,7 @@ class UserRoute {
 
   private routes() {
     this.router.get("/", userController.findAll);
+    this.router.get("/one", userController.findOne);
     this.router.post("/", userController.create);
   }
 }

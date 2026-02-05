@@ -12,6 +12,17 @@ class UserController {
       });
   }
 
+  async findOne({ query }: Request, res: Response) {
+    if (!query || Object.keys(query).length === 0) {
+      res.json({});
+      return;
+    }
+    userRepository
+      .findOne(query)
+      .then((rs) => res.status(200).json(rs))
+      .catch((error) => res.status(500).json(error));
+  }
+
   async create(req: Request, res: Response) {
     console.log(req.body);
     userRepository

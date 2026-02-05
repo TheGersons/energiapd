@@ -29,7 +29,7 @@ export class Create {
   toastr = inject(ToastrService);
   private location = inject(Location);
   private router = inject(Router);
-  route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
 
   findAllPermissions = inject(FindAllPermissionsUseCase);
   findOneRole = inject(FindOneRoleUseCase);

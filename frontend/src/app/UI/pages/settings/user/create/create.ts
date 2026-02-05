@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, effect, inject, resource, signal } from '@angular/core';
 import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Loader } from '@ui/icons/loader';
@@ -17,7 +17,8 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { CreateUserUseCase } from '@domain/user/usecase/createUser.usecase';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FindOneUserUseCase } from '@domain/user/usecase/findOneUser.usecase';
 
 @Component({
   selector: 'app-create',
@@ -30,9 +31,11 @@ export class Create {
 
   private findAllRoles = inject(FindAllRolesUseCase);
   private createUser = inject(CreateUserUseCase);
+  private findOneUser = inject(FindOneUserUseCase);
 
   private toastr = inject(ToastrService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   showPassword = signal(false);
 
@@ -72,6 +75,15 @@ export class Create {
     loader: () => firstValueFrom(this.findAllRoles.execute({})),
   });
 
+  user = resource({
+    params: () => {
+      const id = this.route.snapshot.paramMap.get('id');
+      return id ? { userId: id } : undefined;
+    },
+    loader: async ({ params }) =>
+      await firstValueFrom(this.findOneUser.execute(params)),
+  });
+
   goBack(): void {
     this.location.back();
   }
@@ -99,6 +111,30 @@ export class Create {
     navigator.clipboard.writeText(password).then(() => {
       this.userForm.userPass().setControlValue(password);
       this.toastr.info('Contraseña copiada al portapapeles');
+    });
+  }
+
+  constructor() {
+    effect(() => {
+      const data = this.user.value();
+
+      if (!data) return;
+
+      this.userForm.userId?.().setControlValue(data.userId ?? '');
+      this.userForm.displayName?.().setControlValue(data.displayName ?? '');
+      this.userForm
+        .needChangePass?.()
+        .setControlValue(data.needChangePass ?? '');
+      this.userForm.userMail?.().setControlValue(data.userMail ?? '');
+      this.userForm.username?.().setControlValue(data.username ?? '');
+      this.userForm.userRoles?.().setControlValue(
+        data.userRoles.map((_a) => ({
+          userRoleId: undefined,
+          roleId: _a.roleId,
+          userId: data.userId ?? '',
+        })) ?? [],
+      );
+      this.userForm.userStatus?.().setControlValue(data.userStatus ?? '');
     });
   }
 

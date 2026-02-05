@@ -57,12 +57,12 @@
             [name]="'create'"
             hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
-        <button class="p-1">
+        <button [disabled]="canEdit()" class="p-1">
           <app-loader
             [name]="'delete'"
             hostClass="w-6 h-6 text-gray-800"></app-loader>
         </button>
-        <button (click)="navigate()" class="p-1">
+        <button [disabled]="canEdit()" (click)="navigate()" class="p-1">
           <app-loader
             [name]="'edit'"
             hostClass="w-6 h-6 text-gray-800"></app-loader>
@@ -84,7 +84,9 @@
       <tbody
         class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
         @for (a of users.value(); track $index) {
-          <tr>
+          <tr
+            (click)="onSelectRow(a.userId ?? '')"
+            [class.bg-blue-200]="selection().has(a.userId ?? '')">
             <td>{{ a.displayName }}</td>
             <td>{{ a.userMail }}</td>
             <td>{{ a.username }}</td>

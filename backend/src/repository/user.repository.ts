@@ -77,6 +77,58 @@ class UserRepository {
       throw e;
     }
   }
+
+  async findOne(user: Partial<IUser>): Promise<IUserResponse | undefined> {
+    const _a = await UserModel.findOne({
+      where: { id: user.id },
+      attributes: [
+        "id",
+        "nickname",
+        "email",
+        "fullname",
+        "status",
+        "requestChangePass",
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+        {
+          model: UserRoleModel,
+          as: "roles",
+          attributes: ["id"],
+          include: [
+            {
+              model: RoleModel,
+              as: "role",
+              attributes: ["id", "name", "description", "priority"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!_a) {
+      return undefined;
+    }
+
+    return {
+      id: _a.id,
+      nickname: _a.nickname,
+      email: _a.email,
+      fullname: _a.fullname,
+      status: _a.status,
+      requestChangePass: _a.requestChangePass,
+      roles:
+        _a.roles?.map((_b) => ({
+          id: _b.role.id,
+          name: _b.role.name,
+          description: _b.role.description,
+          priority: _b.role.priority,
+        })) ?? [],
+      createdAt: _a.createdAt,
+      updatedAt: _a.updatedAt,
+    };
+  }
 }
 
 export const userRepository = new UserRepository();

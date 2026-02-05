@@ -14,6 +14,7 @@ import { UserMapper } from './mapper/user.mapper';
 import { UserPayloadMapper } from './mapper/user-payload.mapper';
 import { UserResponseMapper } from './mapper/user-response.mapper';
 import { UsersResponseMapper } from './mapper/users-response.mapper';
+import { PartialUserModelMapper } from './mapper/partial-userModel.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class UserImplementation extends UserRepository {
   private baseURL = `${environment.baseURL}user`;
 
   private usersResponseMapper = new UsersResponseMapper();
-  private userMapper = new UserMapper();
+  private partialUserModelMapper = new PartialUserModelMapper();
   private userPayloadMapper = new UserPayloadMapper();
   private userResponseMapper = new UserResponseMapper();
 
@@ -33,10 +34,14 @@ export class UserImplementation extends UserRepository {
       .pipe(map(this.usersResponseMapper.mapFrom));
   }
 
-  override findOneUser(user: Partial<UserModel>): Observable<UserModel> {
+  override findOneUser(
+    user: Partial<UserModel>,
+  ): Observable<UserResponseModel> {
     return this.http
-      .get<UserEntity>(`${this.baseURL}user/one`)
-      .pipe(map(this.userMapper.mapFrom));
+      .get<UserResponseEntity>(`${this.baseURL}/one`, {
+        params: this.partialUserModelMapper.mapTo(user),
+      })
+      .pipe(map(this.userResponseMapper.mapFrom));
   }
 
   override update(user: UserPayloadModel): Observable<number> {
