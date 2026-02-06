@@ -24,7 +24,6 @@ class UserController {
   }
 
   async create(req: Request, res: Response) {
-    console.log(req.body);
     userRepository
       .create(req.body.user)
       .then((rs) => res.status(200).json(rs))
@@ -32,6 +31,35 @@ class UserController {
         console.log(error);
         res.status(500).json(error);
       });
+  }
+
+  async update({ body }: Request, res: Response) {
+    userRepository
+      .update(body.user)
+      .then((rs) => res.status(200).json(rs))
+      .catch((e) => {
+        console.log(e);
+        res.status(500).json(e);
+      });
+  }
+
+  async activeCount(req: Request, res: Response) {
+    userRepository
+      .activeCount()
+      .then((rs) => res.status(200).json(rs))
+      .catch((e) => res.status(500).json(e));
+  }
+  async inactiveCount(req: Request, res: Response) {
+    userRepository
+      .inactiveCount()
+      .then((rs) => res.status(200).json(rs))
+      .catch((e) => res.status(500).json(e));
+  }
+  async totalCount(req: Request, res: Response) {
+    userRepository
+      .totalCount()
+      .then((rs) => res.status(200).json(rs))
+      .catch((e) => res.status(500).json(e));
   }
 }
 

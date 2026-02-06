@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { ConsoleService, NgSelectModule } from '@ng-select/ng-select';
 
 // Signals Forms & Domain
 import {
@@ -21,18 +21,28 @@ import {
   submit,
   FormField,
 } from '@angular/forms/signals';
-import { UserPayloadModel } from '@domain/user/user.model';
+import {
+  UserFormModel,
+  UserPayloadModel,
+  UserResponseModel,
+} from '@domain/user/user.model';
 import { CreateUserUseCase } from '@domain/user/usecase/createUser.usecase';
 import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { FindOneUserUseCase } from '@domain/user/usecase/findOneUser.usecase';
 
 // UI
 import { Loader } from '@ui/icons/loader';
+import { FormsModule } from '@angular/forms';
+import { PlaneRoleModel } from '@domain/role/role.model';
+import { UpdateUserUseCase } from '@domain/user/usecase/updateUser.usecase';
+import { ActiveUsersUseCase } from '@domain/user/usecase/activeUsers.usecase';
+import { InactiveUsersUseCase } from '@domain/user/usecase/inactiveUsers.usecase';
+import { TotalUsersUseCase } from '@domain/user/usecase/totalUsers.usecase';
 
 @Component({
   selector: 'app-create',
   standalone: true,
-  imports: [NgSelectModule, Loader, FormField],
+  imports: [NgSelectModule, Loader, FormField, FormsModule],
   templateUrl: './create.html',
   styleUrl: './create.scss',
 })
@@ -47,19 +57,20 @@ export class Create {
   private readonly findAllRoles = inject(FindAllRolesUseCase);
   private readonly createUser = inject(CreateUserUseCase);
   private readonly findOneUser = inject(FindOneUserUseCase);
+  private readonly updateUser = inject(UpdateUserUseCase);
 
   // State
   showPassword = signal(false);
   isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
+  sRole: PlaneRoleModel[] = [];
 
-  userModel = signal<UserPayloadModel>({
-    userId: undefined,
+  userModel = signal<UserFormModel>({
+    userId: '',
     displayName: '',
     needChangePass: false,
     userMail: '',
     username: '',
     userPass: '',
-    userRoles: [],
     userStatus: true,
   });
 
@@ -83,8 +94,6 @@ export class Create {
         message: 'La contraseña no cumple con los requisitos de seguridad.',
       },
     );
-
-    minLength(fields.userRoles, 1, { message: 'Debe tener al menos un rol.' });
   });
 
   // Resources (Data Fetching)
@@ -100,39 +109,70 @@ export class Create {
     },
   });
 
+  
+
   constructor() {
-    // Sincronizar Resource -> Form
     effect(() => {
       const data = this.userResource.value();
       if (data) {
-        this.patchForm(data);
+        setTimeout(() => this.patchForm(data));
       }
     });
   }
 
-  private patchForm(data: any): void {
-    this.userForm.userId?.().setControlValue(data.userId);
+  private patchForm(data: UserResponseModel): void {
+    this.userForm.userId?.().setControlValue(data.userId ?? '');
     this.userForm.displayName?.().setControlValue(data.displayName);
     this.userForm.needChangePass?.().setControlValue(data.needChangePass);
     this.userForm.userMail?.().setControlValue(data.userMail);
     this.userForm.username?.().setControlValue(data.username);
     this.userForm.userStatus?.().setControlValue(data.userStatus);
 
-    const roles =
-      data.userRoles?.map((r: any) => ({
-        roleId: r.roleId,
-        userId: data.userId,
-      })) || [];
-
-    this.userForm.userRoles?.().setControlValue(roles);
+    this.sRole =
+      this.rolesResource
+        .value()
+        ?.filter((a) => data.userRoles.some((b) => a.roleId === b.roleId)) ??
+      [];
   }
 
-  async onSubmit(event: Event) {
+  async onUpdate(event: Event) {
     event.preventDefault();
-
     try {
       await submit(this.userForm, async () => {
-        const payload = this.userForm().controlValue();
+        const userForm = this.userForm().controlValue();
+        console.log(userForm);
+        const payload: UserPayloadModel = {
+          ...userForm,
+          userRoles: this.sRole.map((a) => ({
+            roleId: a.roleId,
+            userId: userForm.userId ?? '',
+          })),
+        };
+        const response = await firstValueFrom(this.updateUser.execute(payload));
+
+        if (response > 0) {
+          this.toastr.success('Usuario actualizado exitosamente');
+        }
+      });
+    } catch (error) {
+      this.toastr.error('Verifique los campos del formulario');
+    }
+  }
+
+  async onCreate(event: Event) {
+    event.preventDefault();
+    try {
+      await submit(this.userForm, async () => {
+        const userForm = this.userForm().controlValue();
+
+        const payload: UserPayloadModel = {
+          ...userForm,
+          userRoles: this.sRole.map((a) => ({
+            roleId: a.roleId,
+            userId: userForm.userId ?? '',
+          })),
+        };
+
         const response = await firstValueFrom(this.createUser.execute(payload));
 
         if (response?.id) {

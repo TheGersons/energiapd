@@ -19,7 +19,7 @@
       </div>
 
       <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
+        <h2 class="text-2xl font-bold">{{ totalResource.value() }}</h2>
         <h3 class="text-slate-500">Usuarios</h3>
       </div>
     </div>
@@ -29,7 +29,7 @@
         <app-loader name="check" hostClass="w-6 h-6 text-gray-800"></app-loader>
       </div>
       <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
+        <h2 class="text-2xl font-bold">{{ activeResource.value() }}</h2>
         <h3 class="text-slate-500">Usuarios Activos</h3>
       </div>
     </div>
@@ -41,7 +41,7 @@
           hostClass="w-6 h-6 text-gray-800"></app-loader>
       </div>
       <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
+        <h2 class="text-2xl font-bold">{{ inactiveResources.value() }}</h2>
         <h3 class="text-slate-500">Usuarios Inactivos</h3>
       </div>
     </div>
@@ -85,8 +85,8 @@
         class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
         @for (a of users.value(); track $index) {
           <tr
-            (click)="onSelectRow(a.userId ?? '')"
-            [class.bg-blue-200]="selection().has(a.userId ?? '')">
+            (click)="toggleSelection(a.userId ?? '')"
+            [class.bg-blue-200]="isSelected(a.userId ?? '')">
             <td>{{ a.displayName }}</td>
             <td>{{ a.userMail }}</td>
             <td>{{ a.username }}</td>

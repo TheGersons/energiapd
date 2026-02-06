@@ -55,4 +55,16 @@ export class UserImplementation extends UserRepository {
       user: this.userPayloadMapper.mapTo(user),
     });
   }
+
+  override activeCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseURL}/activeCount`);
+  }
+
+  override inactiveCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseURL}/inactiveCount`);
+  }
+
+  override totalCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseURL}/totalCount`);
+  }
 }

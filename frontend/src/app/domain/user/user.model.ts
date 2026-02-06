@@ -45,5 +45,5 @@ interface IUserRole {
 }
 
 export interface UserFormModel extends Omit<UserPayloadModel, 'userRoles'> {
-  userRoles: PlaneRoleModel[];
+
 }

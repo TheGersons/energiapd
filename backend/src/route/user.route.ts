@@ -12,6 +12,10 @@ class UserRoute {
     this.router.get("/", userController.findAll);
     this.router.get("/one", userController.findOne);
     this.router.post("/", userController.create);
+    this.router.put("/", userController.update);
+    this.router.get("/activeCount", userController.activeCount);
+    this.router.get("/inactiveCount", userController.inactiveCount);
+    this.router.get("/totalCount", userController.totalCount);
   }
 }
 

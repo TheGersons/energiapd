@@ -6,4 +6,7 @@ export abstract class UserRepository {
   abstract findOneUser(user: Partial<UserModel>): Observable<UserResponseModel>;
   abstract createUser(user: UserPayloadModel): Observable<{ id: string }>;
   abstract update(user: UserPayloadModel): Observable<number>;
+  abstract activeCount(): Observable<number>;
+  abstract inactiveCount(): Observable<number>;
+  abstract totalCount(): Observable<number>;
 }

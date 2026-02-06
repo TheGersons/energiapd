@@ -56,14 +56,7 @@ class UserRepository {
   async create(user: IUserPayload): Promise<{ id: string }> {
     try {
       return await sequelize.transaction(async () => {
-        const rsUser = await UserModel.create({
-          fullname: user.fullname,
-          nickname: user.nickname,
-          email: user.email,
-          password: user.password,
-          requestChangePass: user.requestChangePass,
-          status: true,
-        });
+        const rsUser = await UserModel.create(user);
 
         const rolesToInsert: IUserRole[] = user.roles.map((_a) => ({
           ..._a,
@@ -128,6 +121,36 @@ class UserRepository {
       createdAt: _a.createdAt,
       updatedAt: _a.updatedAt,
     };
+  }
+
+  async update(user: IUserPayload): Promise<number> {
+    try {
+      return await sequelize.transaction(async () => {
+        const rsUser = (
+          await UserModel.update(user, { where: { id: user.id } })
+        ).flat()[0];
+
+        await UserRoleModel.destroy({ where: { idUser: user.id } });
+
+        const rsUserRole = (await UserRoleModel.bulkCreate(user.roles)).length;
+
+        return rsUser + rsUserRole;
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async activeCount(): Promise<number> {
+    return await UserModel.count({ where: { status: true } });
+  }
+
+  async inactiveCount(): Promise<number> {
+    return await UserModel.count({ where: { status: false } });
+  }
+
+  async totalCount(): Promise<number> {
+    return await UserModel.count();
   }
 }
 
