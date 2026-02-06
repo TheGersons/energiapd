@@ -1,45 +1,56 @@
 import { Location } from '@angular/common';
-import { Component, effect, inject, resource, signal } from '@angular/core';
-import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { Loader } from '@ui/icons/loader';
-import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom } from 'rxjs';
-import { UserPayloadModel } from '@domain/user/user.model';
 import {
-  email,
+  Component,
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { NgSelectModule } from '@ng-select/ng-select';
+
+// Signals Forms & Domain
+import {
   form,
-  FormField,
-  minLength,
   pattern,
   required,
+  minLength,
   submit,
-  validate,
+  FormField,
 } from '@angular/forms/signals';
+import { UserPayloadModel } from '@domain/user/user.model';
 import { CreateUserUseCase } from '@domain/user/usecase/createUser.usecase';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FindAllRolesUseCase } from '@domain/role/usecase/findAllRoles.usecase';
 import { FindOneUserUseCase } from '@domain/user/usecase/findOneUser.usecase';
+
+// UI
+import { Loader } from '@ui/icons/loader';
 
 @Component({
   selector: 'app-create',
+  standalone: true,
   imports: [NgSelectModule, Loader, FormField],
   templateUrl: './create.html',
   styleUrl: './create.scss',
 })
 export class Create {
-  private location = inject(Location);
+  // Services
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toastr = inject(ToastrService);
 
-  private findAllRoles = inject(FindAllRolesUseCase);
-  private createUser = inject(CreateUserUseCase);
-  private findOneUser = inject(FindOneUserUseCase);
+  // Use Cases
+  private readonly findAllRoles = inject(FindAllRolesUseCase);
+  private readonly createUser = inject(CreateUserUseCase);
+  private readonly findOneUser = inject(FindOneUserUseCase);
 
-  private toastr = inject(ToastrService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-
+  // State
   showPassword = signal(false);
-
-  sRole = signal(new Set<string>());
+  isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
 
   userModel = signal<UserPayloadModel>({
     userId: undefined,
@@ -52,124 +63,130 @@ export class Create {
     userStatus: true,
   });
 
-  userForm = form(this.userModel, (a) => {
-    required(a.displayName, { message: 'Este campo es requerido.' });
-    required(a.userMail, { message: 'Este campo es requerido.' });
-    pattern(a.userMail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
-      message: 'No es un correo electrónico válido.',
+  // Form Configuration
+  userForm = form(this.userModel, (fields) => {
+    required(fields.displayName, { message: 'Este campo es requerido.' });
+    required(fields.userMail, { message: 'Este campo es requerido.' });
+    pattern(fields.userMail, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
+      message: 'Correo no válido.',
     });
-    required(a.username, { message: 'Este campo es requerido.' });
-    required(a.userPass, { message: 'Este campo es requerido.' });
-    minLength(a.userRoles, 1, { message: 'Debe tener mímino un rol.' });
+    required(fields.username, { message: 'Este campo es requerido.' });
+
+    if (!this.isEditMode()) {
+      required(fields.userPass, { message: 'Este campo es requerido.' });
+    }
+
     pattern(
-      a.userPass,
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[ñÑ!@#$%^&*()-_=+])[A-Za-z\dñÑ!@#$%^&*()-_=+]{8,}$/,
+      fields.userPass,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[ñÑ!@#$%^&*()-_=+]).{8,}$/,
       {
-        message:
-          'La contraseña debe contener al menos una letra minúscula, una letra mayúscula, un número y un carácter especial, y debe tener una longitud mínima de 8 caracteres.',
+        message: 'La contraseña no cumple con los requisitos de seguridad.',
       },
     );
+
+    minLength(fields.userRoles, 1, { message: 'Debe tener al menos un rol.' });
   });
 
-  roles = resource({
+  // Resources (Data Fetching)
+  rolesResource = resource({
     loader: () => firstValueFrom(this.findAllRoles.execute({})),
   });
 
-  user = resource({
-    params: () => {
-      const id = this.route.snapshot.paramMap.get('id');
-      return id ? { userId: id } : undefined;
+  userResource = resource({
+    params: () => this.route.snapshot.paramMap.get('id'),
+    loader: async ({ params: id }) => {
+      if (!id) return null;
+      return await firstValueFrom(this.findOneUser.execute({ userId: id }));
     },
-    loader: async ({ params }) =>
-      await firstValueFrom(this.findOneUser.execute(params)),
   });
+
+  constructor() {
+    // Sincronizar Resource -> Form
+    effect(() => {
+      const data = this.userResource.value();
+      if (data) {
+        this.patchForm(data);
+      }
+    });
+  }
+
+  private patchForm(data: any): void {
+    this.userForm.userId?.().setControlValue(data.userId);
+    this.userForm.displayName?.().setControlValue(data.displayName);
+    this.userForm.needChangePass?.().setControlValue(data.needChangePass);
+    this.userForm.userMail?.().setControlValue(data.userMail);
+    this.userForm.username?.().setControlValue(data.username);
+    this.userForm.userStatus?.().setControlValue(data.userStatus);
+
+    const roles =
+      data.userRoles?.map((r: any) => ({
+        roleId: r.roleId,
+        userId: data.userId,
+      })) || [];
+
+    this.userForm.userRoles?.().setControlValue(roles);
+  }
+
+  async onSubmit(event: Event) {
+    event.preventDefault();
+
+    try {
+      await submit(this.userForm, async () => {
+        const payload = this.userForm().controlValue();
+        const response = await firstValueFrom(this.createUser.execute(payload));
+
+        if (response?.id) {
+          this.toastr.success('Usuario guardado exitosamente');
+          this.router.navigate(
+            ['configuraciones/usuarios/editar', response.id],
+            {
+              replaceUrl: true,
+            },
+          );
+        }
+      });
+    } catch (error) {
+      this.toastr.error('Verifique los campos del formulario');
+    }
+  }
+
+  generatePassword(): void {
+    const charset = {
+      lower: 'abcdefghijklmnñopqrstuvwxyz',
+      upper: 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ',
+      num: '0123456789',
+      spec: '!@#$%^&*()-_=+',
+    };
+
+    const passwordArray = [
+      this.getRandomChar(charset.lower),
+      this.getRandomChar(charset.upper),
+      this.getRandomChar(charset.num),
+      this.getRandomChar(charset.spec),
+    ];
+
+    const allChars = Object.values(charset).join('');
+    for (let i = passwordArray.length; i < 12; i++) {
+      passwordArray.push(this.getRandomChar(allChars));
+    }
+
+    const password = passwordArray.sort(() => Math.random() - 0.5).join('');
+
+    navigator.clipboard.writeText(password);
+    this.userForm.userPass().setControlValue(password);
+    this.toastr.info('Contraseña generada y copiada');
+  }
+
+  private getRandomChar(str: string): string {
+    return str.charAt(Math.floor(Math.random() * str.length));
+  }
+
+  isFieldInvalid(fieldName: keyof UserPayloadModel): boolean {
+    const field = (this.userForm as any)[fieldName]?.();
+    return !!(field?.touched() && field?.errors().length > 0);
+  }
 
   goBack(): void {
     this.location.back();
-  }
-
-  generatePassword() {
-    const caracteres =
-      'abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+';
-    const longitud = 8;
-
-    const random = [
-      'abcdefghijklmnñopqrstuvwxyz',
-      'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ',
-      '0123456789',
-      '!@#$%^&*()-_=+',
-    ].map((tipo) => tipo.charAt(Math.floor(Math.random() * tipo.length)));
-
-    random.push(
-      ...Array.from({ length: longitud - random.length }, () =>
-        caracteres.charAt(Math.floor(Math.random() * caracteres.length)),
-      ),
-    );
-
-    const password = random.sort(() => Math.random() - 0.5).join('');
-
-    navigator.clipboard.writeText(password).then(() => {
-      this.userForm.userPass().setControlValue(password);
-      this.toastr.info('Contraseña copiada al portapapeles');
-    });
-  }
-
-  constructor() {
-    effect(() => {
-      const data = this.user.value();
-
-      if (!data) return;
-
-      this.userForm.userId?.().setControlValue(data.userId ?? '');
-      this.userForm.displayName?.().setControlValue(data.displayName ?? '');
-      this.userForm
-        .needChangePass?.()
-        .setControlValue(data.needChangePass ?? '');
-      this.userForm.userMail?.().setControlValue(data.userMail ?? '');
-      this.userForm.username?.().setControlValue(data.username ?? '');
-      this.userForm.userRoles?.().setControlValue(
-        data.userRoles.map((_a) => ({
-          userRoleId: undefined,
-          roleId: _a.roleId,
-          userId: data.userId ?? '',
-        })) ?? [],
-      );
-      this.userForm.userStatus?.().setControlValue(data.userStatus ?? '');
-    });
-  }
-
-  onSubmit(event: Event) {
-    event.preventDefault();
-
-    submit(this.userForm, async () => {
-      firstValueFrom(
-        this.createUser.execute(this.userForm().controlValue()),
-      ).then((rs) => {
-        if (rs.id) {
-          this.toastr.success(
-            'El usuario se ha creado exitosamente.',
-            'Creación de Usuario',
-          );
-          this.router.navigate(['configuraciones/usuarios/editar', rs.id], {
-            replaceUrl: true,
-          });
-        } else {
-          this.toastr.error('Ha ocurrido un erroro', 'Creación de Usuario');
-        }
-      });
-    }).catch((e) => {
-      console.log('este es un errro');
-    });
-  }
-
-  isFieldlValid(fieldName: keyof UserPayloadModel): boolean {
-    const fieldSignal = this.userForm[fieldName];
-    if (!fieldSignal) return false;
-
-    return (
-      fieldSignal() &&
-      fieldSignal().touched() &&
-      fieldSignal().errors().length > 0
-    );
   }
 }

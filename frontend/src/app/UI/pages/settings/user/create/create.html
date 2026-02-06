@@ -28,7 +28,7 @@
           id="userFullName"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Nombre del Usuario" />
-        @if (isFieldlValid("displayName")) {
+        @if (isFieldInvalid("displayName")) {
           <p class="text-sm text-red-400 font-medium flex items-center gap-1">
             @for (a of userForm.displayName().errors(); track $index) {
               <app-loader
@@ -47,7 +47,7 @@
           id="username"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Ej: apodo123" />
-        @if (isFieldlValid("username")) {
+        @if (isFieldInvalid("username")) {
           <p class="text-sm text-red-400 font-medium flex items-center gap-1">
             @for (a of userForm.username().errors(); track $index) {
               <app-loader
@@ -66,7 +66,7 @@
           id="userMail"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
           placeholder="Ej: usuario@example.com" />
-        @if (isFieldlValid("userMail")) {
+        @if (isFieldInvalid("userMail")) {
           <p class="text-sm text-red-400 font-medium flex items-center gap-1">
             @for (a of userForm.userMail().errors(); track $index) {
               <app-loader
@@ -106,7 +106,7 @@
               [hostClass]="'h-6 w-6'"></app-loader>
           </button>
         </div>
-        @if (isFieldlValid("userPass")) {
+        @if (isFieldInvalid("userPass")) {
           <p class="text-sm text-red-400 font-medium flex items-center gap-1">
             @for (a of userForm.userPass().errors(); track $index) {
               <app-loader
@@ -135,11 +135,11 @@
           [attr.autocomplete]="'off'"
           multiple="true"
           placeholder="Seleccione el Rol">
-          @for (a of roles.value(); track $index) {
+          @for (a of rolesResource.value(); track $index) {
             <ng-option [value]="a">{{ a.roleName }}</ng-option>
           }
         </ng-select>
-        @if (isFieldlValid("userRoles")) {
+        @if (isFieldInvalid("userRoles")) {
           <p class="text-sm text-red-400 font-medium flex items-center gap-1">
             @for (a of userForm.userRoles().errors(); track $index) {
               <app-loader

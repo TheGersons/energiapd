@@ -43,3 +43,7 @@ interface IUserRole {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface UserFormModel extends Omit<UserPayloadModel, 'userRoles'> {
+  userRoles: PlaneRoleModel[];
+}
