@@ -4,6 +4,7 @@ import { UserModel } from "@model/user.model";
 import { UserRoleModel } from "@model/user_role.model";
 import { IUserRole } from "@type/user-role.type";
 import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
+import { hashSync } from "bcrypt";
 
 class UserRepository {
   async findAll(): Promise<IUserResponse[]> {
@@ -55,9 +56,12 @@ class UserRepository {
 
   async create(user: IUserPayload): Promise<{ id: string }> {
     try {
+      console.log(user)
       return await sequelize.transaction(async () => {
-        const rsUser = await UserModel.create(user);
-
+        const rsUser = await UserModel.create({
+          ...user,
+          password: hashSync(user.password, 10),
+        });
         const rolesToInsert: IUserRole[] = user.roles.map((_a) => ({
           ..._a,
           idUser: rsUser.id,
@@ -125,6 +129,7 @@ class UserRepository {
 
   async update(user: IUserPayload): Promise<number> {
     try {
+      console.log(user)
       return await sequelize.transaction(async () => {
         const rsUser = (
           await UserModel.update(user, { where: { id: user.id } })

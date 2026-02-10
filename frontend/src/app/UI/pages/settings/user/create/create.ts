@@ -35,9 +35,6 @@ import { Loader } from '@ui/icons/loader';
 import { FormsModule } from '@angular/forms';
 import { PlaneRoleModel } from '@domain/role/role.model';
 import { UpdateUserUseCase } from '@domain/user/usecase/updateUser.usecase';
-import { ActiveUsersUseCase } from '@domain/user/usecase/activeUsers.usecase';
-import { InactiveUsersUseCase } from '@domain/user/usecase/inactiveUsers.usecase';
-import { TotalUsersUseCase } from '@domain/user/usecase/totalUsers.usecase';
 
 @Component({
   selector: 'app-create',
@@ -109,8 +106,6 @@ export class Create {
     },
   });
 
-  
-
   constructor() {
     effect(() => {
       const data = this.userResource.value();
@@ -167,12 +162,13 @@ export class Create {
 
         const payload: UserPayloadModel = {
           ...userForm,
+          userId: undefined,
           userRoles: this.sRole.map((a) => ({
             roleId: a.roleId,
             userId: userForm.userId ?? '',
           })),
         };
-
+        console.log(payload)
         const response = await firstValueFrom(this.createUser.execute(payload));
 
         if (response?.id) {
