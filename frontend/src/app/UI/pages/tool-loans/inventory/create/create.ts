@@ -1,45 +1,59 @@
 import { Location } from '@angular/common';
 import {
   Component,
+  computed,
   effect,
   inject,
   resource,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FormField, form, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute } from '@angular/router';
+import { ToolModel } from '@domain/tool/tool.model';
 import { CreateToolUseCase } from '@domain/tool/usecase/createTool.usecase';
 import { FindOneToolUseCase } from '@domain/tool/usecase/findOneTool.usecase';
 import { UpdateToolUseCase } from '@domain/tool/usecase/updateTool.usecase';
 import { Loader } from '@ui/icons/loader';
+import { Router } from 'express';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-create',
-  imports: [Loader, FormsModule],
+  imports: [Loader, FormsModule, FormField],
   templateUrl: './create.html',
   styleUrl: './create.scss',
 })
 export class Create {
   private location = inject(Location);
 
-  toolId = signal<string>('');
-  toolName = signal<string>('');
-  toolDescription = signal<string>('');
-  toolBrand = signal<string>('');
-  toolModel = signal<string>('');
-  toolSerial = signal<string>('');
-  toolImg = signal<string>('');
+  toolModel = signal<ToolModel>({
+    toolId: '',
+    toolName: '',
+    toolDescription: '',
+    toolBrand: '',
+    toolModel: '',
+    toolSerial: '',
+    toolImg: '',
+    toolAvailable: true,
+    toolCode: '',
+  });
+
+  toolForm = form(this.toolModel, (fields) => {
+    (required(fields.toolName, { message: 'Este campo es requerido.' }),
+      required(fields.toolCode, { message: 'Este campo es requerido.' }));
+  });
 
   private createTool = inject(CreateToolUseCase);
   private updateTool = inject(UpdateToolUseCase);
 
   route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   private findOneTool = inject(FindOneToolUseCase);
 
-  tool = resource({
+  toolResource = resource({
     loader: async () =>
       await firstValueFrom(
         this.findOneTool.execute({
@@ -48,6 +62,8 @@ export class Create {
       ),
   });
 
+  isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
+
   /**
    * Toastr Service
    */
@@ -55,18 +71,24 @@ export class Create {
 
   constructor() {
     effect(() => {
-      const data = this.tool.value();
+      const data = this.toolResource.value();
 
-      if (!data) return;
-
-      this.toolId.set(data.toolId ?? '');
-      this.toolName.set(data.toolName ?? '');
-      this.toolDescription.set(data.toolDescription ?? '');
-      this.toolBrand.set(data.toolBrand ?? '');
-      this.toolModel.set(data.toolModel ?? '');
-      this.toolSerial.set(data.toolSerial ?? '');
-      this.toolImg.set(data.toolImg ?? '');
+      if (data) {
+        setTimeout(() => this.patchForm(data));
+      }
     });
+  }
+
+  private patchForm(data: ToolModel): void {
+    this.toolForm.toolId?.().setControlValue(data.toolId ?? '');
+    this.toolForm.toolName?.().setControlValue(data.toolName);
+    this.toolForm.toolDescription?.().setControlValue(data.toolDescription);
+    this.toolForm.toolBrand?.().setControlValue(data.toolBrand);
+    this.toolForm.toolModel?.().setControlValue(data.toolModel);
+    this.toolForm.toolSerial?.().setControlValue(data.toolSerial);
+    this.toolForm.toolImg?.().setControlValue(data.toolImg);
+    this.toolForm.toolAvailable?.().setControlValue(data.toolAvailable);
+    this.toolForm.toolCode?.().setControlValue(data.toolCode);
   }
 
   goBack(): void {
@@ -107,46 +129,44 @@ export class Create {
     this.files.push(...Array.from(fileList));
   }
 
-  save(): void {
-    if (this.toolId()) {
-      firstValueFrom(
-        this.updateTool.execute({
-          toolId: this.toolId(),
-          toolBrand: this.toolBrand(),
-          toolName: this.toolName(),
-          toolDescription: this.toolDescription(),
-          toolModel: this.toolModel(),
-          toolSerial: this.toolSerial(),
-          toolImg: this.toolImg(),
-          toolStatus: true,
-        }),
-      ).then((rs) => {
-        if (rs > 0) {
-          this.toastr.success(
-            'Registro actualizado con exito.',
-            'Edición de Herramienta',
+  async onCreate(event: Event) {
+    event.preventDefault();
+    try {
+      await submit(this.toolForm, async () => {
+        const toolForm = this.toolForm().controlValue();
+
+        const response = await firstValueFrom(
+          this.createTool.execute(toolForm),
+        );
+
+        if (response.toolId) {
+          this.toastr.success('Herramienta guardadad exitosamente');
+          this.router.navigate(
+            ['configuraciones/usuarios/editar', response.toolId],
+            {
+              replaceUrl: true,
+            },
           );
         }
       });
-    } else {
-      firstValueFrom(
-        this.createTool.execute({
-          toolBrand: this.toolBrand(),
-          toolName: this.toolName(),
-          toolDescription: this.toolDescription(),
-          toolModel: this.toolModel(),
-          toolSerial: this.toolSerial(),
-          toolImg: this.toolImg(),
-          toolStatus: true,
-        }),
-      ).then((rs) => {
-        if (rs.toolId) {
-          this.toastr.success(
-            'Registro creado con exito.',
-            'Creación de Herramienta',
-          );
-        }
-      });
+    } catch (error) {
+      this.toastr.error('Verifique los campos del formulario');
+    }
+  }
+
+  async onUpdate(event: Event) {
+    event.preventDefault();
+
+    try {
+      const toolForm = this.toolForm().controlValue();
+
+      const response = await firstValueFrom(this.updateTool.execute(toolForm));
+
+      if (response > 0) {
+        this.toastr.success('Usuario actualizado exitosamente');
+      }
+    } catch (error) {
+      this.toastr.error('Verifique los campos del formulario');
     }
   }
 }

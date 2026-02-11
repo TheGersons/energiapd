@@ -1,12 +1,13 @@
 export interface ITool {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   brand: string;
   model: string;
   serial: string;
-  status: boolean;
-  img: string;
-  createdAt?: string;
-  updatedAt?: string;
+  image: string;
+  available: boolean;
+  code: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

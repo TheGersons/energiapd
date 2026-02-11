@@ -11,8 +11,11 @@ export class ToolsMapper extends Mapper<ToolEntity[], ToolModel[]> {
       toolBrand: a.brand,
       toolModel: a.model,
       toolSerial: a.serial,
-      toolStatus: a.status,
-      toolImg: a.img,
+      toolImg: a.image,
+      toolAvailable: a.available,
+      toolCode: a.code,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
     }));
   }
 
@@ -24,8 +27,11 @@ export class ToolsMapper extends Mapper<ToolEntity[], ToolModel[]> {
       brand: a.toolBrand,
       model: a.toolModel,
       serial: a.toolSerial,
-      status: a.toolStatus,
-      img: a.toolImg,
+      image: a.toolImg,
+      available: a.toolAvailable,
+      code: a.toolCode,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
     }));
   }
 }

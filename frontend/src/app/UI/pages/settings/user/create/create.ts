@@ -10,14 +10,13 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { ConsoleService, NgSelectModule } from '@ng-select/ng-select';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 // Signals Forms & Domain
 import {
   form,
   pattern,
   required,
-  minLength,
   submit,
   FormField,
 } from '@angular/forms/signals';

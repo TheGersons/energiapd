@@ -5,8 +5,9 @@ export interface ToolEntity {
   brand: string;
   model: string;
   serial: string;
-  status: boolean;
-  img: string;
+  image: string;
+  available: boolean;
+  code: string;
   createdAt?: string;
   updatedAt?: string;
 }

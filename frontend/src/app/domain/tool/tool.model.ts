@@ -3,8 +3,11 @@ export interface ToolModel {
   toolName: string;
   toolDescription: string;
   toolBrand: string;
-  toolModel: string
+  toolModel: string;
   toolSerial: string;
-  toolStatus: boolean;
   toolImg: string;
+  toolAvailable: boolean;
+  toolCode: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -21,7 +21,7 @@ export class ToolImplementation extends ToolRepository {
 
   override createTool(tool: ToolModel): Observable<ToolModel> {
     return this.http
-      .post<ToolEntity>(`${this.baseURL}tool`, {
+      .post<ToolEntity>(`${this.baseURL}`, {
         tool: this.toolMapper.mapTo(tool),
       })
       .pipe(map(this.toolMapper.mapFrom));
@@ -29,20 +29,20 @@ export class ToolImplementation extends ToolRepository {
 
   override findAllTools(): Observable<ToolModel[]> {
     return this.http
-      .get<ToolEntity[]>(`${this.baseURL}tools`)
+      .get<ToolEntity[]>(`${this.baseURL}`)
       .pipe(map(this.toolsMapper.mapFrom));
   }
 
   override findOneTool(tool: Partial<ToolModel>): Observable<ToolModel> {
     return this.http
-      .get<ToolEntity>(`${this.baseURL}tool`, {
+      .get<ToolEntity>(`${this.baseURL}one`, {
         params: this.partialToolMapper.mapTo(tool),
       })
       .pipe(map(this.toolMapper.mapFrom));
   }
 
   override updateTool(tool: ToolModel): Observable<number> {
-    return this.http.put<number>(`${this.baseURL}tool`, {
+    return this.http.put<number>(`${this.baseURL}`, {
       tool: this.toolMapper.mapTo(tool),
     });
   }

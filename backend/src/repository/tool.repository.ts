@@ -1,7 +1,5 @@
-import { sequelize } from "@database/index";
 import { ITool } from "@type/tool.type";
 import { ToolModel } from "@model/tool.model";
-import { WhereOptions } from "@sequelize/core";
 
 class ToolRepository {
   async findAll(): Promise<ITool[]> {

@@ -15,10 +15,10 @@ class ToolRoute {
   }
 
   private routes(): void {
-    this.router.get("/tools", toolController.findAll);
-    this.router.get("/tool", toolController.findOne);
-    this.router.post("/tool", this.upload.single("img"), toolController.create);
-    this.router.put("/tool", toolController.update);
+    this.router.get("/", toolController.findAll);
+    this.router.get("/one", toolController.findOne);
+    this.router.post("/", this.upload.single("img"), toolController.create);
+    this.router.put("/", toolController.update);
   }
 }
 

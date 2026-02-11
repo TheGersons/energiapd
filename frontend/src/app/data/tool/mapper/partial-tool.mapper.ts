@@ -16,8 +16,11 @@ export class PartialToolMapper extends Mapper<
       ...(param.brand !== undefined && { toolBrand: param.brand }),
       ...(param.model !== undefined && { toolModel: param.model }),
       ...(param.serial !== undefined && { toolSerial: param.serial }),
-      ...(param.status !== undefined && { toolStatus: param.status }),
-      ...(param.img !== undefined && { toolImg: param.img }),
+      ...(param.image !== undefined && { toolImg: param.image }),
+      ...(param.available !== undefined && { toolAvailable: param.available }),
+      ...(param.code !== undefined && { toolCode: param.code }),
+      ...(param.createdAt !== undefined && { createdAt: param.createdAt }),
+      ...(param.updatedAt !== undefined && { updatedAt: param.updatedAt }),
     };
   }
 
@@ -31,8 +34,13 @@ export class PartialToolMapper extends Mapper<
       ...(param.toolBrand !== undefined && { brand: param.toolBrand }),
       ...(param.toolModel !== undefined && { model: param.toolModel }),
       ...(param.toolSerial !== undefined && { serial: param.toolSerial }),
-      ...(param.toolStatus !== undefined && { status: param.toolStatus }),
-      ...(param.toolImg !== undefined && { img: param.toolImg }),
+      ...(param.toolImg !== undefined && { image: param.toolImg }),
+      ...(param.toolAvailable !== undefined && {
+        available: param.toolAvailable,
+      }),
+      ...(param.toolCode !== undefined && { code: param.toolCode }),
+      ...(param.createdAt !== undefined && { createdAt: param.createdAt }),
+      ...(param.updatedAt !== undefined && { updatedAt: param.updatedAt }),
     };
   }
 }

@@ -11,8 +11,11 @@ export class ToolMapper extends Mapper<ToolEntity, ToolModel> {
       toolBrand: param.brand,
       toolModel: param.model,
       toolSerial: param.serial,
-      toolStatus: param.status,
-      toolImg: param.img,
+      toolImg: param.image,
+      toolAvailable: param.available,
+      toolCode: param.code,
+      createdAt: param.createdAt,
+      updatedAt: param.updatedAt,
     };
   }
 
@@ -24,8 +27,11 @@ export class ToolMapper extends Mapper<ToolEntity, ToolModel> {
       brand: param.toolBrand,
       model: param.toolModel,
       serial: param.toolSerial,
-      status: param.toolStatus,
-      img: param.toolImg,
+      image: param.toolImg,
+      available: param.toolAvailable,
+      code: param.toolCode,
+      createdAt: param.createdAt,
+      updatedAt: param.updatedAt,
     };
   }
 }

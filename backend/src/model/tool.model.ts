@@ -18,8 +18,11 @@ export class ToolModel extends Model<
   declare brand: string;
   declare model: string;
   declare serial: string;
-  declare status: boolean;
-  declare img: string;
+  declare image: string;
+  declare available: boolean;
+  declare code: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 ToolModel.init(
@@ -34,8 +37,15 @@ ToolModel.init(
     brand: { type: DataTypes.STRING },
     model: { type: DataTypes.STRING },
     serial: { type: DataTypes.STRING },
-    status: { type: DataTypes.BOOLEAN },
-    img: { type: DataTypes.STRING },
+    image: { type: DataTypes.STRING },
+    code: { type: DataTypes.BOOLEAN },
+    createdAt: { type: DataTypes.DATE },
+    updatedAt: { type: DataTypes.DATE },
   },
-  { sequelize, modelName: "Tool", tableName: "tool_loan_tool", timestamps: true }
+  {
+    sequelize,
+    modelName: "tool",
+    tableName: "tool",
+    timestamps: true,
+  },
 );

@@ -5,7 +5,9 @@
         <button
           (click)="goBack()"
           class="hover:bg-gray-200 rounded-full cursor-pointer">
-          <app-loader [name]="'arrow-left'" class="w-6 h-6 text-gray-800"></app-loader>
+          <app-loader
+            [name]="'arrow-left'"
+            class="w-6 h-6 text-gray-800"></app-loader>
         </button>
         <h2 class="text-2xl font-bold">
           Ingreso o Modificación de Herramienta
@@ -17,7 +19,10 @@
 
   <div
     class="p-4 rounded-md border border-gray-200 bg-white/50 shadow-md space-y-4">
-    <form>
+    <form
+      novalidate
+      autocomplete="off"
+      (submit)="isEditMode() ? onUpdate($event) : onCreate($event)">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
           <label htmlFor="name" class="ps-1 text-gray-700 text-sm font-medium">
@@ -25,9 +30,8 @@
           </label>
           <input
             class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [(ngModel)]="toolName"
+            [formField]="toolForm.toolName"
             id="name"
-            name="name"
             type="text"
             placeholder="Nombre" />
         </div>
@@ -35,14 +39,13 @@
           <label
             class="ps-1 text-gray-700 text-sm font-medium"
             for="calibration"
-            >N° de Certificado de Calibración</label
+            >Código Contable</label
           >
           <input
             class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            id="calibration"
-            name="calibration"
+            id="code"
             type="text"
-            placeholder="Certificado de Calibración" />
+            placeholder="Ej: EPDCN001" />
         </div>
       </div>
       <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -52,9 +55,8 @@
           </label>
           <input
             class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [(ngModel)]="toolBrand"
+            [formField]="toolForm.toolBrand"
             id="brand"
-            name="brand"
             type="text"
             placeholder="Marca" />
         </div>
@@ -64,9 +66,8 @@
           </label>
           <input
             class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [(ngModel)]="toolModel"
+            [formField]="toolForm.toolModel"
             id="model"
-            name="model"
             type="text"
             placeholder="Modelo" />
         </div>
@@ -80,22 +81,10 @@
           </label>
           <input
             class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [(ngModel)]="toolSerial"
+            [formField]="toolForm.toolSerial"
             id="serial"
-            name="serial"
             type="text"
             placeholder="Serie" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label htmlFor="qty" class="ps-1 text-gray-700 text-sm font-medium">
-            Cantidad *
-          </label>
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            id="qty"
-            name="qty"
-            type="number"
-            placeholder="Cantidad" />
         </div>
       </div>
       <div class="flex flex-col gap-2">
@@ -106,8 +95,7 @@
         </label>
         <textarea
           class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0 resize-none"
-          [(ngModel)]="toolDescription"
-          name="description"
+          [formField]="toolForm.toolDescription"
           id="description"
           rows="5"
           placeholder="Cuentanos sobre tu motivación para unirte a nuestro equipo..."></textarea>
@@ -148,7 +136,7 @@
       class="bg-gray-400 p-2 rounded-xl cursor-pointer">
       Cancelar
     </button>
-    <button type="submit" (click)="save()" class="bg-blue-400 p-2 rounded-xl cursor-pointer">
+    <button type="submit" class="bg-blue-400 p-2 rounded-xl cursor-pointer">
       Guardar
     </button>
   </div>
