@@ -8,19 +8,19 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormField, form, required, submit } from '@angular/forms/signals';
-import { ActivatedRoute } from '@angular/router';
+import { form, required, submit, FormField } from '@angular/forms/signals';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToolModel } from '@domain/tool/tool.model';
 import { CreateToolUseCase } from '@domain/tool/usecase/createTool.usecase';
 import { FindOneToolUseCase } from '@domain/tool/usecase/findOneTool.usecase';
 import { UpdateToolUseCase } from '@domain/tool/usecase/updateTool.usecase';
 import { Loader } from '@ui/icons/loader';
-import { Router } from 'express';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-create',
+  standalone: true,
   imports: [Loader, FormsModule, FormField],
   templateUrl: './create.html',
   styleUrl: './create.scss',
@@ -41,8 +41,9 @@ export class Create {
   });
 
   toolForm = form(this.toolModel, (fields) => {
-    (required(fields.toolName, { message: 'Este campo es requerido.' }),
-      required(fields.toolCode, { message: 'Este campo es requerido.' }));
+    required(fields.toolName, { message: 'Este campo es requerido.' });
+
+    required(fields.toolCode, { message: 'Este campo es requerido.' });
   });
 
   private createTool = inject(CreateToolUseCase);
@@ -54,12 +55,11 @@ export class Create {
   private findOneTool = inject(FindOneToolUseCase);
 
   toolResource = resource({
-    loader: async () =>
-      await firstValueFrom(
-        this.findOneTool.execute({
-          toolId: this.route.snapshot.paramMap.get('id') ?? undefined,
-        }),
-      ),
+    params: () => this.route.snapshot.paramMap.get('id'),
+    loader: async ({ params: id }) => {
+      if (!id) return null;
+      return await firstValueFrom(this.findOneTool.execute({ toolId: id }));
+    },
   });
 
   isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
@@ -121,7 +121,7 @@ export class Create {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.addFiles(input.files);
-      input.value = ''; // permite subir el mismo archivo otra vez
+      input.value = '';
     }
   }
 
@@ -136,13 +136,13 @@ export class Create {
         const toolForm = this.toolForm().controlValue();
 
         const response = await firstValueFrom(
-          this.createTool.execute(toolForm),
+          this.createTool.execute({ ...toolForm, toolId: undefined }),
         );
 
         if (response.toolId) {
           this.toastr.success('Herramienta guardadad exitosamente');
           this.router.navigate(
-            ['configuraciones/usuarios/editar', response.toolId],
+            ['/herramientas/inventario/editar', response.toolId],
             {
               replaceUrl: true,
             },
@@ -168,5 +168,10 @@ export class Create {
     } catch (error) {
       this.toastr.error('Verifique los campos del formulario');
     }
+  }
+
+  isFieldInvalid(fieldName: keyof ToolModel): boolean {
+    const field = (this.toolForm as any)[fieldName]?.();
+    return !!(field?.touched() && field?.errors().length > 0);
   }
 }

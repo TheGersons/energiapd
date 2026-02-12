@@ -4,90 +4,112 @@
       <div class="flex items-center gap-2">
         <button
           (click)="goBack()"
-          class="hover:bg-gray-200 rounded-full cursor-pointer">
-          <app-loader
-            [name]="'arrow-left'"
-            class="w-6 h-6 text-gray-800"></app-loader>
+          class="p-0 rounded-full h-6 w-6 hover:bg-gray-200 rounded-full cursor-pointer">
+          <app-loader [name]="'arrow-left'" hostClass="w-6 h-6"></app-loader>
         </button>
         <h2 class="text-2xl font-bold">
-          Ingreso o Modificación de Herramienta
+          Creación o Modificación de Herramientas
         </h2>
       </div>
-      <h3 class="text-gray-500">Gestión de Inventario de herrramientas</h3>
+      <h3 class="text-gray-500">Gestión de Herramientas</h3>
     </div>
   </div>
-
-  <div
-    class="p-4 rounded-md border border-gray-200 bg-white/50 shadow-md space-y-4">
+  <div class="space-y-4">
     <form
       novalidate
       autocomplete="off"
-      (submit)="isEditMode() ? onUpdate($event) : onCreate($event)">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-2">
-          <label htmlFor="name" class="ps-1 text-gray-700 text-sm font-medium">
-            Nombre *
-          </label>
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [formField]="toolForm.toolName"
-            id="name"
-            type="text"
-            placeholder="Nombre" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label
-            class="ps-1 text-gray-700 text-sm font-medium"
-            for="calibration"
-            >Código Contable</label
-          >
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            id="code"
-            type="text"
-            placeholder="Ej: EPDCN001" />
-        </div>
+      (submit)="isEditMode() ? onUpdate($event) : onCreate($event)"
+      class="p-4 rounded-md shadow-md border border-blue-200 bg-white grid grid-cols-1 gap-4">
+      <div class="flex flex-col space-y-2">
+        <label class="font-semibold" for="name">Nombre:</label>
+        <input
+          [formField]="toolForm.toolName"
+          type="text"
+          id="name"
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+          placeholder="Nombre de la herramienta" />
+        @if (isFieldInvalid("toolName")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of toolForm.toolName().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
-      <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <label htmlFor="brand" class="ps-1 text-gray-700 text-sm font-medium">
-            Marca
-          </label>
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [formField]="toolForm.toolBrand"
-            id="brand"
-            type="text"
-            placeholder="Marca" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label htmlFor="model" class="ps-1 text-gray-700 text-sm font-medium">
-            Modelo
-          </label>
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [formField]="toolForm.toolModel"
-            id="model"
-            type="text"
-            placeholder="Modelo" />
-        </div>
+      <div class="flex flex-col space-y-2">
+        <label class="font-semibold" for="code">Código Contable:</label>
+        <input
+          [formField]="toolForm.toolCode"
+          type="text"
+          id="code"
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+          placeholder="Ej: EPDCN001" />
+        @if (isFieldInvalid("toolCode")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of toolForm.toolCode().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
-      <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <label
-            htmlFor="serial"
-            class="ps-1 text-gray-700 text-sm font-medium">
-            Serie
-          </label>
-          <input
-            class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-            [formField]="toolForm.toolSerial"
-            id="serial"
-            type="text"
-            placeholder="Serie" />
-        </div>
+      <div class="flex flex-col space-y-2">
+        <label class="font-semibold" for="brand">Marca:</label>
+        <input
+          [formField]="toolForm.toolBrand"
+          type="text"
+          id="brand"
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+          placeholder="Ej: Marca de la herramienta" />
+        @if (isFieldInvalid("toolBrand")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of toolForm.toolBrand().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <span>{{ a.message }}</span>
+            }
+          </p>
+        }
       </div>
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col space-y-2">
+        <label class="font-semibold" for="model">Modelo:</label>
+        <input
+          [formField]="toolForm.toolModel"
+          type="text"
+          id="model"
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+          placeholder="Modelo de la herramienta" />
+        @if (isFieldInvalid("toolModel")) {
+          <p class="text-sm text-red-400 font-medium flex items-center gap-1">
+            @for (a of toolForm.toolModel().errors(); track $index) {
+              <app-loader
+                name="warning"
+                hostClass="w-3 h-3 text-red-400"></app-loader>
+              <ul>
+                {{
+                  a.message
+                }}
+              </ul>
+            }
+          </p>
+        }
+      </div>
+      <div class="flex flex-col space-y-2">
+        <label class="font-semibold" for="serie">Serie:</label>
+        <input
+          [formField]="toolForm.toolSerial"
+          type="text"
+          id="serie"
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+          placeholder="Serie de la herramienta" />
+      </div>
+      <div class="flex flex-col space-y-2">
         <label
           class="ps-1 text-gray-700 text-sm font-medium"
           htmlFor="description">
@@ -98,9 +120,8 @@
           [formField]="toolForm.toolDescription"
           id="description"
           rows="5"
-          placeholder="Cuentanos sobre tu motivación para unirte a nuestro equipo..."></textarea>
+          placeholder="Descripción de la herramienta..."></textarea>
       </div>
-
       <div class="flex flex-col gap-2">
         <label class="ps-1 text-gray-700 text-sm font-medium" for="img"
           >Imagen de la Herramienta</label
@@ -128,16 +149,19 @@
           </div>
         </div>
       </div>
+      <div
+        class="flex items-center justify-end border-t border-gray-300 p-4 space-x-5">
+        <button
+          type="button"
+          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500">
+          Guardar
+        </button>
+      </div>
     </form>
-  </div>
-  <div class="flex gap-4 justify-end">
-    <button
-      (click)="goBack()"
-      class="bg-gray-400 p-2 rounded-xl cursor-pointer">
-      Cancelar
-    </button>
-    <button type="submit" class="bg-blue-400 p-2 rounded-xl cursor-pointer">
-      Guardar
-    </button>
   </div>
 </div>

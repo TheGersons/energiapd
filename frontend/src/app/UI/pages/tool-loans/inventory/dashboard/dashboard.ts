@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   resource,
+  signal,
 } from '@angular/core';
 import { Loader } from '@ui/icons/loader';
 import { Router } from '@angular/router';
@@ -40,8 +41,6 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private readonly COMPONENT_KEY = 'tool-inventory-dashboard';
 
-  canEdit = computed(() => this.sTool.size === 1);
-
   cards: Card[] = [
     {
       data: '5',
@@ -63,11 +62,16 @@ export class Dashboard implements OnInit, OnDestroy {
     },
   ];
 
-  tools = resource({
+  toolsResource = resource({
     loader: async () => await firstValueFrom(this.findAllTools.execute({})),
   });
 
-  sTool = new Set<string>();
+  selection = signal(new Set<string>());
+
+  readonly selectedCount = computed(() => this.selection().size);
+
+  // Simplificado: true si no hay exactamente 1 elemento
+  readonly canEdit = computed(() => this.selectedCount() !== 1);
 
   async ngOnInit(): Promise<void> {
     const savedState = await firstValueFrom(
@@ -82,7 +86,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     const currentState = {
-      sTool: Array.from(this.sTool),
+      selection: Array.from(this.selection()),
       timestamp: new Date(),
     };
 
@@ -99,26 +103,26 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private restoreState(state: any): void {
     if (state) {
-      this.sTool = new Set<string>(state.data.sTool);
+      this.selection.set(new Set<string>(state.data.sTool));
     }
   }
 
-  onSelectRow(row: ToolModel) {
-    if (this.sTool.has(row.toolId as string)) {
-      this.sTool.delete(row.toolId as string);
-      return;
-    }
-
-    this.sTool.add(row.toolId as string);
+  toggleSelection(id: string): void {
+    this.selection.update((set) => {
+      const next = new Set(set);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   }
 
-  navigate() {
-    let id;
-    if (this.sTool.size === 1) {
-      id = Array.from(this.sTool)[0];
-      this.router.navigate(['/prestamo-herramientas/inventario/editar', id]);
-      return;
+  navigate(type: number) {
+    if (type === 2) {
+      this.router.navigate([
+        '/herramientas/inventario/editar',
+        Array.from(this.selection())[0],
+      ]);
+    } else {
+      this.router.navigate(['/herramientas/inventario/crear']);
     }
-    this.router.navigate(['/prestamo-herramientas/inventario/crear']);
   }
 }

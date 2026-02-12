@@ -108,10 +108,9 @@ export class Dashboard implements OnInit, OnDestroy {
     }
   }
 
-  navigate() {
-    let id;
-    if (this.sLoan.size === 1) {
-      id = Array.from(this.sLoan)[0];
+  navigate(type: number) {
+    if (type === 2) {
+      const id = Array.from(this.sLoan)[0];
       this.router.navigate(['/prestamo-herramientas/prestamos/editar', id]);
       return;
     }

@@ -6,20 +6,40 @@
     </div>
   </div>
 
-  <div class="flex space-x-10 w-1/2">
-    @for (a of cards; track $index) {
-      <div
-        class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-        <div [class]="`rounded-lg p-3 ${a.bgColor}`">
-          <app-loader [name]="a.iconName"></app-loader>
-        </div>
-
-        <div class="">
-          <h2 class="text-2xl font-bold">{{ a.data }}</h2>
-          <h3 class="text-slate-500">{{ a.subtitle }}</h3>
-        </div>
+  <div class="flex space-x-10 w-[50%]">
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-blue-400 rounded-lg p-3">
+        <app-loader name="tool" hostClass="w-6 h-6 text-gray-800"></app-loader>
       </div>
-    }
+
+      <div class="">
+        <h2 class="text-2xl font-bold">6</h2>
+        <h3 class="text-slate-500">Herramientas</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-green-400 rounded-lg p-3">
+        <app-loader name="active" hostClass="w-6 h-6 text-gray-800"></app-loader>
+      </div>
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Herramientas Prestadas</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="bg-red-400 rounded-lg p-3">
+        <app-loader
+          name="inactive"
+          hostClass="w-6 h-6 text-gray-800"></app-loader>
+      </div>
+      <div class="">
+        <h2 class="text-2xl font-bold">1</h2>
+        <h3 class="text-slate-500">Herramientas Disponibles</h3>
+      </div>
+    </div>
   </div>
 
   <div
@@ -27,7 +47,7 @@
     <div class="px-3 py-2">
       <div
         class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
-        <button (click)="navigate()" class="p-1">
+        <button (click)="navigate(1)" class="p-1">
           <svg
             class="w-6 h-6"
             aria-hidden="true"
@@ -50,7 +70,7 @@
               d="M352 192V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64H96a32 32 0 0 1 0-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 0 1-32-32V256h704v672a32 32 0 0 1-32 32H192zm224-192a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32zm192 0a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32z" />
           </svg>
         </button>
-        <button (click)="navigate()" [disabled]="canEdit()" class="p-1">
+        <button (click)="navigate(2)" [disabled]="canEdit()" class="p-1">
           <svg
             class="w-6 h-6"
             viewBox="0 0 24 24"
@@ -83,15 +103,15 @@
       </thead>
       <tbody
         class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
-        @for (t of tools.value(); track $index) {
+        @for (t of toolsResource.value(); track $index) {
           <tr
-            [class.bg-blue-200]="sTool.has(t.toolId ?? '')"
-            (click)="onSelectRow(t)">
+            [class.bg-blue-200]="selection().has(t.toolId ?? '')"
+            (click)="toggleSelection(t.toolId ?? '')">
             <td>{{ t.toolName }}</td>
             <td>{{ t.toolBrand }}</td>
             <td>{{ t.toolModel }}</td>
             <td>{{ t.toolSerial }}</td>
-            <td>{{ t.toolStatus ? "Disponible" : "No Disponible" }}</td>
+            <td>{{ t.toolAvailable ? "Disponible" : "No Disponible" }}</td>
             <td>No requiere</td>
           </tr>
         }

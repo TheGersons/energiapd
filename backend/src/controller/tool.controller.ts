@@ -12,7 +12,7 @@ class ToolController {
   findOne({ query }: Request, res: Response) {
     if (!query || Object.keys(query).length === 0) {
       res.json({});
-      return
+      return;
     }
     toolRepository
       .findOne(query)
@@ -30,8 +30,19 @@ class ToolController {
   create({ body }: Request, res: Response) {
     toolRepository
       .create(body.tool)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(500).json(error));
+      .then((rs) => {
+        const credentials = Buffer.from(
+          `${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`,
+        ).toString("base64");
+         `Basic ${credentials}`;
+
+         
+        res.status(200).json(rs);
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json(error);
+      });
   }
 }
 

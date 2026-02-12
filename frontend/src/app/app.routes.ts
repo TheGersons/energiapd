@@ -78,12 +78,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'tool-loans/home',
-        loadComponent: () =>
-          import('@ui/pages/tool-loans/home/tool-home').then((m) => m.ToolHome),
-      },
-      {
-        path: 'prestamo-herramientas/inventario',
+        path: 'herramientas/inventario',
         loadComponent: () =>
           import('@ui/pages/tool-loans/inventory/inventory').then(
             (m) => m.Inventory,
@@ -108,35 +103,6 @@ export const routes: Routes = [
             path: 'editar/:id',
             loadComponent: () =>
               import('@ui/pages/tool-loans/inventory/create/create').then(
-                (m) => m.Create,
-              ),
-          },
-        ],
-      },
-      {
-        path: 'prestamo-herramientas/prestamos',
-        loadComponent: () =>
-          import('@ui/pages/tool-loans/loans/loans').then((m) => m.Loans),
-        children: [
-          {
-            path: '',
-            pathMatch: 'full',
-            loadComponent: () =>
-              import('@ui/pages/tool-loans/loans/dashboard/dashboard').then(
-                (m) => m.Dashboard,
-              ),
-          },
-          {
-            path: 'crear',
-            loadComponent: () =>
-              import('@ui/pages/tool-loans/loans/create/create').then(
-                (m) => m.Create,
-              ),
-          },
-          {
-            path: 'editar/:id',
-            loadComponent: () =>
-              import('@ui/pages/tool-loans/loans/create/create').then(
                 (m) => m.Create,
               ),
           },
