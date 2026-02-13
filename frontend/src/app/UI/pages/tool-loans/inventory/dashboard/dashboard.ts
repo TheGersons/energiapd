@@ -15,6 +15,7 @@ import { firstValueFrom, timestamp } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { FindAllToolsUseCase } from '@domain/tool/usecase/findAllTools.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
+import { DeleteToolUseCase } from '@domain/tool/usecase/deleteTool.usecase';
 
 interface Card {
   data: string;
@@ -36,6 +37,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private saveNavigationStateUseCase = inject(SaveNavigationStateUseCase);
   private getNavigationStateUseCase = inject(GetNavigationStateUseCase);
   private findAllTools = inject(FindAllToolsUseCase);
+  private deleteTool = inject(DeleteToolUseCase);
 
   private router = inject(Router);
 
@@ -70,7 +72,6 @@ export class Dashboard implements OnInit, OnDestroy {
 
   readonly selectedCount = computed(() => this.selection().size);
 
-  // Simplificado: true si no hay exactamente 1 elemento
   readonly canEdit = computed(() => this.selectedCount() !== 1);
 
   async ngOnInit(): Promise<void> {
@@ -123,6 +124,13 @@ export class Dashboard implements OnInit, OnDestroy {
       ]);
     } else {
       this.router.navigate(['/herramientas/inventario/crear']);
+    }
+  }
+
+  onDelete() {
+    console.log(this.canEdit());
+    if (!this.canEdit()) {
+      firstValueFrom(this.deleteTool.execute(Array.from(this.selection())[0]));
     }
   }
 }

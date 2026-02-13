@@ -7,10 +7,10 @@ import { ToolRepository } from '../tool.repository';
 @Injectable({
   providedIn: 'root',
 })
-export class CreateToolUseCase implements UseCase<ToolModel, ToolModel> {
+export class CreateToolUseCase implements UseCase<{tool: ToolModel, image?: File}, ToolModel> {
   private toolRepository = inject(ToolRepository);
 
-  execute(params: ToolModel): Observable<ToolModel> {
+  execute(params: {tool: ToolModel, image?: File}): Observable<ToolModel> {
     return this.toolRepository.createTool(params);
   }
 }

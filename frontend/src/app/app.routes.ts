@@ -108,6 +108,34 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'herramientas/prestamos',
+        loadComponent: () =>
+          import('@ui/pages/tool-loans/loans/loans').then((m) => m.Loans),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@ui/pages/tool-loans/loans/dashboard/dashboard').then(
+                (m) => m.Dashboard,
+              ),
+          },
+          {
+            path: 'crear',
+            loadComponent: () =>
+              import('@ui/pages/tool-loans/loans/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+          {
+            path: 'editar/:id',
+            loadComponent: () =>
+              import('@ui/pages/tool-loans/loans/create/create').then(
+                (m) => m.Create,
+              ),
+          },
+        ],
+      },
     ],
   },
 ];

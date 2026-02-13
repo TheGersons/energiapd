@@ -29,6 +29,14 @@ export class Aside {
           pageUrl: '/herramientas/inventario',
           pageDescription: 'Inventario de Herramientas',
         },
+        {
+          pageId: 'loans',
+          moduleId: 'tool-loans',
+          pageName: 'loans',
+          pageLabel: 'Préstamos',
+          pageUrl: '/herramientas/prestamos',
+          pageDescription: 'Gestión de Préstamos',
+        },
       ],
     },
     {

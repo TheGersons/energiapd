@@ -35,7 +35,7 @@ class RoleController {
       .catch((error) => res.status(500).json(error));
   }
 
-  async delete({ query }: Request, res: Response) {
+  delete({ query }: Request, res: Response) {
     roleRepository
       .delete(query.id as string)
       .then((rs) => res.status(200).json(rs))

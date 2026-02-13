@@ -5,9 +5,7 @@ import multer from "multer";
 
 class ToolRoute {
   router: Router;
-  upload = multer({
-    dest: "uploads/tools/",
-  });
+  upload = multer({ storage: multer.memoryStorage() });
 
   constructor() {
     this.router = Router();
@@ -17,8 +15,9 @@ class ToolRoute {
   private routes(): void {
     this.router.get("/", toolController.findAll);
     this.router.get("/one", toolController.findOne);
-    this.router.post("/", this.upload.single("img"), toolController.create);
-    this.router.put("/", toolController.update);
+    this.router.post("/", this.upload.single("image"), toolController.create);
+    this.router.put("/", this.upload.single("image"), toolController.update);
+    this.router.delete("/", toolController.delete);
   }
 }
 

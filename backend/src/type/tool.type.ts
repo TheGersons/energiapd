@@ -10,4 +10,5 @@ export interface ITool {
   code: string;
   createdAt?: Date;
   updatedAt?: Date;
+  status: boolean;
 }

@@ -23,6 +23,7 @@ export class ToolModel extends Model<
   declare code: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+  declare status: boolean;
 }
 
 ToolModel.init(
@@ -42,6 +43,7 @@ ToolModel.init(
     code: { type: DataTypes.STRING },
     createdAt: { type: DataTypes.DATE },
     updatedAt: { type: DataTypes.DATE },
+    status: { type: DataTypes.BOOLEAN, defaultValue: true },
   },
   {
     sequelize,

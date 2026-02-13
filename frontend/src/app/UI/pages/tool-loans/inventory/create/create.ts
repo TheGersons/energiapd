@@ -95,22 +95,22 @@ export class Create {
     this.location.back();
   }
 
-  isDragging = false;
-  files: File[] = [];
+  isDragging = signal<boolean>(false);
+  files = signal<File[]>([]);
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
-    this.isDragging = true;
+    this.isDragging.set(true);
   }
 
   onDragLeave(event: DragEvent) {
     event.preventDefault();
-    this.isDragging = false;
+    this.isDragging.set(false);
   }
 
   onDrop(event: DragEvent) {
     event.preventDefault();
-    this.isDragging = false;
+    this.isDragging.set(false);
 
     if (event.dataTransfer?.files?.length) {
       this.addFiles(event.dataTransfer.files);
@@ -121,12 +121,11 @@ export class Create {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.addFiles(input.files);
-      input.value = '';
     }
   }
 
   private addFiles(fileList: FileList) {
-    this.files.push(...Array.from(fileList));
+    this.files.update((prev) => [...prev, ...Array.from(fileList)]);
   }
 
   async onCreate(event: Event) {
@@ -136,7 +135,7 @@ export class Create {
         const toolForm = this.toolForm().controlValue();
 
         const response = await firstValueFrom(
-          this.createTool.execute({ ...toolForm, toolId: undefined }),
+          this.createTool.execute({ tool: toolForm, image: this.files()[0] }),
         );
 
         if (response.toolId) {
@@ -160,7 +159,9 @@ export class Create {
     try {
       const toolForm = this.toolForm().controlValue();
 
-      const response = await firstValueFrom(this.updateTool.execute(toolForm));
+      const response = await firstValueFrom(
+        this.updateTool.execute({ tool: toolForm, image: this.files()[0] }),
+      );
 
       if (response > 0) {
         this.toastr.success('Usuario actualizado exitosamente');

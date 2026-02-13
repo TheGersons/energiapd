@@ -130,23 +130,36 @@
           (dragover)="onDragOver($event)"
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
-          (click)="fileInput.click()"
-          [class.border-blue-500]="isDragging"
+          [class.border-blue-500]="isDragging()"
           class="relative flex gap-2 items-center justify-center bg-neutral-100 border border-blue-200 rounded-md p-2 hover:bg-gray-100">
-          <app-loader [name]="'img'"></app-loader>
-          <div class="flex flex-col justify-center items-center">
-            <span class="text-gray-600"
-              >Haz clic para cargar la imagen o arrastra</span
-            >
-            <span class="text-gray-400">o arrastra y suelta aquí</span>
-            <input
-              #fileInput
-              (change)="onFileSelect($event)"
-              name="img"
-              id="img"
-              class="absolute inset-0 z-100 cursor-pointer opacity-0"
-              type="file" />
-          </div>
+          <app-loader [name]="'img'" class="h-10 w-10"></app-loader>
+          @if (!files().length) {
+            <div class="flex flex-col justify-center items-center">
+              <span class="text-gray-600"
+                >Haz clic para cargar la imagen o arrastra</span
+              >
+              <span class="text-gray-400">o arrastra y suelta aquí</span>
+              <input
+                #fileInput
+                (change)="onFileSelect($event)"
+                name="image"
+                id="image"
+                class="absolute inset-0 z-100 cursor-pointer opacity-0"
+                type="file" />
+            </div>
+          } @else {
+            <div class="flex gap-2 items-center">
+              <span>{{ files()[0].name }}</span>
+              <button
+                type="button"
+                (click)="files.set([])"
+                class="cursor-pointer">
+                <app-loader
+                  name="inactive"
+                  class="h-2 w-2 text-red"></app-loader>
+              </button>
+            </div>
+          }
         </div>
       </div>
       <div

@@ -17,13 +17,28 @@ export class ToolImplementation extends ToolRepository {
   private toolsMapper = new ToolsMapper();
   private partialToolMapper = new PartialToolMapper();
   private http = inject(HttpClient);
-  private baseURL = `${environment.baseURL}tool/`;
+  private baseURL = `${environment.baseURL}tool`;
 
-  override createTool(tool: ToolModel): Observable<ToolModel> {
+  override createTool(param: {
+    tool: ToolModel;
+    image?: File;
+  }): Observable<ToolModel> {
+    const entity = this.toolMapper.mapTo(param.tool);
+
+    const formData = new FormData();
+
+    Object.entries(entity).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    if (param.image) {
+      formData.append('image', param.image);
+    }
+
     return this.http
-      .post<ToolEntity>(`${this.baseURL}`, {
-        tool: this.toolMapper.mapTo(tool),
-      })
+      .post<ToolEntity>(`${this.baseURL}`, formData)
       .pipe(map(this.toolMapper.mapFrom));
   }
 
@@ -35,15 +50,37 @@ export class ToolImplementation extends ToolRepository {
 
   override findOneTool(tool: Partial<ToolModel>): Observable<ToolModel> {
     return this.http
-      .get<ToolEntity>(`${this.baseURL}one`, {
+      .get<ToolEntity>(`${this.baseURL}/one`, {
         params: this.partialToolMapper.mapTo(tool),
       })
       .pipe(map(this.toolMapper.mapFrom));
   }
 
-  override updateTool(tool: ToolModel): Observable<number> {
-    return this.http.put<number>(`${this.baseURL}`, {
-      tool: this.toolMapper.mapTo(tool),
+  override updateTool(param: {
+    tool: ToolModel;
+    image?: File;
+  }): Observable<number> {
+    console.log(param);
+    const entity = this.toolMapper.mapTo(param.tool);
+
+    const formData = new FormData();
+
+    Object.entries(entity).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    if (param.image) {
+      formData.append('image', param.image);
+    }
+
+    return this.http.put<number>(`${this.baseURL}`, formData);
+  }
+
+  override deleteTool(id: string): Observable<number> {
+    return this.http.delete<number>(`${this.baseURL}`, {
+      params: { id },
     });
   }
 }
