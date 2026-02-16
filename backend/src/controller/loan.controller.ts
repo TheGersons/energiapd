@@ -24,7 +24,9 @@ class LoanController {
     loanRepository
       .create(body.loan)
       .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(500).json(error));
+      .catch((error) => {
+        console.log(error)
+        res.status(500).json(error)});
   }
 
   update({ body }: Request, res: Response) {

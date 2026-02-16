@@ -10,10 +10,10 @@ class LoanRoute {
   }
 
   private routes(): void {
-    this.router.get("/loans", loanController.findAll);
-    this.router.get("/loan", loanController.findOne);
-    this.router.post("/loan", loanController.create);
-    this.router.put("/loan", loanController.update);
+    this.router.get("/", loanController.findAll);
+    this.router.get("/one", loanController.findOne);
+    this.router.post("/", loanController.create);
+    this.router.put("/", loanController.update);
   }
 }
 

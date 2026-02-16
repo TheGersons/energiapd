@@ -79,18 +79,7 @@
         </tr>
       </thead>
       <tbody
-        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
-        @for (t of loans.value(); track $index) {
-          <tr
-            [class.bg-blue-200]="sLoan.has(t.loanId ?? '')"
-            (click)="onSelectRow(t)">
-            <td>{{ t.loanName }}</td>
-            <td>{{ t.loanCreatedAt | date: "dd/MM/yyyy" }}</td>
-            <td>{{ t.loanReturnDate | date: "dd/MM/yyyy" }}</td>
-            <td>{{ t.loanStatus }}</td>
-          </tr>
-        }
-      </tbody>
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer"></tbody>
     </table>
   </div>
 </div>

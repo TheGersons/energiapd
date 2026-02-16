@@ -1,13 +1,12 @@
-export interface LoanEntity {
-  id?: string;
+export interface LoanEntityDTO {
   name: string;
   dni: string;
   department: string;
   useDescription: string;
   status: string;
-  useTime: string;
   returnDate: string;
+  approvedBy: string;
+  deliveredBy: string;
   notes: string;
-  createdAt?: string;
-  updatedAt?: string;
+  tools: Array<{ idTool: string }>;
 }

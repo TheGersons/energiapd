@@ -134,7 +134,6 @@ export class Create {
     try {
       await submit(this.userForm, async () => {
         const userForm = this.userForm().controlValue();
-        console.log(userForm);
         const payload: UserPayloadModel = {
           ...userForm,
           userRoles: this.sRole.map((a) => ({

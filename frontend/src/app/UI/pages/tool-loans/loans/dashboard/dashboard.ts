@@ -6,10 +6,9 @@ import {
   OnDestroy,
   OnInit,
   resource,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoanModel } from '@domain/loan/loal.model';
-import { FindAllLoansUseCase } from '@domain/loan/usecase/findAllLoanls.usecase';
 import { GetNavigationStateUseCase } from '@domain/navigation/usecase/get-navigation-state.usecase';
 import { SaveNavigationStateUseCase } from '@domain/navigation/usecase/save-navigation-state.usecase';
 import { Loader } from '@ui/icons/loader';
@@ -24,7 +23,7 @@ interface Card {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Loader, DatePipe],
+  imports: [Loader],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -35,7 +34,6 @@ export class Dashboard implements OnInit, OnDestroy {
    */
   private saveNavigationStateUseCase = inject(SaveNavigationStateUseCase);
   private getNavigationStateUseCase = inject(GetNavigationStateUseCase);
-  private findAllLoans = inject(FindAllLoansUseCase);
 
   cards: Card[] = [
     {
@@ -64,15 +62,11 @@ export class Dashboard implements OnInit, OnDestroy {
     },
   ];
 
-  sLoan = new Set<string>();
+  selection = signal(new Set<string>());
 
-  canEdit = computed(() => this.sLoan.size === 1);
+  canEdit = computed(() => this.selection().size === 1);
 
   private readonly COMPONENT_KEY = 'tool-inventory-dashboard';
-
-  loans = resource({
-    loader: async () => await firstValueFrom(this.findAllLoans.execute({})),
-  });
 
   async ngOnInit(): Promise<void> {
     const savedState = await firstValueFrom(
@@ -87,7 +81,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     const currentState = {
-      sLoan: Array.from(this.sLoan),
+      sLoan: Array.from(this.selection()),
       timestamp: new Date(),
     };
 
@@ -104,25 +98,24 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private restoreState(state: any): void {
     if (state) {
-      this.sLoan = new Set<string>(state.data.sLool);
+      this.selection.set(new Set<string>(state.data.sLool));
     }
   }
 
   navigate(type: number) {
     if (type === 2) {
-      const id = Array.from(this.sLoan)[0];
+      const id = Array.from(this.selection())[0];
       this.router.navigate(['/prestamo-herramientas/prestamos/editar', id]);
       return;
     }
-    this.router.navigate(['/prestamo-herramientas/prestamos/crear']);
+    this.router.navigate(['/herramientas/prestamos/crear']);
   }
 
-  onSelectRow(row: LoanModel) {
-    if (this.sLoan.has(row.loanId as string)) {
-      this.sLoan.delete(row.loanId as string);
-      return;
-    }
-
-    this.sLoan.add(row.loanId as string);
+  onSelectRow(id: string) {
+    this.selection.update((a) => {
+      const b = new Set(a);
+      b.has(id) ? b.delete(id) : b.add(id);
+      return b;
+    });
   }
 }

@@ -73,15 +73,10 @@ class ToolController {
     try {
       const uuid = v4();
       const file = req.file as Express.Multer.File | undefined;
+
       const fileName = req.file
         ? `${uuid}.${file?.originalname.split(".").reverse()[0]}`
         : "";
-      const rs = await toolRepository.create({
-        ...req.body,
-        id: uuid,
-        image: fileName,
-        available: req.body.available === "true",
-      });
 
       if (file) {
         const credentials = Buffer.from(
@@ -89,8 +84,9 @@ class ToolController {
         ).toString("base64");
 
         const header = `Basic ${credentials}`;
+
         const response = await fetch(
-          `${process.env.NEXTCLOUD_WEBDAV_URL}${rs.id}.${file.originalname.split(".").reverse()[0]}`,
+          `${process.env.NEXTCLOUD_WEBDAV_URL}${fileName}`,
           {
             method: "PUT",
             headers: {
@@ -104,9 +100,40 @@ class ToolController {
         if (!response.ok) {
           throw new Error("Error uploading to Nextcloud");
         }
-      }
 
-      res.status(200).json(rs);
+        let publicPreviewUrl = "";
+
+        const shareResponse = await fetch(
+          `${process.env.NEXTCLOUD_BASEURL}/ocs/v1.php/apps/files_sharing/api/v1/shares?format=json`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: header,
+              "OCS-APIRequest": "true",
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              path: `/Herramientas/${fileName}`,
+              shareType: "3",
+            }),
+          },
+        );
+
+        const shareData = await shareResponse.json();
+        if (shareData.ocs?.data?.token) {
+          const token = shareData.ocs.data.token;
+          const fileId = shareData.ocs.data.file_source;
+          publicPreviewUrl = `${process.env.NEXTCLOUD_BASEURL}/apps/files_sharing/publicpreview/${token}?file=/&fileId=${fileId}`;
+        }
+
+        const rs = await toolRepository.create({
+          ...req.body,
+          id: uuid,
+          image: fileName,
+          available: req.body.available === "true",
+        });
+        return res.status(200).json(rs);
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json(error);
