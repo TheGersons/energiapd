@@ -98,6 +98,7 @@ class ToolController {
         );
 
         if (!response.ok) {
+          console.log(response)
           throw new Error("Error uploading to Nextcloud");
         }
 
@@ -126,13 +127,15 @@ class ToolController {
           publicPreviewUrl = `${process.env.NEXTCLOUD_BASEURL}/apps/files_sharing/publicpreview/${token}?file=/&fileId=${fileId}`;
         }
 
+        console.log(shareData)
+
         const rs = await toolRepository.create({
           ...req.body,
           id: uuid,
-          image: fileName,
+          image: publicPreviewUrl,
           available: req.body.available === "true",
         });
-        return res.status(200).json(rs);
+        res.status(200).json(rs);
       }
     } catch (error) {
       console.log(error);
