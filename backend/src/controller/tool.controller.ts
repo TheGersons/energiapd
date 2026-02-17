@@ -34,7 +34,6 @@ class ToolController {
   async update(req: Request, res: Response) {
     try {
       const _file = req.file as Express.Multer.File | undefined;
-      console.log(!_file ? "" : req.body.image);
       const rs = await toolRepository.update({
         ...req.body,
         image: !_file ? "" : req.body.image,
@@ -64,27 +63,26 @@ class ToolController {
       }
       res.status(200).json(rs);
     } catch (error) {
-      console.log(error);
       res.status(500).json(error);
     }
   }
 
   async create(req: Request, res: Response) {
+    let fileUploaded = false;
+    const uuid = v4();
+    const file = req.file as Express.Multer.File | undefined;
+
+    const fileName = req.file
+      ? `${uuid}.${file?.originalname.split(".").reverse()[0]}`
+      : "";
+    const credentials = Buffer.from(
+      `${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`,
+    ).toString("base64");
+
+    const header = `Basic ${credentials}`;
+
     try {
-      const uuid = v4();
-      const file = req.file as Express.Multer.File | undefined;
-
-      const fileName = req.file
-        ? `${uuid}.${file?.originalname.split(".").reverse()[0]}`
-        : "";
-
       if (file) {
-        const credentials = Buffer.from(
-          `${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`,
-        ).toString("base64");
-
-        const header = `Basic ${credentials}`;
-
         const response = await fetch(
           `${process.env.NEXTCLOUD_WEBDAV_URL}${fileName}`,
           {
@@ -98,7 +96,6 @@ class ToolController {
         );
 
         if (!response.ok) {
-          console.log(response)
           throw new Error("Error uploading to Nextcloud");
         }
 
@@ -114,7 +111,7 @@ class ToolController {
               "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-              path: `/Herramientas/${fileName}`,
+              path: `/Aplicativos/Herramientas/${fileName}`,
               shareType: "3",
             }),
           },
@@ -126,8 +123,7 @@ class ToolController {
           const fileId = shareData.ocs.data.file_source;
           publicPreviewUrl = `${process.env.NEXTCLOUD_BASEURL}/apps/files_sharing/publicpreview/${token}?file=/&fileId=${fileId}`;
         }
-
-        console.log(shareData)
+        fileUploaded = true;
 
         const rs = await toolRepository.create({
           ...req.body,
@@ -137,9 +133,25 @@ class ToolController {
         });
         res.status(200).json(rs);
       }
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(error);
+    } catch (error: any) {
+      if (fileUploaded) {
+        try {
+          await fetch(`${process.env.NEXTCLOUD_WEBDAV_URL}${fileName}`, {
+            method: "DELETE",
+            headers: { Authorization: header },
+          });
+        } catch (deleteError) {
+          console.error(
+            "No se pudo eliminar el archivo huérfano:",
+            deleteError,
+          );
+        }
+      }
+
+      res.status(500).json({
+        error: "No se pudo crear la herramienta",
+        detail: error.message,
+      });
     }
   }
 }

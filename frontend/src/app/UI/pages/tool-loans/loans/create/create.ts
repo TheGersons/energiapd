@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import {
   form,
   FormField,
@@ -9,6 +9,7 @@ import {
 } from '@angular/forms/signals';
 import { LoanFormModel, LoanModelDTO } from '@domain/loan/loal.model';
 import { CreateLoanlUseCase } from '@domain/loan/usecase/createLoan.usecase';
+import { FindAllToolsUseCase } from '@domain/tool/usecase/findAllTools.usecase';
 import { Loader } from '@ui/icons/loader';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
@@ -22,10 +23,16 @@ import { validate } from 'uuid';
 })
 export class Create {
   createLoan = inject(CreateLoanlUseCase);
+  findTools = inject(FindAllToolsUseCase);
   toastr = inject(ToastrService);
   private readonly location = inject(Location);
 
+  toolResource = resource({
+    loader: () => firstValueFrom(this.findTools.execute({})),
+  });
+
   sTools: Array<{ toolId: string }> = [];
+  toggleModal = signal<boolean>(false);
 
   loanModel = signal<LoanFormModel>({
     loanName: '',
