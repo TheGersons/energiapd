@@ -162,61 +162,28 @@
             <button (click)="toggleModal.set(true)" type="button" class="p-1">
               <app-loader name="create" hostClass="h-6 w-6"></app-loader>
             </button>
-            <button class="p-1">
-              <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
-            </button>
-            <button class="p-1">
-              <app-loader hostClass="h-6 w-6" name="edit"></app-loader>
-            </button>
           </div>
         </div>
-        <table
-          class="min-w-full border-collapse text-left text-sm text-gray-700">
-          <thead class="bg-neutral-100 sticky z-10">
-            <tr class="*:px-6 *:py-3 *:font-semibold">
-              <th>Nombre</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-            </tr>
-          </thead>
-          <tbody
-            class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
-            <tr>
-              <td>
-                <div class="flex gap-2 items-center">
-                  <app-loader name="img" hostClass="h-3 w-3"></app-loader>
-                  Megger
+        <div class="flex flex-col gap-2 p-3">
+          @for (a of [1, 2, 3, 4, 5, 6]; track $index) {
+            <div
+              class="border border-blue-200 rounded-md px-6 py-2 flex gap-4 items-center justify-between hover:border-blue-400">
+              <div class="flex gap-4 items-center">
+                <div class="rounded-md overflow-hidden">
+                  <img
+                    class="object-cover"
+                    src="https://nx88862.your-storageshare.de/apps/files_sharing/publicpreview/fMZfcX5dwKWMMFJ?file=/&fileId=109923"
+                    alt="" />
                 </div>
-              </td>
-              <td>Megger</td>
-              <td>Megger</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="flex gap-2 items-center">
-                  <app-loader name="img" hostClass="h-3 w-3"></app-loader>
-                  Megger
+                <div class="flex flex-col">
+                  <span class="text-gray-700 text-xl">Megger S1-1068 </span>
+                  <span class="text-gray-500">Megger / MG-2024-001</span>
                 </div>
-              </td>
-              <td>Megger</td>
-              <td>Megger</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="flex gap-4 items-center">
-                  <div class="rounded-md overflow-hidden shadow-md">
-                    <img
-                      src="https://nx88862.your-storageshare.de/apps/files_sharing/publicpreview/qPRcbAdTjmQY7QZ?file=/&fileId=109281"
-                      class="object-cover" />
-                  </div>
-                  Megger
-                </div>
-              </td>
-              <td>Megger</td>
-              <td>Megger</td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+              <div>x</div>
+            </div>
+          }
+        </div>
       </div>
 
       <div
@@ -275,15 +242,20 @@
           type="search"
           class="w-1/2 rounded-md border border-blue-200 px-2 py-1 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
           placeholder="Busqueda de herramientas..." />
-        <div class="grid grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 gap-2 p-3">
           @for (a of toolResource.value(); track $index) {
             <div
-              class="flex gap-4 rounded-md overflow-hidden shadow-md border border-dashed border-blue-200">
-              <img [src]="a.toolImg" alt="" />
-              <div class="flex flex-col text-gray-600">
-                <span>{{ a.toolName }}</span>
-                <span>{{ a.toolModel }}</span>
-                <span>{{ a.toolBrand }}</span>
+              class="border border-blue-200 rounded-md px-6 py-2 flex gap-4 items-center justify-between hover:border-blue-400">
+              <div class="flex gap-4 items-center">
+                <div class="rounded-md overflow-hidden">
+                  <img class="object-cover" [src]="a.toolImg" alt="" />
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-gray-700 text-xl">{{ a.toolName }} </span>
+                  <span class="text-gray-500"
+                    >{{ a.toolBrand }} / {{ a.toolSerial }}</span
+                  >
+                </div>
               </div>
             </div>
           }

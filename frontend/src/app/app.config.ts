@@ -11,7 +11,11 @@ import {
   withEventReplay,
   withIncrementalHydration,
 } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { PermissionRepository } from '@domain/permission/permission.repository';
 import { PermissionImplementation } from '@data/permission/permission-implementation.repository';
@@ -28,6 +32,7 @@ import { LoanRepository } from '@domain/loan/loan.repository';
 import { LoanImplementation } from '@data/loan/loan-implementation.repository';
 import { UserRepository } from '@domain/user/user.repository';
 import { UserImplementation } from '@data/user/user-implementation.repository';
+import { httpErrorInterceptor } from '@base/interceptor/http-error-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,7 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideClientHydration(withEventReplay(), withIncrementalHydration()),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([httpErrorInterceptor])),
     provideAnimations(),
     provideToastr(),
     { provide: PermissionRepository, useClass: PermissionImplementation },
