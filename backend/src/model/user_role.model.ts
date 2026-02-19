@@ -42,8 +42,3 @@ UserRoleModel.init(
   },
 );
 
-UserRoleModel.belongsTo(RoleModel, {
-  foreignKey: "idRole",
-  targetKey: "id",
-  as: "role",
-});

@@ -47,6 +47,7 @@
           [formField]="loanForm.loanDni"
           id="dni"
           type="text"
+          mask="XXXX-XXXX-XXXXX"
           placeholder="Ej: XXXX-XXXX-XXXXX"
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 placeholder:text-gray-500" />
 
@@ -155,32 +156,41 @@
       </div>
 
       <div
-        class="overflow-x-auto rounded-xl shadow-sm border border-dashed border-blue-200 bg-white">
+        class="overflow-x-auto p-4 border-t border-gray-200 bg-white">
         <div class="px-3 py-2">
           <div
             class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
-            <button (click)="toggleModal.set(true)" type="button" class="p-1">
+            <button (click)="toggleModal.set(true)" type="button" class="py-1 px-2 flex gap-2">
               <app-loader name="create" hostClass="h-6 w-6"></app-loader>
+              Agregar Herramientas
             </button>
           </div>
         </div>
         <div class="flex flex-col gap-2 p-3">
-          @for (a of [1, 2, 3, 4, 5, 6]; track $index) {
+          @for (a of tools().values(); track $index) {
             <div
               class="border border-blue-200 rounded-md px-6 py-2 flex gap-4 items-center justify-between hover:border-blue-400">
               <div class="flex gap-4 items-center">
                 <div class="rounded-md overflow-hidden">
-                  <img
-                    class="object-cover"
-                    src="https://nx88862.your-storageshare.de/apps/files_sharing/publicpreview/fMZfcX5dwKWMMFJ?file=/&fileId=109923"
-                    alt="" />
+                  <img class="object-cover" [src]="a.toolImg" alt="" />
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-gray-700 text-xl">Megger S1-1068 </span>
-                  <span class="text-gray-500">Megger / MG-2024-001</span>
+                  <span class="text-gray-700 text-xl">{{ a.toolName }}</span>
+                  <span class="text-gray-500"
+                    >{{ a.toolBrand }} / {{ a.toolSerial }}</span
+                  >
                 </div>
               </div>
-              <div>x</div>
+              <div>
+                <button
+                  (click)="onRemoveTool(a)"
+                  class="rounded-full p-2 hover:bg-gray-200 cursor-pointer"
+                  type="button">
+                  <app-loader
+                    name="inactive"
+                    hostClass="h-4 w-4 text-red-400"></app-loader>
+                </button>
+              </div>
             </div>
           }
         </div>
@@ -189,6 +199,7 @@
       <div
         class="flex items-center justify-end border-t border-gray-300 p-4 space-x-5">
         <button
+          (click)="goBack()"
           type="button"
           class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
           Cancelar
@@ -214,7 +225,7 @@
     <div class="relative bg-white rounded-lg shadow-sm flex-1">
       <!-- Modal Header -->
       <div
-        class="flex items-center justify-between p-4 border-b rounded-t border-none">
+        class="flex items-center justify-between p-4 border-b rounded-t border-gray-200">
         <h3 class="text-3xl font-semibold">Nuevo Equipo</h3>
         <button
           (click)="toggleModal.set(false)"
@@ -245,7 +256,9 @@
         <div class="grid grid-cols-2 gap-2 p-3">
           @for (a of toolResource.value(); track $index) {
             <div
-              class="border border-blue-200 rounded-md px-6 py-2 flex gap-4 items-center justify-between hover:border-blue-400">
+              (click)="onSelect(a)"
+              [class.bg-blue-300/40]="sTool().has(a)"
+              class="border border-blue-200 rounded-md px-6 py-2 flex gap-4 items-center justify-between hover:border-blue-400 cursor-pointer">
               <div class="flex gap-4 items-center">
                 <div class="rounded-md overflow-hidden">
                   <img class="object-cover" [src]="a.toolImg" alt="" />
@@ -263,13 +276,15 @@
       </div>
       <!-- Modal footer -->
       <div
-        class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse rounded-b dark:border-gray-600">
+        class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse rounded-b dark:border-gray-600 sticky bottom-0 border-t border-gray-200">
         <button
+          (click)="onAddTool()"
           type="button"
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-          Guardar
+          Agregar
         </button>
         <button
+          (click)="toggleModal.set(false)"
           type="button"
           class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
           Cancelar
@@ -277,5 +292,4 @@
       </div>
     </div>
   </div>
-  <!-- fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full -->
 </div>

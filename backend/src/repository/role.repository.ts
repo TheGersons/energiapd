@@ -1,12 +1,13 @@
 import { sequelize } from "@database/index";
 import { RolePermissionModel } from "@model/role-permission.model";
 import { RoleModel } from "@model/role.model";
-import { IRole, IRolePermission, IRolePayload } from "@type/role.type";
+import { IRole, IRolePayload } from "@type/role.type";
 
 class RoleRepository {
   async findAll(): Promise<IRole[]> {
     return await RoleModel.findAll({ order: [["createdAt", "ASC"]] });
   }
+
 
   async findOne(role: Partial<IRole>): Promise<IRolePayload | null> {
     return (await RoleModel.findOne({

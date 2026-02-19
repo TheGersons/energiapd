@@ -16,6 +16,7 @@ class UserRoute {
     this.router.get("/activeCount", userController.activeCount);
     this.router.get("/inactiveCount", userController.inactiveCount);
     this.router.get("/totalCount", userController.totalCount);
+    this.router.get("/permissions", userController.findPermissions);
   }
 }
 

@@ -1,54 +1,49 @@
 import { sequelize } from "@database/index";
+import { PermissionModel } from "@model/permission.model";
+import { RolePermissionModel } from "@model/role-permission.model";
 import { RoleModel } from "@model/role.model";
 import { UserModel } from "@model/user.model";
 import { UserRoleModel } from "@model/user_role.model";
+import { IRole } from "@type/role.type";
 import { IUserRole } from "@type/user-role.type";
 import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
 import { hashSync } from "bcrypt";
 
 class UserRepository {
   async findAll(): Promise<IUserResponse[]> {
-    return (
-      await UserModel.findAll({
-        attributes: [
-          "id",
-          "nickname",
-          "email",
-          "fullname",
-          "status",
-          "requestChangePass",
-          "createdAt",
-          "updatedAt",
-        ],
-        include: [
-          {
-            model: UserRoleModel,
-            as: "roles",
-            attributes: ["id"],
-            include: [
-              {
-                model: RoleModel,
-                as: "role",
-                attributes: ["id", "name", "description", "priority"],
-              },
-            ],
-          },
-        ],
-      })
-    ).map((_a) => ({
+    const users = await UserModel.findAll({
+      attributes: [
+        "id",
+        "nickname",
+        "email",
+        "fullname",
+        "status",
+        "requestChangePass",
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+        {
+          model: RoleModel,
+          through: { attributes: [] },
+          attributes: ["id", "name", "description", "priority"],
+        },
+      ],
+    });
+
+    return users.map((_a: UserModel) => ({
       id: _a.id,
       nickname: _a.nickname,
       email: _a.email,
       fullname: _a.fullname,
       status: _a.status,
       requestChangePass: _a.requestChangePass,
-      roles:
-        _a.roles?.map((_b) => ({
-          id: _b.role.id,
-          name: _b.role.name,
-          description: _b.role.description,
-          priority: _b.role.priority,
-        })) ?? [],
+      roles: (_a["user-role"] ?? []).map((role: any) => ({
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        priority: role.priority,
+      })),
       createdAt: _a.createdAt,
       updatedAt: _a.updatedAt,
     }));
@@ -56,7 +51,6 @@ class UserRepository {
 
   async create(user: IUserPayload): Promise<{ id: string }> {
     try {
-      console.log(user)
       return await sequelize.transaction(async () => {
         const rsUser = await UserModel.create({
           ...user,
@@ -75,9 +69,27 @@ class UserRepository {
     }
   }
 
+  async findPermissions(): Promise<any> {
+    return await UserModel.findAll({
+      attributes: ["id", "fullname"],
+      include: [
+        {
+          model: RoleModel,
+          through: { attributes: [] },
+          include: [
+            {
+              model: PermissionModel,
+              through: { attributes: [] },
+              attributes: ["id", "slug"],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
   async findOne(user: Partial<IUser>): Promise<IUserResponse | undefined> {
     const _a = await UserModel.findOne({
-      where: { id: user.id },
       attributes: [
         "id",
         "nickname",
@@ -90,16 +102,9 @@ class UserRepository {
       ],
       include: [
         {
-          model: UserRoleModel,
-          as: "roles",
-          attributes: ["id"],
-          include: [
-            {
-              model: RoleModel,
-              as: "role",
-              attributes: ["id", "name", "description", "priority"],
-            },
-          ],
+          model: RoleModel,
+          through: { attributes: [] },
+          attributes: ["id", "name", "description", "priority"],
         },
       ],
     });
@@ -115,13 +120,12 @@ class UserRepository {
       fullname: _a.fullname,
       status: _a.status,
       requestChangePass: _a.requestChangePass,
-      roles:
-        _a.roles?.map((_b) => ({
-          id: _b.role.id,
-          name: _b.role.name,
-          description: _b.role.description,
-          priority: _b.role.priority,
-        })) ?? [],
+      roles: (_a["user-role"] ?? []).map((role: any) => ({
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        priority: role.priority,
+      })),
       createdAt: _a.createdAt,
       updatedAt: _a.updatedAt,
     };
@@ -129,7 +133,7 @@ class UserRepository {
 
   async update(user: IUserPayload): Promise<number> {
     try {
-      console.log(user)
+      console.log(user);
       return await sequelize.transaction(async () => {
         const rsUser = (
           await UserModel.update(user, { where: { id: user.id } })

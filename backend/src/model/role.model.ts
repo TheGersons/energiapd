@@ -34,8 +34,9 @@ RoleModel.init(
   { sequelize, modelName: "Role", tableName: "role", timestamps: true },
 );
 
-RoleModel.hasMany(RolePermissionModel, {
+RoleModel.belongsToMany(PermissionModel, {
+  through: RolePermissionModel,
   foreignKey: "idRole",
-  sourceKey: "id",
-  as: "rolePermission",
+  otherKey: "idPermission",
+  as: "role-permission",
 });

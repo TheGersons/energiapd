@@ -7,6 +7,7 @@ import {
   Model,
   sql,
 } from "@sequelize/core";
+import { PermissionModel } from "./permission.model";
 
 export class RolePermissionModel extends Model<
   InferAttributes<RolePermissionModel>,

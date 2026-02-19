@@ -16,7 +16,7 @@ export class LoanImplementation extends LoanRepository {
   private baseURL = `${environment.baseURL}loan/`;
 
   override createLoan(loan: LoanModelDTO): Observable<string> {
-    return this.http.post<string>(`${this.baseURL}loan`, {
+    return this.http.post<string>(`${this.baseURL}`, {
       loan: this.loanMapper.mapTo(loan),
     });
   }

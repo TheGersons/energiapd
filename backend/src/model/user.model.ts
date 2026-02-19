@@ -10,6 +10,7 @@ import {
 } from "@sequelize/core";
 import { RoleModel } from "./role.model";
 import { UserRoleModel } from "./user_role.model";
+import { PermissionModel } from "./permission.model";
 
 export class UserModel extends Model<
   InferAttributes<UserModel>,
@@ -24,7 +25,8 @@ export class UserModel extends Model<
   declare requestChangePass: boolean;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
-  declare roles?: NonAttribute<UserRoleModel[]>;
+  declare "role-permission"?: NonAttribute<PermissionModel[]>;
+  declare "user-role"?: NonAttribute<UserModel[]>;
 }
 
 UserModel.init(
@@ -47,8 +49,9 @@ UserModel.init(
   { sequelize, modelName: "User", tableName: "user", timestamps: true },
 );
 
-UserModel.hasMany(UserRoleModel, {
+UserModel.belongsToMany(RoleModel, {
+  through: UserRoleModel,
   foreignKey: "idUser",
-  sourceKey: "id",
-  as: "roles",
+  otherKey: "idRole",
+  as: "user-role",
 });
