@@ -1,9 +1,15 @@
+import { ILoan } from "@type/loan.type";
 import { Request, Response } from "express";
 import { loanRepository } from "repository/loan.repository";
 import { errorResponse } from "utils/errorResponse";
 
+export interface AuthRequest extends Request {
+  idUser?: string;
+  permissions?: string[];
+}
+
 class LoanController {
-  findAll(req: Request, res: Response) {
+  findAll(req: AuthRequest, res: Response) {
     loanRepository
       .findAll()
       .then((rs) => res.status(200).json(rs))

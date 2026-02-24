@@ -7,7 +7,6 @@ class UserController {
       .findAll()
       .then((rs) => res.status(200).json(rs))
       .catch((error) => {
-        console.log(error);
         res.status(400).json(error);
       });
   }
@@ -32,16 +31,6 @@ class UserController {
         res.status(500).json(error);
       });
   }
-
-  /* async findPermissions(req: Request, res: Response) {
-    userRepository
-      .findPermissions()
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json(error);
-      });
-  } */
 
   async update({ body }: Request, res: Response) {
     userRepository

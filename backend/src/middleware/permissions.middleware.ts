@@ -1,56 +1,57 @@
 import { Request, Response, NextFunction } from "express";
+import prisma from "@database/index";
+import { errorResponse } from "utils/errorResponse";
 
-/**
- * Middleware para verificar permisos
- * @param {string|string[]} requiredPermissions
- */
-const authorize = (requiredPermissions) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+export interface AuthRequest extends Request {
+  idUser?: string;
+  permissions?: string[];
+}
+
+export function hasPermission(requiredPermissions: string[]) {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user.id; // Del token JWT
+      if (!req.idUser || !req.permissions) {
+        errorResponse(
+          res,
+          401,
+          "Debe iniciar sesión para acceder a este recurso.",
+        );
+      }
 
-      // Obtener permisos del usuario
-      const userPermissions = await getUserPermissions(userId);
+      const userPermissions = await findPermissions(req.idUser ?? "");
 
-      // Convertir a array si es string
-      const required = Array.isArray(requiredPermissions)
-        ? requiredPermissions
-        : [requiredPermissions];
-
-      // Verificar si tiene al menos uno de los permisos requeridos
-      const hasPermission = required.some((perm) =>
+      const hasPermission = requiredPermissions.some((perm) =>
         userPermissions.includes(perm),
       );
 
       if (!hasPermission) {
-        return res.status(403).json({
-          message: "No tienes permisos para realizar esta acción",
-          required: required,
-        });
+        errorResponse(res, 403, "No tiene permisos para realizar esta acción");
       }
 
       next();
     } catch (error) {
-      return res.status(500).json({ message: "Error verificando permisos" });
+      console.error("[authorize middleware]", error);
+      errorResponse(res, 500, "Error verificando permisos");
     }
   };
-};
-
-/**
- * Obtener todos los permisos de un usuario
- * (a través de sus roles)
- */
-async function getUserPermissions(userId: string) {
-  const query = `
-    SELECT DISTINCT p.name
-    FROM permissions p
-    INNER JOIN role_permissions rp ON p.id = rp.permission_id
-    INNER JOIN user_roles ur ON rp.role_id = ur.role_id
-    WHERE ur.user_id = $1
-  `;
-
-  const result = await db.query(query, [userId]);
-  return result.rows.map((row) => row.name);
 }
 
-module.exports = { authorize, getUserPermissions };
+const findPermissions = async (idUser: string): Promise<string[]> => {
+  const rsS = await prisma.permission.findMany({
+    where: {
+      rolePermissions: {
+        some: {
+          role: {
+            userRoles: {
+              some: {
+                idUser: "d098bb3b-ff0c-45f0-aa7c-c72a0213540b",
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return rsS.flatMap((a) => [a.slug]);
+};

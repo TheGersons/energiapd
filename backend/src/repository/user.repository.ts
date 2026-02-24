@@ -64,47 +64,6 @@ class UserRepository {
     }
   }
 
-  private flattenPermissions(user: any) {
-    const permissionMap = new Map();
-
-    user["user-role"].forEach((role: any) => {
-      role["role-permission"].forEach((perm: any) => {
-        if (!permissionMap.has(perm.slug)) {
-          permissionMap.set(perm.slug, {
-            name: perm.slug,
-            label: perm.label,
-          });
-        }
-      });
-    });
-
-    return Array.from(permissionMap.values());
-  }
-
-  /* async findPermissions(): Promise<any> {
-    const rs = await UserModel.findAll({
-      where: { id: "84f33e1d-4aaa-44a1-afbe-b272e8e8a54c" },
-      attributes: ["id", "fullname"],
-      include: [
-        {
-          model: RoleModel,
-          through: { attributes: [] },
-          include: [
-            {
-              model: PermissionModel,
-              through: { attributes: [] },
-              attributes: ["id", "slug", "label"],
-            },
-          ],
-        },
-      ],
-    });
-
-    if (!rs.length) return [];
-
-    return this.flattenPermissions(rs[0]);
-  } */
-
   async findOne(user: Partial<IUser>): Promise<IUserResponse | undefined> {
     const a = await prisma.user.findUnique({
       omit: { password: true },
