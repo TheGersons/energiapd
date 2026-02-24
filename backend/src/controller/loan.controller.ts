@@ -1,18 +1,6 @@
 import { Request, Response } from "express";
 import { loanRepository } from "repository/loan.repository";
-
-function errorResponse(
-  res: Response,
-  statusCode: number,
-  message: string,
-  details?: unknown,
-) {
-  const body: Record<string, unknown> = { message, statusCode };
-  if (details && process.env.NODE_ENV !== "production") {
-    body["details"] = details;
-  }
-  return res.status(statusCode).json(body);
-}
+import { errorResponse } from "utils/errorResponse";
 
 class LoanController {
   findAll(req: Request, res: Response) {

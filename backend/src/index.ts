@@ -3,7 +3,6 @@ import morgan from "morgan";
 import cors from "cors";
 import { route } from "@route/index";
 import "dotenv/config";
-import { sequelize } from "./database";
 
 class Server {
   private app!: Application;
@@ -12,7 +11,6 @@ class Server {
     this.app = express();
     this.config();
     this.routes();
-    this.connectDB();
   }
 
   config(): void {
@@ -31,10 +29,6 @@ class Server {
     this.app.listen(this.app.get("port"), () => {
       console.log(`Server running on port ${this.app.get("port")}`);
     });
-  }
-
-  async connectDB(): Promise<any> {
-    await sequelize.sync({ force: false });
   }
 }
 

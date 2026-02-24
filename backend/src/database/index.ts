@@ -1,11 +1,15 @@
-import { MySqlDialect } from "@sequelize/mysql";
-import { Sequelize } from "@sequelize/core";
-
-export const sequelize = new Sequelize({
-  dialect: MySqlDialect,
-  database: process.env.DB,
-  user: process.env.USERDB,
-  password: process.env.PASSWORDDB,
-  host: process.env.HOSTDB,
-  port: Number(process.env.PORTDB),
-});
+import { PrismaClient } from "../generated/prisma/client"; 
+import { PrismaPg } from "@prisma/adapter-pg"; 
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient; 
+}; 
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL, 
+}); 
+const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    adapter, 
+  }); 
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma; 
+export default prisma; 

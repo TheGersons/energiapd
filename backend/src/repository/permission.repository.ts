@@ -1,16 +1,16 @@
-import { IPermissionCatalog, IRolePayload } from "@type/permission.type";
-import { PermissionModel } from "@model/permission.model";
+import { IPermissionCatalog } from "@type/permission.type";
+import prisma from "@database/index";
 
 class PermissionRepository {
   async findAll(): Promise<IPermissionCatalog[]> {
-    const permissions = await PermissionModel.findAll({
-      attributes: ["id", "slug", "label", "module", "page"],
-      order: [
-        ["module", "ASC"],
-        ["page", "ASC"],
-        ["label", "ASC"],
-      ],
-      raw: true,
+    const permissions = await prisma.permission.findMany({
+      select: {
+        id: true,
+        slug: true,
+        label: true,
+        module: true,
+        page: true,
+      },
     });
 
     const moduleMap = new Map<string, IPermissionCatalog>();

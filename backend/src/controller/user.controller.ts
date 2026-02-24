@@ -33,7 +33,7 @@ class UserController {
       });
   }
 
-  async findPermissions(req: Request, res: Response) {
+  /* async findPermissions(req: Request, res: Response) {
     userRepository
       .findPermissions()
       .then((rs) => res.status(200).json(rs))
@@ -41,7 +41,7 @@ class UserController {
         console.log(error);
         res.status(500).json(error);
       });
-  }
+  } */
 
   async update({ body }: Request, res: Response) {
     userRepository

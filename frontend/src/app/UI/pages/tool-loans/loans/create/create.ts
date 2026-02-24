@@ -68,6 +68,7 @@ export class Create {
 
         const dto: LoanModelDTO = {
           ...form,
+          loanReturnDate: new Date(form.loanReturnDate).toISOString(),
           loanStatus: 'pending',
           loanApprovedBy: '',
           loanDeliveredBy: '',

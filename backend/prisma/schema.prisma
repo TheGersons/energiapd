@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String     @id @default(uuid())
+  fullname          String
+  nickname          String     @unique
+  email             String     @unique
+  password          String
+  status            Boolean    @default(true)
+  requestChangePass Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  userRoles         UserRole[]
+
+  @@map("user")
+}
+
+model Role {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  description    String
+  priority       Int
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  userRoles      UserRole[]
+  rolePermission RolePermission[]
+
+  @@map("role")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  idUser String
+  idRole String
+
+  user User @relation(fields: [idUser], references: [id])
+  role Role @relation(fields: [idRole], references: [id])
+
+  @@map("user_role")
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  slug            String
+  label           String
+  module          String
+  page            String
+  rolePermissions RolePermission[]
+
+  @@map("permission")
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  idRole       String
+  idPermission String
+
+  role       Role       @relation(fields: [idRole], references: [id])
+  permission Permission @relation(fields: [idPermission], references: [id])
+
+  @@map("role_permission")
+}
+
+model Tool {
+  id          String       @id @default(uuid())
+  name        String
+  description String
+  brand       String
+  model       String
+  serial      String
+  image       String
+  available   Boolean      @default(true)
+  code        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  status      Boolean      @default(true)
+  loanDetails LoanDetail[]
+
+  @@map("tool")
+}
+
+model Loan {
+  id             String   @id @default(uuid())
+  name           String
+  dni            String
+  department     String
+  useDescription String
+  status         String   @default("pendiente")
+  returnDate     DateTime
+  approvedBy     String
+  deliveredBy    String
+  notes          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  loanDetails LoanDetail[]
+
+  @@map("loan")
+}
+
+model LoanDetail {
+  id     String @id @default(uuid())
+  idLoan String
+  idTool String
+
+  loan Loan @relation(fields: [idLoan], references: [id])
+  tool Tool @relation(fields: [idTool], references: [id])
+
+  @@map("loan_detail")
+}

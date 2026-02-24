@@ -10,7 +10,7 @@ export interface ILoan {
   returnDate: Date;
   approvedBy: string;
   deliveredBy: string;
-  notes: string;
+  notes?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

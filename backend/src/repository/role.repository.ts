@@ -1,34 +1,37 @@
-import { sequelize } from "@database/index";
 import { RolePermissionModel } from "@model/role-permission.model";
 import { RoleModel } from "@model/role.model";
 import { IRole, IRolePayload } from "@type/role.type";
+import prisma from "@database/index";
 
 class RoleRepository {
   async findAll(): Promise<IRole[]> {
-    return await RoleModel.findAll({ order: [["createdAt", "ASC"]] });
+    return await prisma.role.findMany({
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
   }
 
-
   async findOne(role: Partial<IRole>): Promise<IRolePayload | null> {
-    return (await RoleModel.findOne({
-      where: role,
-      attributes: ["id", "name", "description", "priority"],
-      include: [
-        {
-          model: RolePermissionModel,
-          attributes: ["id", "idRole", "idPermission"],
+    return prisma.role.findUnique({
+      where: { id: role.id },
+      include: {
+        rolePermission: {
+          select: { id: true, idRole: true, idPermission: true },
         },
-      ],
-    })) as unknown as IRolePayload | null;
+      },
+    });
   }
 
   async create(role: IRolePayload): Promise<IRolePayload> {
     try {
-      return await sequelize.transaction(async () => {
-        const rsRole = await RoleModel.create({
-          name: role.name,
-          description: role.description,
-          priority: Number(role.priority) || 0,
+      return await prisma.$transaction(async (transaction) => {
+        const rsRole = await transaction.role.create({
+          data: {
+            name: role.name,
+            description: role.description,
+            priority: Number(role.priority),
+          },
         });
 
         const rolePermissionsToInsert = role.rolePermission.map((rp) => ({
@@ -36,11 +39,12 @@ class RoleRepository {
           idRole: rsRole.id,
         }));
 
-        const rsRolePermission = await RolePermissionModel.bulkCreate(
-          rolePermissionsToInsert,
-        );
+        const rsRolePermission =
+          await transaction.rolePermission.createManyAndReturn({
+            data: rolePermissionsToInsert,
+          });
 
-        return { ...rsRole.dataValues, rolePermission: rsRolePermission };
+        return { ...rsRole, rolePermission: rsRolePermission };
       });
     } catch (e: any) {
       throw new Error(e.message || e);
@@ -49,14 +53,21 @@ class RoleRepository {
 
   async update(role: IRolePayload): Promise<number> {
     try {
-      return await sequelize.transaction(async () => {
+      return await prisma.$transaction(async (transaction) => {
         var a = 0;
+
         a += (
-          await RoleModel.update(role, { where: { id: role.id } })
-        ).flat()[0];
-        a += await RolePermissionModel.destroy({
-          where: { idRole: role.id },
-        });
+          await transaction.role.updateMany({
+            data: role,
+            where: { id: role.id },
+          })
+        ).count;
+
+        a += (
+          await transaction.rolePermission.deleteMany({
+            where: { idRole: role.id },
+          })
+        ).count;
 
         const rolePermissionsToInsert = role.rolePermission.map((_a) => ({
           ..._a,
@@ -64,8 +75,10 @@ class RoleRepository {
         }));
 
         a += (
-          await RolePermissionModel.bulkCreate(rolePermissionsToInsert)
-        ).flat().length;
+          await transaction.rolePermission.createMany({
+            data: rolePermissionsToInsert,
+          })
+        ).count;
 
         return a;
       });
@@ -77,11 +90,13 @@ class RoleRepository {
 
   async delete(id: string): Promise<number> {
     try {
-      return await sequelize.transaction(async () => {
+      return await prisma.$transaction(async (transaction) => {
         var a = 0;
-        a += await RoleModel.destroy({ where: { id: id ?? "" } });
 
-        a += await RolePermissionModel.destroy({ where: { idRole: id } });
+        a += (await prisma.role.deleteMany({ where: { id } })).count;
+
+        a += (await prisma.rolePermission.deleteMany({ where: { idRole: id } }))
+          .count;
 
         return a;
       });

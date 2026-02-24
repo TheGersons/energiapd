@@ -3,8 +3,8 @@ export interface IRole {
   name: string;
   description: string;
   priority: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IRolePayload {

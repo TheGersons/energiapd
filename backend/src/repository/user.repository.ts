@@ -1,76 +1,89 @@
-import { sequelize } from "@database/index";
-import { PermissionModel } from "@model/permission.model";
-import { RolePermissionModel } from "@model/role-permission.model";
-import { RoleModel } from "@model/role.model";
-import { UserModel } from "@model/user.model";
-import { UserRoleModel } from "@model/user_role.model";
-import { IRole } from "@type/role.type";
+import prisma from "@database/index";
 import { IUserRole } from "@type/user-role.type";
 import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
 import { hashSync } from "bcrypt";
 
 class UserRepository {
   async findAll(): Promise<IUserResponse[]> {
-    const users = await UserModel.findAll({
-      attributes: [
-        "id",
-        "nickname",
-        "email",
-        "fullname",
-        "status",
-        "requestChangePass",
-        "createdAt",
-        "updatedAt",
-      ],
-      include: [
-        {
-          model: RoleModel,
-          through: { attributes: [] },
-          attributes: ["id", "name", "description", "priority"],
+    const a = await prisma.user.findMany({
+      omit: {
+        password: true,
+      },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                priority: true,
+              },
+            },
+          },
         },
-      ],
+      },
     });
 
-    return users.map((_a: UserModel) => ({
+    return a.map((_a) => ({
       id: _a.id,
       nickname: _a.nickname,
       email: _a.email,
       fullname: _a.fullname,
       status: _a.status,
       requestChangePass: _a.requestChangePass,
-      roles: (_a["user-role"] ?? []).map((role: any) => ({
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        priority: role.priority,
-      })),
       createdAt: _a.createdAt,
       updatedAt: _a.updatedAt,
+      roles: _a.userRoles.map((_b) => ({
+        id: _b.role.id,
+        name: _b.role.name,
+        description: _b.role.description,
+        priority: _b.role.priority,
+      })),
     }));
   }
 
   async create(user: IUserPayload): Promise<{ id: string }> {
     try {
-      return await sequelize.transaction(async () => {
-        const rsUser = await UserModel.create({
-          ...user,
+      const { roles, ...userDTO } = user;
+      return await prisma.user.create({
+        data: {
+          ...userDTO,
           password: hashSync(user.password, 10),
-        });
-        const rolesToInsert: IUserRole[] = user.roles.map((_a) => ({
-          ..._a,
-          idUser: rsUser.id,
-        }));
-
-        await UserRoleModel.bulkCreate(rolesToInsert);
-        return { id: rsUser.id };
+          userRoles: {
+            createMany: {
+              data: roles.map((a) => ({
+                idRole: a.idRole,
+              })),
+            },
+          },
+        },
       });
     } catch (e) {
       throw e;
     }
   }
 
-  async findPermissions(): Promise<any> {
-    return await UserModel.findAll({
+  private flattenPermissions(user: any) {
+    const permissionMap = new Map();
+
+    user["user-role"].forEach((role: any) => {
+      role["role-permission"].forEach((perm: any) => {
+        if (!permissionMap.has(perm.slug)) {
+          permissionMap.set(perm.slug, {
+            name: perm.slug,
+            label: perm.label,
+          });
+        }
+      });
+    });
+
+    return Array.from(permissionMap.values());
+  }
+
+  /* async findPermissions(): Promise<any> {
+    const rs = await UserModel.findAll({
+      where: { id: "84f33e1d-4aaa-44a1-afbe-b272e8e8a54c" },
       attributes: ["id", "fullname"],
       include: [
         {
@@ -80,70 +93,77 @@ class UserRepository {
             {
               model: PermissionModel,
               through: { attributes: [] },
-              attributes: ["id", "slug"],
+              attributes: ["id", "slug", "label"],
             },
           ],
         },
       ],
     });
-  }
+
+    if (!rs.length) return [];
+
+    return this.flattenPermissions(rs[0]);
+  } */
 
   async findOne(user: Partial<IUser>): Promise<IUserResponse | undefined> {
-    const _a = await UserModel.findOne({
-      attributes: [
-        "id",
-        "nickname",
-        "email",
-        "fullname",
-        "status",
-        "requestChangePass",
-        "createdAt",
-        "updatedAt",
-      ],
-      include: [
-        {
-          model: RoleModel,
-          through: { attributes: [] },
-          attributes: ["id", "name", "description", "priority"],
+    const a = await prisma.user.findUnique({
+      omit: { password: true },
+      where: { id: user.id },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                priority: true,
+              },
+            },
+          },
         },
-      ],
+      },
     });
 
-    if (!_a) {
-      return undefined;
-    }
+    if (!a) return undefined;
 
     return {
-      id: _a.id,
-      nickname: _a.nickname,
-      email: _a.email,
-      fullname: _a.fullname,
-      status: _a.status,
-      requestChangePass: _a.requestChangePass,
-      roles: (_a["user-role"] ?? []).map((role: any) => ({
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        priority: role.priority,
+      id: a?.id,
+      nickname: a?.nickname,
+      email: a.email,
+      fullname: a.fullname,
+      status: a.status,
+      requestChangePass: a.requestChangePass,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
+      roles: a.userRoles.map((_a) => ({
+        id: _a.role.id,
+        name: _a.role.name,
+        description: _a.role.description,
+        priority: _a.role.priority,
       })),
-      createdAt: _a.createdAt,
-      updatedAt: _a.updatedAt,
     };
   }
 
   async update(user: IUserPayload): Promise<number> {
     try {
-      console.log(user);
-      return await sequelize.transaction(async () => {
+      return await prisma.$transaction(async (transaction) => {
         const rsUser = (
-          await UserModel.update(user, { where: { id: user.id } })
-        ).flat()[0];
+          await transaction.user.updateMany({
+            data: user,
+            where: { id: user.id },
+          })
+        ).count;
 
-        await UserRoleModel.destroy({ where: { idUser: user.id } });
+        const rsUserRoleDestroy = (
+          await transaction.userRole.deleteMany({ where: { idUser: user.id } })
+        ).count;
 
-        const rsUserRole = (await UserRoleModel.bulkCreate(user.roles)).length;
+        const rsUserRoleCreate = (
+          await transaction.userRole.createMany({ data: user.roles })
+        ).count;
 
-        return rsUser + rsUserRole;
+        return rsUser + rsUserRoleCreate + rsUserRoleDestroy;
       });
     } catch (e) {
       throw e;
@@ -151,15 +171,15 @@ class UserRepository {
   }
 
   async activeCount(): Promise<number> {
-    return await UserModel.count({ where: { status: true } });
+    return await prisma.user.count({ where: { status: true } });
   }
 
   async inactiveCount(): Promise<number> {
-    return await UserModel.count({ where: { status: false } });
+    return await prisma.user.count({ where: { status: false } });
   }
 
   async totalCount(): Promise<number> {
-    return await UserModel.count();
+    return await prisma.user.count();
   }
 }
 

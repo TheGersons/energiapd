@@ -39,4 +39,11 @@ RoleModel.belongsToMany(PermissionModel, {
   foreignKey: "idRole",
   otherKey: "idPermission",
   as: "role-permission",
+  inverse: undefined,
+});
+
+RoleModel.hasMany(RolePermissionModel, {
+  foreignKey: "idRole",
+  sourceKey: "id",
+  as: "rolePermission",
 });

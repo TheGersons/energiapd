@@ -1,30 +1,35 @@
 import { ITool } from "@type/tool.type";
 import { ToolModel } from "@model/tool.model";
+import prisma from "@database/index";
 
 class ToolRepository {
   async findAll(): Promise<ITool[]> {
-    return await ToolModel.findAll({
+    return await prisma.tool.findMany({
       where: { status: true },
-      order: [["createdAt", "ASC"]],
+      orderBy: {
+        createdAt: "asc",
+      },
     });
   }
 
   async findOne(tool: Partial<ITool>): Promise<ITool | null> {
-    return await ToolModel.findOne({ where: tool });
+    return await prisma.tool.findUnique({ where: { id: tool.id } });
   }
 
   async update(tool: ITool): Promise<number> {
-    return (await ToolModel.update(tool, { where: { id: tool.id } })).flat()[0];
+    return (
+      await prisma.tool.updateMany({ data: tool, where: { id: tool.id } })
+    ).count;
   }
 
   async create(tool: ITool): Promise<ITool> {
-    return await ToolModel.create(tool);
+    return await prisma.tool.create({ data: tool });
   }
 
   async delete(id: string): Promise<number> {
     return (
-      await ToolModel.update({ status: false }, { where: { id } })
-    ).flat()[0];
+      await prisma.tool.updateMany({ data: { status: false }, where: { id } })
+    ).count;
   }
 }
 
