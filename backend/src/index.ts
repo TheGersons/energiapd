@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import { route } from "@route/index";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 
 class Server {
   private app!: Application;
@@ -18,6 +19,8 @@ class Server {
     this.app.use(morgan("dev"));
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(cookieParser(process.env.COOKIE_SECRET));
+    this.app.set("trust proxy", "127.0.0.1");
     this.app.use(express.urlencoded({ extended: false }));
   }
 

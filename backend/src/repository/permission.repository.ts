@@ -45,6 +45,24 @@ class PermissionRepository {
 
     return Array.from(moduleMap.values());
   }
+
+  async findOne(idUser: string) {
+    await prisma.permission.findMany({
+      where: {
+        rolePermissions: {
+          some: {
+            role: {
+              userRoles: {
+                some: {
+                  idUser,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
 
 export const permissionRepository = new PermissionRepository();

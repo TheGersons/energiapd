@@ -24,6 +24,7 @@ model User {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   userRoles         UserRole[]
+  sessions          session[]
 
   @@map("user")
 }
@@ -120,4 +121,15 @@ model LoanDetail {
   tool Tool @relation(fields: [idTool], references: [id])
 
   @@map("loan_detail")
+}
+
+model session {
+  id     String @id @default(uuid())
+  idUser String
+  token  String @unique
+  ip     String
+
+  user User @relation(fields: [idUser], references: [id])
+
+  @@map("session")
 }
