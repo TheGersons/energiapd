@@ -4,14 +4,13 @@ import { errorResponse } from "utils/errorResponse";
 
 export interface AuthRequest extends Request {
   idUser?: string;
-  permissions?: string[];
 }
 
 export function hasPermission(requiredPermissions: string[]) {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      if (!req.idUser || !req.permissions) {
-        errorResponse(
+      if (!req.idUser) {
+        return errorResponse(
           res,
           401,
           "Debe iniciar sesión para acceder a este recurso.",
@@ -25,13 +24,17 @@ export function hasPermission(requiredPermissions: string[]) {
       );
 
       if (!hasPermission) {
-        errorResponse(res, 403, "No tiene permisos para realizar esta acción");
+        return errorResponse(
+          res,
+          403,
+          "No tiene permisos para realizar esta acción",
+        );
       }
 
       next();
     } catch (error) {
       console.error("[authorize middleware]", error);
-      errorResponse(res, 500, "Error verificando permisos");
+      return errorResponse(res, 500, "Error verificando permisos");
     }
   };
 }
@@ -44,7 +47,7 @@ const findPermissions = async (idUser: string): Promise<string[]> => {
           role: {
             userRoles: {
               some: {
-                idUser: "d098bb3b-ff0c-45f0-aa7c-c72a0213540b",
+                idUser,
               },
             },
           },

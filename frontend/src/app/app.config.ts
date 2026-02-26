@@ -33,6 +33,9 @@ import { LoanImplementation } from '@data/loan/loan-implementation.repository';
 import { UserRepository } from '@domain/user/user.repository';
 import { UserImplementation } from '@data/user/user-implementation.repository';
 import { httpErrorInterceptor } from '@base/interceptor/http-error-interceptor';
+import { AuthRepository } from '@domain/auth/auth.repository';
+import { AuthImplementation } from '@data/auth/auth-implementation.repository';
+import { authInterceptor } from '@base/interceptor/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,7 +43,10 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideClientHydration(withEventReplay(), withIncrementalHydration()),
-    provideHttpClient(withFetch(), withInterceptors([httpErrorInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([httpErrorInterceptor, authInterceptor]),
+    ),
     provideAnimations(),
     provideToastr(),
     { provide: PermissionRepository, useClass: PermissionImplementation },
@@ -61,6 +67,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: UserRepository,
       useClass: UserImplementation,
+    },
+    {
+      provide: AuthRepository,
+      useClass: AuthImplementation,
     },
   ],
 };

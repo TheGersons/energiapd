@@ -166,7 +166,7 @@ export class Create {
             userId: userForm.userId ?? '',
           })),
         };
-        console.log(payload)
+        
         const response = await firstValueFrom(this.createUser.execute(payload));
 
         if (response?.id) {

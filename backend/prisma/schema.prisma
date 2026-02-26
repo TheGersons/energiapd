@@ -124,10 +124,12 @@ model LoanDetail {
 }
 
 model session {
-  id     String @id @default(uuid())
-  idUser String
-  token  String @unique
-  ip     String
+  id           String @id @default(uuid())
+  idUser       String
+  token        String @unique
+  refreshToken String @unique
+  ip           String
+  userAgent    String
 
   user User @relation(fields: [idUser], references: [id])
 

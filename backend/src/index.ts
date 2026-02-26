@@ -15,9 +15,14 @@ class Server {
   }
 
   config(): void {
+    this.app.use(
+      cors({
+        origin: "http://localhost:4200",
+        credentials: true,
+      }),
+    );
     this.app.set("port", process.env.PORT ?? 3000);
     this.app.use(morgan("dev"));
-    this.app.use(cors());
     this.app.use(express.json());
     this.app.use(cookieParser(process.env.COOKIE_SECRET));
     this.app.set("trust proxy", "127.0.0.1");

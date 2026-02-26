@@ -1,0 +1,105 @@
+import { isPlatformBrowser } from '@angular/common';
+import {
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+} from '@angular/common/http';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { Router } from '@angular/router';
+import { LogoutUseCase } from '@domain/auth/usecase/logout.usecase';
+import { RefreshTokenUseCase } from '@domain/auth/usecase/refreshToken.usecase';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  switchMap,
+  take,
+  throwError,
+} from 'rxjs';
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(RefreshTokenUseCase);
+  const logOut = inject(LogoutUseCase);
+  const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
+
+  if (!isPlatformBrowser(platformId)) {
+    return next(req);
+  }
+  const token = localStorage.getItem('at');
+
+  let authReq = req;
+
+  if (token) {
+    authReq = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  return next(authReq).pipe(
+    catchError((err) => {
+      if (
+        err.status === 401 &&
+        !req.url.includes('/auth/login') &&
+        !req.url.includes('/auth/refresh')
+      ) {
+        return handle401Error(authReq, next, authService, logOut, router);
+      }
+
+      return throwError(() => err);
+    }),
+  );
+};
+
+function handle401Error(
+  request: HttpRequest<any>,
+  next: HttpHandlerFn,
+  rft: RefreshTokenUseCase,
+  los: LogoutUseCase,
+  router: Router,
+) {
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshTokenSubject.next(null);
+
+    return rft.execute({}).pipe(
+      switchMap((res) => {
+        isRefreshing = false;
+        refreshTokenSubject.next(res);
+        return next(
+          request.clone({
+            setHeaders: { Authorization: `Bearer ${res}` },
+          }),
+        );
+      }),
+      catchError((err) => {
+        isRefreshing = false;
+        return los.execute({}).pipe(
+          switchMap(() => {
+            router.navigate(['/iniciar-sesion']);
+            return throwError(() => err);
+          }),
+          catchError(() => {
+            router.navigate(['/iniciar-sesion']);
+            return throwError(() => err);
+          }),
+        );
+      }),
+    );
+  } else {
+    return refreshTokenSubject.pipe(
+      filter((token) => token !== null),
+      take(1),
+      switchMap((token) =>
+        next(
+          request.clone({
+            setHeaders: { Authorization: `Bearer ${token}` },
+          }),
+        ),
+      ),
+    );
+  }
+}

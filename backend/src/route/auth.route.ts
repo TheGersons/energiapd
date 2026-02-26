@@ -11,6 +11,7 @@ class AuthRoute {
 
   private routes(): void {
     this.router.post("/", authController.authenticate);
+    this.router.post("/refresh", authController.refreshToken);
   }
 }
 
