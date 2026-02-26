@@ -7,7 +7,10 @@ class ToolController {
     toolRepository
       .findAll()
       .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(500).json(error));
+      .catch((error) => {
+        console.log('jkhkjh')
+        res.status(500).json(error);
+      });
   }
 
   findOne({ query }: Request, res: Response) {

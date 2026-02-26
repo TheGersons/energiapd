@@ -47,7 +47,6 @@ export class AuthImplementation extends AuthRepository {
 
   override logout(): Observable<string> {
     localStorage.removeItem(this.TOKEN_KEY);
-    // Opcional: llamar a api/auth/logout para que el server haga res.clearCookie('refreshToken')
     return this.http.post<string>(
       `${this.baseURL}logout`,
       {},

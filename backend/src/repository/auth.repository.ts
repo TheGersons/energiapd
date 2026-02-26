@@ -5,12 +5,7 @@ import { signToken } from "session";
 import { verify } from "jsonwebtoken";
 
 class AuthRepository {
-  async authenticate(
-    login: string,
-    password: string,
-    ip: string,
-    userAgent: string,
-  ) {
+  async authenticate(login: string, password: string) {
     try {
       const user = await prisma.user.findFirst({
         where: {
@@ -39,7 +34,11 @@ class AuthRepository {
         },
       });
 
-      const token = signToken(user.id, process.env.SECRET as string, "15m");
+      const accessToken = signToken(
+        user.id,
+        process.env.SECRET as string,
+        "15m",
+      );
 
       const refreshToken = signToken(
         user.id,
@@ -48,21 +47,20 @@ class AuthRepository {
       );
 
       await prisma.session.create({
-        data: { idUser: user.id, ip, token, userAgent, refreshToken },
+        data: {
+          idUser: user.id,
+          accessToken,
+          refreshToken,
+        },
       });
 
-      return { token, refreshToken };
+      return { accessToken, refreshToken };
     } catch (error) {
       throw error;
     }
   }
 
-  async refreshToken(
-    ip: string,
-    userAgent: string,
-    token: string,
-    refreshToken: string,
-  ) {
+  async refreshToken(accessToken: string, refreshToken: string) {
     try {
       const rfToken = verify(
         refreshToken,
@@ -71,10 +69,8 @@ class AuthRepository {
 
       const session = await prisma.session.findFirst({
         where: {
-          token,
+          accessToken,
           refreshToken,
-          userAgent,
-          ip,
         },
       });
 
@@ -96,11 +92,11 @@ class AuthRepository {
           id: session.id,
         },
         data: {
-          token: newTK,
+          accessToken: newTK,
           refreshToken: newRTK,
         },
       });
-      return { token: newTK, refreshToken: newRTK };
+      return { accessToken: newTK, refreshToken: newRTK };
     } catch (error: any) {
       if (error.code) throw error;
 

@@ -18,33 +18,25 @@ export const validateToken = async (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log(req.headers.authorization);
-  if (!req.headers.authorization) {
-    return errorResponse(res, 401, "No autorizado, no cuentas con el token");
-  }
-
-  const { authorization, "user-agent": userAgent } = req.headers;
-  const ip = req.ip;
-
-  const token = authorization.split(" ")[1] ?? "";
-
   try {
-    const payload = verify(token, process.env.SECRET as string);
+    const accessToken = req.signedCookies.accessToken;
+    const payload: any = verify(accessToken, process.env.SECRET as string);
 
     const rsToken = await prisma.session.findFirst({
-      where: { token: token, userAgent, ip },
+      where: { accessToken, idUser: payload.idUser },
     });
 
     if (!(payload && rsToken))
-      return errorResponse(res, 403, "Token no registrado");
+      return errorResponse(res, 401, "Token no registrado");
 
     (req as any).idUser = (payload as any).idUser;
     next();
   } catch (error: any) {
+    console.log(error);
     if (error.name === "TokenExpiredError")
-      return errorResponse(res, 401, "Token expirado");
+      return errorResponse(res, 401, "Token expirado", error);
 
-    return errorResponse(res, 403, "Token inválido");
+    return errorResponse(res, 401, "Token inválido", error);
   }
 };
 

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { RenderMode } from '@angular/ssr';
 import { authGuard } from '@base/guard/auth-guard';
 
 export const routes: Routes = [

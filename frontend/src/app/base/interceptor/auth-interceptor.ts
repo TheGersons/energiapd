@@ -24,25 +24,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(RefreshTokenUseCase);
   const logOut = inject(LogoutUseCase);
   const router = inject(Router);
-  const platformId = inject(PLATFORM_ID);
 
-  if (!isPlatformBrowser(platformId)) {
-    return next(req);
-  }
-  const token = localStorage.getItem('at');
-
-  let authReq = req;
-
-  if (token) {
-    authReq = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
-    });
-  }
+  const authReq = req.clone({
+    withCredentials: true,
+  });
 
   return next(authReq).pipe(
     catchError((err) => {
       if (
-        err.status === 401 &&
+        (err.status === 401 || err.status === 403) &&
         !req.url.includes('/auth/login') &&
         !req.url.includes('/auth/refresh')
       ) {

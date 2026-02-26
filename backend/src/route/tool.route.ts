@@ -15,15 +15,7 @@ class ToolRoute {
   }
 
   private routes(): void {
-    this.router.get(
-      "/",
-      validateToken,
-      hasPermission([
-        "inventario-herramienta:leer:todas",
-        "inventario-herramienta:leer:propias",
-      ]),
-      toolController.findAll,
-    );
+    this.router.get("/", validateToken, toolController.findAll);
     this.router.get("/one", toolController.findOne);
     this.router.post("/", this.upload.single("image"), toolController.create);
     this.router.put("/", this.upload.single("image"), toolController.update);
