@@ -128,6 +128,7 @@ model session {
   idUser       String
   accessToken  String @unique
   refreshToken String @unique
+  fingerprint  String
 
   user User @relation(fields: [idUser], references: [id])
 

@@ -1,11 +1,11 @@
 import prisma from "@database/index";
 import { compare } from "bcrypt";
-import { permissionRepository } from "./permission.repository";
-import { signToken } from "session";
+import { buildFingerprint, signToken } from "session";
 import { verify } from "jsonwebtoken";
+import { Request } from "express";
 
 class AuthRepository {
-  async authenticate(login: string, password: string) {
+  async authenticate(login: string, password: string, req: Request) {
     try {
       const user = await prisma.user.findFirst({
         where: {
@@ -46,11 +46,14 @@ class AuthRepository {
         "8h",
       );
 
+      const fingerprint = buildFingerprint(req);
+
       await prisma.session.create({
         data: {
           idUser: user.id,
           accessToken,
           refreshToken,
+          fingerprint,
         },
       });
 
@@ -60,21 +63,24 @@ class AuthRepository {
     }
   }
 
-  async refreshToken(accessToken: string, refreshToken: string) {
+  async refreshToken(accessToken: string, refreshToken: string, req: Request) {
     try {
       const rfToken = verify(
         refreshToken,
         process.env.SECRET_REFRESH as string,
       ) as any;
 
+      const fingerprint = buildFingerprint(req);
+
       const session = await prisma.session.findFirst({
         where: {
           accessToken,
           refreshToken,
+          fingerprint,
         },
       });
 
-      if (!session) throw { code: 403, message: "Token no encontrado" };
+      if (!session) throw { code: 401, message: "Token no encontrado" };
 
       const newTK = signToken(
         rfToken.idUser,
@@ -107,7 +113,7 @@ class AuthRepository {
         };
 
       if (error.name === "JsonWebTokenError")
-        throw { code: 403, message: "Token inválido" };
+        throw { code: 401, message: "Token inválido" };
 
       throw { code: 500, message: "Error interno en el proceso de refresco" };
     }

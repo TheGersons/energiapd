@@ -1,4 +1,3 @@
-import { isPlatformBrowser } from '@angular/common';
 import {
   HttpHandlerFn,
   HttpInterceptorFn,
@@ -6,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { DeviceService } from '@base/service/auth-device.service';
 import { LogoutUseCase } from '@domain/auth/usecase/logout.usecase';
 import { RefreshTokenUseCase } from '@domain/auth/usecase/refreshToken.usecase';
 import {
@@ -25,8 +25,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const logOut = inject(LogoutUseCase);
   const router = inject(Router);
 
+  const deviceService = inject(DeviceService);
+  const deviceId = deviceService.getDeviceId();
+
   const authReq = req.clone({
     withCredentials: true,
+    setHeaders: {
+      ...(deviceId && { 'x-device-id': deviceId }),
+    },
   });
 
   return next(authReq).pipe(
@@ -34,7 +40,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (
         (err.status === 401 || err.status === 403) &&
         !req.url.includes('/auth/login') &&
-        !req.url.includes('/auth/refresh')
+        !req.url.includes('/auth/refresh') &&
+        !req.url.includes('/auth/logout')
       ) {
         return handle401Error(authReq, next, authService, logOut, router);
       }

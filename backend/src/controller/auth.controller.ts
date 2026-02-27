@@ -7,7 +7,7 @@ class AuthController {
     if (!req.ip) errorResponse(res, 400, "No se pudo leer la dirección IP");
 
     authRepository
-      .authenticate(req.body.login, req.body.password)
+      .authenticate(req.body.login, req.body.password, req)
       .then((rs) => {
         res
           .cookie("refreshToken", rs.refreshToken, {
@@ -22,10 +22,17 @@ class AuthController {
             maxAge: 15 * 60 * 1000,
             signed: true,
           })
+          .cookie("isLoggedIn", "1", {
+            httpOnly: false,
+            sameSite: "strict",
+            maxAge: 8 * 60 * 60 * 1000,
+            signed: false,
+          })
           .json("ok");
       })
-      .catch((error) => {
-        errorResponse(res, 500, "Error al autenticarse", error);
+      .catch((error: any) => {
+        console.log(error)
+        errorResponse(res, error.code, error.message);
       });
   }
 
@@ -39,7 +46,7 @@ class AuthController {
     const { accessToken, refreshToken } = req.signedCookies;
 
     authRepository
-      .refreshToken(accessToken, refreshToken)
+      .refreshToken(accessToken, refreshToken, req)
       .then((rs) => {
         res
           .cookie("refreshToken", rs.refreshToken, {
@@ -47,6 +54,12 @@ class AuthController {
             sameSite: "strict",
             maxAge: 8 * 60 * 60 * 1000,
             signed: true,
+          })
+          .cookie("isLoggedIn", "1", {
+            httpOnly: false,
+            sameSite: "strict",
+            maxAge: 8 * 60 * 60 * 1000,
+            signed: false,
           })
           .cookie("accessToken", rs.accessToken, {
             httpOnly: true,

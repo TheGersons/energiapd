@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { RenderMode } from '@angular/ssr';
 import { authGuard } from '@base/guard/auth-guard';
 
 export const routes: Routes = [
@@ -12,7 +11,6 @@ export const routes: Routes = [
   // --- RUTAS PROTEGIDAS (Main Layout) ---
   {
     path: '',
-    canActivate: [authGuard],
     loadComponent: () => import('@ui/template/main/main').then((m) => m.Main),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'configuraciones/permisos' },
@@ -29,6 +27,7 @@ export const routes: Routes = [
               ),
             children: [
               {
+                canActivate: [authGuard],
                 path: '',
                 loadComponent: () =>
                   import('@ui/pages/settings/permission/dashboard/dashboard').then(

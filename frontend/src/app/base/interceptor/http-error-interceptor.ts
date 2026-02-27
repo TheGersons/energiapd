@@ -28,6 +28,8 @@ export class ApiError extends Error {
 }
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  const isAuthSilent =
+    req.url.includes('/auth/refresh') || req.url.includes('/auth/logout');
   const toastr = inject(ToastrService);
 
   return next(req).pipe(
@@ -40,7 +42,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         HTTP_ERROR_MESSAGES[error.status] ||
         `Error inesperado (${error.status})`;
 
-      if (error.status !== 401) {
+      if (error.status !== 401 && !isAuthSilent) {
         toastr.error(userMessage, 'Error');
       }
 

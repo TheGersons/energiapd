@@ -1,5 +1,6 @@
 import { authController } from "@controller/auth.controller";
 import { Router } from "express";
+import { validateToken } from "session";
 
 class AuthRoute {
   router: Router;
@@ -11,6 +12,9 @@ class AuthRoute {
 
   private routes(): void {
     this.router.post("/", authController.authenticate);
+    this.router.get("/check", validateToken, (req, res) => {
+      res.status(200).json({ ok: true });
+    });
     this.router.post("/refresh", authController.refreshToken);
   }
 }

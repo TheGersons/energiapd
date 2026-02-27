@@ -17,40 +17,28 @@ export class AuthImplementation extends AuthRepository {
 
   override authenticate(login: string, password: string): Observable<string> {
     return this.http
-      .post<string>(
-        `${this.baseURL}`,
-        {
-          password,
-          login,
-        },
-        {
-          withCredentials: true,
-        },
-      )
+      .post<string>(`${this.baseURL}`, {
+        password,
+        login,
+      })
       .pipe(
         tap((res) => {
-          this.saveToken(res);
           this.router.navigate(['/configuraciones/permisos']);
         }),
       );
   }
 
   override refreshToken(): Observable<string> {
-    return this.http
-      .post<string>(`${this.baseURL}refresh`, {}, { withCredentials: true })
-      .pipe(tap((res) => this.saveToken(res)));
-  }
-
-  private saveToken(token: string) {
-    localStorage.setItem(this.TOKEN_KEY, token);
+    return this.http.post<string>(`${this.baseURL}/refresh`, {});
   }
 
   override logout(): Observable<string> {
-    localStorage.removeItem(this.TOKEN_KEY);
-    return this.http.post<string>(
-      `${this.baseURL}logout`,
-      {},
-      { withCredentials: true },
-    );
+    return this.http.post<string>(`${this.baseURL}/logout`, {});
+  }
+
+  override check(): Observable<{ ok: boolean }> {
+    return this.http.get<{ ok: boolean }>(`${this.baseURL}/check`, {
+      withCredentials: true,
+    });
   }
 }

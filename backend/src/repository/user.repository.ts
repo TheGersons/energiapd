@@ -1,7 +1,6 @@
 import prisma from "@database/index";
-import { IUserRole } from "@type/user-role.type";
 import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
-import { hashSync } from "bcrypt";
+import { hash } from "bcrypt";
 
 class UserRepository {
   async findAll(): Promise<IUserResponse[]> {
@@ -49,7 +48,7 @@ class UserRepository {
       return await prisma.user.create({
         data: {
           ...userDTO,
-          password: hashSync(user.password, 10),
+          password: await hash(user.password, 10),
           userRoles: {
             createMany: {
               data: roles.map((a) => ({
@@ -106,13 +105,16 @@ class UserRepository {
 
   async update(user: IUserPayload): Promise<number> {
     try {
+      const { roles, ...userDTO } = user;
       return await prisma.$transaction(async (transaction) => {
-        const rsUser = (
-          await transaction.user.updateMany({
-            data: user,
-            where: { id: user.id },
-          })
-        ).count;
+        const rsUser = [
+          {
+            ...(await transaction.user.update({
+              data: { ...userDTO, password: await hash(user.password, 10) },
+              where: { id: user.id },
+            })),
+          },
+        ].length;
 
         const rsUserRoleDestroy = (
           await transaction.userRole.deleteMany({ where: { idUser: user.id } })
