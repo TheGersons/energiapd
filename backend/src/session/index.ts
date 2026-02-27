@@ -35,7 +35,7 @@ export const validateToken = async (
     next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError")
-      return errorResponse(res, 403, "Token expirado", error);
+      return errorResponse(res, 401, "Token expirado", error);
 
     if (error.name === "JsonWebTokenError")
       return errorResponse(res, 401, "No existe el token", error);

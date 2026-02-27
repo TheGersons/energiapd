@@ -41,4 +41,8 @@ export class AuthImplementation extends AuthRepository {
       withCredentials: true,
     });
   }
+
+  override loadPermissions(): Observable<string[]> {
+    return this.http.get
+  }
 }

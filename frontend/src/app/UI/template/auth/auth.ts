@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { form, required, submit, FormField } from '@angular/forms/signals';
 import { AuthenticateUseCase } from '@domain/auth/usecase/authenticate.usecase';
 import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom } from 'rxjs';
+import { catchError, EMPTY, firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -34,11 +34,18 @@ export class Auth {
       const authForm = this.authForm().controlValue();
       this.isLoading.set(true);
 
-      await firstValueFrom(
-        this.authenticate.execute({
-          login: authForm.login,
-          password: authForm.password,
-        }),
+      firstValueFrom(
+        this.authenticate
+          .execute({
+            login: authForm.login,
+            password: authForm.password,
+          })
+          .pipe(
+            catchError((error) => {
+              this.isLoading.set(false);
+              return EMPTY;
+            }),
+          ),
       );
     });
   }

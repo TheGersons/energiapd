@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@base/guard/auth-guard';
+import { authGuard } from '@base/guard/auth.guard';
 
 export const routes: Routes = [
   // --- RUTAS PÚBLICAS ---
@@ -13,7 +13,13 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('@ui/template/main/main').then((m) => m.Main),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'configuraciones/permisos' },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('@ui/pages/dashboard/dashboard').then((m) => m.Dashboard),
+      },
 
       // Módulo: Configuraciones
       {

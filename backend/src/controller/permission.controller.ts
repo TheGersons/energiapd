@@ -16,6 +16,10 @@ class PermissionController {
         ),
       );
   }
+
+  async findOne(req: Request, res: Response) {
+    permissionRepository.findOne(req.idUser);
+  }
 }
 
 export const permissionController = new PermissionController();
