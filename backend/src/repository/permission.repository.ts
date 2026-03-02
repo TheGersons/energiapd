@@ -46,8 +46,8 @@ class PermissionRepository {
     return Array.from(moduleMap.values());
   }
 
-  async findOne(idUser: string) {
-    await prisma.permission.findMany({
+  async findOne(idUser: string): Promise<string[]> {
+    const rsS = await prisma.permission.findMany({
       where: {
         rolePermissions: {
           some: {
@@ -62,6 +62,8 @@ class PermissionRepository {
         },
       },
     });
+
+    return rsS.flatMap((a) => [a.slug]);
   }
 }
 

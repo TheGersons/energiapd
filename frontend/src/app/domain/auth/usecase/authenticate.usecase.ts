@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { UseCase } from '@base/use-case';
 import { AuthRepository } from '../auth.repository';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { LoadPermissionsUseCase } from '@domain/permission/usecase/loadPermissions.usecase';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +13,14 @@ export class AuthenticateUseCase implements UseCase<
   string
 > {
   private authRepository = inject(AuthRepository);
+  private loadPermissions = inject(LoadPermissionsUseCase);
   private router = inject(Router);
 
   execute(params: { login: string; password: string }): Observable<string> {
-    return this.authRepository
-      .authenticate(params.login, params.password)
-      .pipe(tap(() => this.router.navigate(['/configuraciones/permisos'])));
+    return this.authRepository.authenticate(params.login, params.password).pipe(
+      switchMap(() => this.loadPermissions.execute()),
+      map(() => ''),
+      tap(() => this.router.navigate(['/'])),
+    );
   }
 }

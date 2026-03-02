@@ -20,4 +20,8 @@ export class PermissionImplementation extends PermissionRepository {
       .get<PermissionEntity[]>(`${this.baseURL}permission/catalog`)
       .pipe(map((entities) => this.permissionsMapper.mapFrom(entities)));
   }
+
+  override loadPermissions(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseURL}permission/one`);
+  }
 }

@@ -27,4 +27,8 @@ export class PermissionsService {
   hasAll(slugs: string[]): boolean {
     return slugs.every((s) => this._permissions().has(s));
   }
+
+  getAll() {
+    return Array.from(this._permissions());
+  }
 }

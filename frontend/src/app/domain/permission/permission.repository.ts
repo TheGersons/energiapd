@@ -3,4 +3,5 @@ import { PermissionModel } from './permission.model';
 
 export abstract class PermissionRepository {
   abstract findAllPermissions(): Observable<PermissionModel[]>;
+  abstract loadPermissions(): Observable<string[]>;
 }

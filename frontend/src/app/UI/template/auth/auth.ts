@@ -35,18 +35,16 @@ export class Auth {
       this.isLoading.set(true);
 
       firstValueFrom(
-        this.authenticate
-          .execute({
-            login: authForm.login,
-            password: authForm.password,
-          })
-          .pipe(
-            catchError((error) => {
-              this.isLoading.set(false);
-              return EMPTY;
-            }),
-          ),
-      );
+        this.authenticate.execute({
+          login: authForm.login,
+          password: authForm.password,
+        }),
+      ).catch((error) => {
+        if (error.statusCode === 401) {
+          this.isLoading.set(false);
+          this.toastr.warning('Usuario o contraseña incorrecta');
+        }
+      });
     });
   }
 }

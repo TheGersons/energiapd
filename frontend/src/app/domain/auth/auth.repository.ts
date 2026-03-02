@@ -5,5 +5,4 @@ export abstract class AuthRepository {
   abstract refreshToken(): Observable<string>;
   abstract check(): Observable<{ ok: boolean }>;
   abstract logout(): Observable<string>;
-  abstract loadPermissions(): Observable<string[]>;
 }

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { PermissionsService } from '@base/service/permissions.service';
+import { PermissionsService } from '@base/service/permission.service';
 
 export const permissionGuard = (requiredSlugs: string[]): CanActivateFn => {
   return () => {

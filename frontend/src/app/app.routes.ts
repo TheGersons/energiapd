@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@base/guard/auth.guard';
+import { permissionGuard } from '@base/guard/permssions.guard';
 
 export const routes: Routes = [
   // --- RUTAS PÚBLICAS ---
@@ -17,6 +18,7 @@ export const routes: Routes = [
 
       {
         path: 'dashboard',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('@ui/pages/dashboard/dashboard').then((m) => m.Dashboard),
       },
@@ -24,6 +26,7 @@ export const routes: Routes = [
       // Módulo: Configuraciones
       {
         path: 'configuraciones',
+        canActivateChild: [authGuard],
         children: [
           {
             path: 'permisos',
@@ -33,8 +36,8 @@ export const routes: Routes = [
               ),
             children: [
               {
-                canActivate: [authGuard],
                 path: '',
+                canActivate: [permissionGuard(['permisos:leer'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/permission/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -42,6 +45,7 @@ export const routes: Routes = [
               },
               {
                 path: 'crear',
+                canActivate: [permissionGuard(['permisos:crear'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/permission/create/create').then(
                     (m) => m.Create,
@@ -49,6 +53,7 @@ export const routes: Routes = [
               },
               {
                 path: 'editar/:id',
+                canActivate: [permissionGuard(['permisos:editar'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/permission/create/create').then(
                     (m) => m.Create,
@@ -58,11 +63,13 @@ export const routes: Routes = [
           },
           {
             path: 'usuarios',
+            canActivate: [authGuard],
             loadComponent: () =>
               import('@ui/pages/settings/user/user').then((m) => m.User),
             children: [
               {
                 path: '',
+                canActivate: [permissionGuard(['usuarios:leer'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/user/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -70,6 +77,7 @@ export const routes: Routes = [
               },
               {
                 path: 'crear',
+                canActivate: [permissionGuard(['usuarios:crear'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/user/create/create').then(
                     (m) => m.Create,
@@ -77,6 +85,7 @@ export const routes: Routes = [
               },
               {
                 path: 'editar/:id',
+                canActivate: [permissionGuard(['usuarios:editar'])],
                 loadComponent: () =>
                   import('@ui/pages/settings/user/create/create').then(
                     (m) => m.Create,

@@ -53,12 +53,13 @@ class RoleRepository {
 
   async update(role: IRolePayload): Promise<number> {
     try {
+      const { rolePermission, ...roleDTO } = role;
       return await prisma.$transaction(async (transaction) => {
         var a = 0;
 
         a += (
           await transaction.role.updateMany({
-            data: role,
+            data: roleDTO,
             where: { id: role.id },
           })
         ).count;
@@ -69,7 +70,7 @@ class RoleRepository {
           })
         ).count;
 
-        const rolePermissionsToInsert = role.rolePermission.map((_a) => ({
+        const rolePermissionsToInsert = rolePermission.map((_a) => ({
           ..._a,
           idRole: role.id ?? "",
         }));

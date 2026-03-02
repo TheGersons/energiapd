@@ -18,7 +18,20 @@ class PermissionController {
   }
 
   async findOne(req: Request, res: Response) {
-    permissionRepository.findOne(req.idUser);
+    permissionRepository
+      .findOne((req as any).idUser)
+      .then((rs) => {
+        console.log(rs);
+        res.status(200).json(rs);
+      })
+      .catch((error) =>
+        errorResponse(
+          res,
+          500,
+          "Error al obtener los permisos.",
+          error?.message,
+        ),
+      );
   }
 }
 

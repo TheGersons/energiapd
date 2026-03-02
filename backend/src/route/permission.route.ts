@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { permissionController } from "@controller/permission.controller";
+import { validateToken } from "session";
 
 class PermissionRoute {
   router: Router;
@@ -11,6 +12,8 @@ class PermissionRoute {
 
   private routes(): void {
     this.router.get("/catalog", permissionController.findAll);
+
+    this.router.get("/one", validateToken, permissionController.findOne);
   }
 }
 
