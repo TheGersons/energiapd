@@ -61,11 +61,19 @@
         <button (click)="navigate(1)" class="p-1">
           <app-loader name="create" hostClass="h-6 w-6"></app-loader>
         </button>
-        <button [disabled]="canEdit()" class="p-1">
+        <button [disabled]="!canEdit()" class="p-1">
           <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
         </button>
-        <button (click)="navigate(2)" [disabled]="canEdit()" class="p-1">
-          <app-loader hostClass="h-6 w-6" name="edit"></app-loader>
+        <button
+          *hasPermission="[
+            'pestamo-herramientas:leer:uno',
+            'pestamo-herramientas:entregar',
+            'pestamo-herramientas:autorizar',
+          ]"
+          (click)="navigate(2)"
+          [disabled]="!canEdit()"
+          class="p-1">
+          <app-loader hostClass="h-6 w-6" name="eye"></app-loader>
         </button>
       </div>
     </div>
@@ -79,7 +87,18 @@
         </tr>
       </thead>
       <tbody
-        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer"></tbody>
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
+        @for (a of loansResource.value(); track $index) {
+          <tr
+            (click)="onSelectRow(a.loanId)"
+            [class.bg-blue-200]="selection().has(a.loanId)">
+            <td>{{ a.loanName }}</td>
+            <td>{{ a.createdAt }}</td>
+            <td>{{ a.loanReturnDate }}</td>
+            <td>{{ a.loanStatus }}</td>
+          </tr>
+        }
+      </tbody>
     </table>
   </div>
 </div>

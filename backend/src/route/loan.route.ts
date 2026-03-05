@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { loanController } from "@controller/loan.controller";
 import { hasPermission } from "middleware/permissions.middleware";
+import { validateToken } from "session";
 
 class LoanRoute {
   router: Router;
@@ -13,21 +14,17 @@ class LoanRoute {
   private routes(): void {
     this.router.get(
       "/",
-      hasPermission([
-        "inventario-herramienta:leer:todas",
-        "inventario-herramienta:leer:propias",
-      ]),
+      validateToken,
+      hasPermission(["pestamo-herramientas:leer"]),
       loanController.findAll,
     );
     this.router.get(
       "/one",
-      hasPermission([
-        "inventario-herramienta:leer:todas",
-        "inventario-herramienta:leer:propias",
-      ]),
+      validateToken,
+      hasPermission(["pestamo-herramientas:leer"]),
       loanController.findOne,
     );
-    this.router.post("/", loanController.create);
+    this.router.post("/", validateToken, loanController.create);
     this.router.put("/", loanController.update);
   }
 }

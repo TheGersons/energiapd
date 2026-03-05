@@ -63,7 +63,7 @@ class AuthRepository {
     }
   }
 
-  async refreshToken(accessToken: string, refreshToken: string, req: Request) {
+  async refreshToken(refreshToken: string, req: Request) {
     try {
       const rfToken = verify(
         refreshToken,
@@ -74,7 +74,6 @@ class AuthRepository {
 
       const session = await prisma.session.findFirst({
         where: {
-          accessToken,
           refreshToken,
           fingerprint,
         },

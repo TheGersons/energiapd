@@ -10,6 +10,7 @@
       </button>
       @for (m of modules; track $index) {
         <button
+          *hasPermission="m.permissions ?? []"
           (click)="onClickModule(m)"
           [class.bg-blue-700]="sModule().has(m.moduleId ?? '')"
           class="cursor-pointer hover:bg-blue-600 rounded p-1">

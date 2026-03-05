@@ -21,7 +21,6 @@ class PermissionController {
     permissionRepository
       .findOne((req as any).idUser)
       .then((rs) => {
-        console.log(rs);
         res.status(200).json(rs);
       })
       .catch((error) =>

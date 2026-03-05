@@ -39,11 +39,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err) => {
       if (
         err.status === 401 &&
-        !req.url.includes('/auth') &&
+        !req.url.endsWith('/auth') &&
         !req.url.includes('/auth/refresh') &&
         !req.url.includes('/auth/logout')
       ) {
-        return handle401Error(authReq, next, authService, logOut, router);
+        return handle401Error(
+          authReq,
+          next,
+          authService,
+          logOut,
+          router,
+          deviceId,
+        );
       }
 
       if (err.status === 403) {
@@ -62,6 +69,7 @@ function handle401Error(
   rft: RefreshTokenUseCase,
   los: LogoutUseCase,
   router: Router,
+  deviceId: string,
 ) {
   if (!isRefreshing) {
     isRefreshing = true;
@@ -73,7 +81,9 @@ function handle401Error(
         refreshTokenSubject.next(res);
         return next(
           request.clone({
+            withCredentials: true,
             setHeaders: { Authorization: `Bearer ${res}` },
+            ...(deviceId && { 'x-device-id': deviceId }),
           }),
         );
       }),
@@ -98,7 +108,9 @@ function handle401Error(
       switchMap((token) =>
         next(
           request.clone({
+            withCredentials: true,
             setHeaders: { Authorization: `Bearer ${token}` },
+            ...(deviceId && { 'x-device-id': deviceId }),
           }),
         ),
       ),

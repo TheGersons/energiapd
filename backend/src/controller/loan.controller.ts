@@ -51,7 +51,6 @@ class LoanController {
       .catch((error) => {
         console.error("[LoanController.create]", error);
 
-        // Errores de validación de Sequelize
         if (error?.name === "SequelizeValidationError") {
           return errorResponse(
             res,
@@ -61,7 +60,6 @@ class LoanController {
           );
         }
 
-        // Error de llave foránea (herramienta no existe, etc.)
         if (error?.name === "SequelizeForeignKeyConstraintError") {
           return errorResponse(
             res,

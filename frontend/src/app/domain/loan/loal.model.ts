@@ -20,17 +20,17 @@ export interface LoanFormModel {
   loanNotes: string;
 }
 
-export interface LoanModelResponse {
-  id: string;
-  name: string;
-  dni: string;
-  department: string;
-  useDescription: string;
-  status: string;
-  returnDate: string;
-  approvedBy: string;
-  deliveredBy: string;
-  notes: string;
+export interface LoanResponseModel {
+  loanId: string;
+  loanName: string;
+  loanDni: string;
+  loanDepartment: string;
+  LoanUseDescription: string;
+  loanStatus: string;
+  loanReturnDate: string;
+  loanApprovedBy: string;
+  loanDeliveredBy: string;
+  loanNotes: string;
   createdAt: string;
   updatedAt: string;
 }

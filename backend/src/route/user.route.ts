@@ -1,5 +1,7 @@
 import { userController } from "@controller/user.controller";
 import { Router } from "express";
+import { hasPermission } from "middleware/permissions.middleware";
+import { validateToken } from "session";
 
 class UserRoute {
   router: Router;
@@ -10,7 +12,12 @@ class UserRoute {
 
   private routes() {
     this.router.get("/", userController.findAll);
-    this.router.get("/one", userController.findOne);
+    this.router.get(
+      "/one",
+      validateToken,
+      hasPermission(["usuarios:leer"]),
+      userController.findOne,
+    );
     this.router.post("/", userController.create);
     this.router.put("/", userController.update);
     this.router.get("/activeCount", userController.activeCount);

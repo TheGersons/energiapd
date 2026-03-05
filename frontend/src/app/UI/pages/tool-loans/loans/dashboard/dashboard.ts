@@ -8,11 +8,13 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GetNavigationStateUseCase } from '@domain/navigation/usecase/get-navigation-state.usecase';
 import { SaveNavigationStateUseCase } from '@domain/navigation/usecase/save-navigation-state.usecase';
 import { Loader } from '@ui/icons/loader';
 import { firstValueFrom } from 'rxjs';
+import { HasPermissionDirective } from '@base/directive/has-permission.directive';
+import { FindAllLoansUseCase } from '@domain/loan/usecase/FindAllLoans.usecase';
 
 interface Card {
   data: string;
@@ -23,17 +25,18 @@ interface Card {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Loader],
+  imports: [Loader, HasPermissionDirective],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit, OnDestroy {
-  router = inject(Router);
+export class Dashboard {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   /**
    * UseCases
    */
-  private saveNavigationStateUseCase = inject(SaveNavigationStateUseCase);
-  private getNavigationStateUseCase = inject(GetNavigationStateUseCase);
+  private findAllLoansUseCase = inject(FindAllLoansUseCase);
 
   cards: Card[] = [
     {
@@ -63,49 +66,16 @@ export class Dashboard implements OnInit, OnDestroy {
   ];
 
   selection = signal(new Set<string>());
-
   canEdit = computed(() => this.selection().size === 1);
 
-  private readonly COMPONENT_KEY = 'tool-inventory-dashboard';
-
-  async ngOnInit(): Promise<void> {
-    const savedState = await firstValueFrom(
-      this.getNavigationStateUseCase.execute({
-        componentKey: this.COMPONENT_KEY,
-      }),
-    );
-    if (savedState) {
-      this.restoreState(savedState);
-    }
-  }
-
-  ngOnDestroy(): void {
-    const currentState = {
-      sLoan: Array.from(this.selection()),
-      timestamp: new Date(),
-    };
-
-    firstValueFrom(
-      this.saveNavigationStateUseCase.execute({
-        componentKey: this.COMPONENT_KEY,
-        state: currentState,
-        timestamp: new Date(),
-      }),
-    ).catch((error) => {
-      console.error('Error al guardar estado de navegación', error);
-    });
-  }
-
-  private restoreState(state: any): void {
-    if (state) {
-      this.selection.set(new Set<string>(state.data.sLool));
-    }
-  }
+  loansResource = resource({
+    loader: () => firstValueFrom(this.findAllLoansUseCase.execute()),
+  });
 
   navigate(type: number) {
     if (type === 2) {
       const id = Array.from(this.selection())[0];
-      this.router.navigate(['/prestamo-herramientas/prestamos/editar', id]);
+      this.router.navigate(['/herramientas/prestamos/ver', id]);
       return;
     }
     this.router.navigate(['/herramientas/prestamos/crear']);

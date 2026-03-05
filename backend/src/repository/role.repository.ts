@@ -25,26 +25,22 @@ class RoleRepository {
 
   async create(role: IRolePayload): Promise<IRolePayload> {
     try {
-      return await prisma.$transaction(async (transaction) => {
-        const rsRole = await transaction.role.create({
-          data: {
-            name: role.name,
-            description: role.description,
-            priority: Number(role.priority),
+      const { rolePermission, ...roleDTO } = role;
+
+      return await prisma.role.create({
+        data: {
+          ...roleDTO,
+          rolePermission: {
+            createMany: {
+              data: rolePermission.map((a) => ({
+                idPermission: a.idPermission,
+              })),
+            },
           },
-        });
-
-        const rolePermissionsToInsert = role.rolePermission.map((rp) => ({
-          ...rp,
-          idRole: rsRole.id,
-        }));
-
-        const rsRolePermission =
-          await transaction.rolePermission.createManyAndReturn({
-            data: rolePermissionsToInsert,
-          });
-
-        return { ...rsRole, rolePermission: rsRolePermission };
+        },
+        include: {
+          rolePermission: true,
+        },
       });
     } catch (e: any) {
       throw new Error(e.message || e);
@@ -84,7 +80,6 @@ class RoleRepository {
         return a;
       });
     } catch (e) {
-      console.error(e);
       throw e;
     }
   }

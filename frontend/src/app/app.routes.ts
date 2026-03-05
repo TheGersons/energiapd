@@ -123,6 +123,10 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
+                canActivate: [
+                  authGuard,
+                  permissionGuard(['inventario-herramienta:leer']),
+                ],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/inventory/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -130,6 +134,10 @@ export const routes: Routes = [
               },
               {
                 path: 'crear',
+                canActivate: [
+                  authGuard,
+                  permissionGuard(['inventario-herramienta:crear']),
+                ],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/inventory/create/create').then(
                     (m) => m.Create,
@@ -137,6 +145,10 @@ export const routes: Routes = [
               },
               {
                 path: 'editar/:id',
+                canActivate: [
+                  authGuard,
+                  permissionGuard(['inventario-herramienta:editar']),
+                ],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/inventory/create/create').then(
                     (m) => m.Create,
@@ -151,6 +163,10 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
+                canActivate: [
+                  authGuard,
+                  permissionGuard(['pestamo-herramientas:leer']),
+                ],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/loans/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -164,10 +180,18 @@ export const routes: Routes = [
                   ),
               },
               {
-                path: 'editar/:id',
+                path: 'ver/:id',
+                canActivate: [
+                  authGuard,
+                  permissionGuard([
+                    'pestamo-herramientas:leer:uno',
+                    'pestamo-herramientas:autorizar',
+                    'pestamo-herramientas:entregar',
+                  ]),
+                ],
                 loadComponent: () =>
-                  import('@ui/pages/tool-loans/loans/create/create').then(
-                    (m) => m.Create,
+                  import('@ui/pages/tool-loans/loans/view/view').then(
+                    (m) => m.View,
                   ),
               },
             ],
