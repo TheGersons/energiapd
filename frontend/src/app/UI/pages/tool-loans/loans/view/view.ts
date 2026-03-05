@@ -8,10 +8,19 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { Loader } from '@ui/icons/loader';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
+import { HasPermissionDirective } from '@base/directive/has-permission.directive';
+import { HasNoPermissionDirective } from '@base/directive/has-no-permission';
 
 @Component({
   selector: 'app-view',
-  imports: [CommonModule, FormsModule, NgSelectModule, Loader],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgSelectModule,
+    Loader,
+    HasPermissionDirective,
+    HasNoPermissionDirective,
+  ],
   templateUrl: './view.html',
   styleUrl: './view.scss',
 })
@@ -57,6 +66,7 @@ export class View {
     this.loanStatus.set(data.loanStatus);
     this.loanNotes.set(data.loanNotes);
     this.loanReturnDate.set(data.loanReturnDate);
+    this.loanDni.set(data.loanDni);
   }
 
   goBack(): void {

@@ -12,13 +12,15 @@ export const routes: Routes = [
   // --- RUTAS PROTEGIDAS (Main Layout) ---
   {
     path: '',
-    loadComponent: () => import('@ui/template/main/main').then((m) => m.Main),
+    canActivate: [authGuard], // ← authGuard aquí garantiza que los permisos
+    loadComponent: () =>
+      //   estén cargados ANTES de cualquier permissionGuard hijo
+      import('@ui/template/main/main').then((m) => m.Main),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
 
       {
         path: 'dashboard',
-        canActivate: [authGuard],
         loadComponent: () =>
           import('@ui/pages/dashboard/dashboard').then((m) => m.Dashboard),
       },
@@ -26,7 +28,6 @@ export const routes: Routes = [
       // Módulo: Configuraciones
       {
         path: 'configuraciones',
-        canActivateChild: [authGuard],
         children: [
           {
             path: 'permisos',
@@ -63,7 +64,6 @@ export const routes: Routes = [
           },
           {
             path: 'usuarios',
-            canActivate: [authGuard],
             loadComponent: () =>
               import('@ui/pages/settings/user/user').then((m) => m.User),
             children: [
@@ -123,10 +123,7 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                canActivate: [
-                  authGuard,
-                  permissionGuard(['inventario-herramienta:leer']),
-                ],
+                canActivate: [permissionGuard(['inventario-herramienta:leer'])],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/inventory/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -135,7 +132,6 @@ export const routes: Routes = [
               {
                 path: 'crear',
                 canActivate: [
-                  authGuard,
                   permissionGuard(['inventario-herramienta:crear']),
                 ],
                 loadComponent: () =>
@@ -146,7 +142,6 @@ export const routes: Routes = [
               {
                 path: 'editar/:id',
                 canActivate: [
-                  authGuard,
                   permissionGuard(['inventario-herramienta:editar']),
                 ],
                 loadComponent: () =>
@@ -163,10 +158,7 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                canActivate: [
-                  authGuard,
-                  permissionGuard(['pestamo-herramientas:leer']),
-                ],
+                canActivate: [permissionGuard(['pestamo-herramientas:leer'])],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/loans/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -174,6 +166,7 @@ export const routes: Routes = [
               },
               {
                 path: 'crear',
+                data: { public: true },
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/loans/create/create').then(
                     (m) => m.Create,
@@ -182,7 +175,6 @@ export const routes: Routes = [
               {
                 path: 'ver/:id',
                 canActivate: [
-                  authGuard,
                   permissionGuard([
                     'pestamo-herramientas:leer:uno',
                     'pestamo-herramientas:autorizar',

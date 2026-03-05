@@ -7,6 +7,7 @@ import { LoadPermissionsUseCase } from '@domain/permission/usecase/loadPermissio
 import { catchError, map, of, switchMap } from 'rxjs';
 
 export const authGuard: CanActivateFn = (route, state) => {
+  if (route.data?.['public']) return true;
   const check = inject(CheckUseCase);
   const loadPermissions = inject(LoadPermissionsUseCase);
   const permissionsService = inject(PermissionsService);
