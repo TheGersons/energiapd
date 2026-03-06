@@ -12,13 +12,13 @@ class AuthController {
         res
           .cookie("refreshToken", rs.refreshToken, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 8 * 60 * 60 * 1000,
             signed: true,
           })
           .cookie("accessToken", rs.accessToken, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             signed: true,
           })
@@ -41,13 +41,13 @@ class AuthController {
         res
           .cookie("refreshToken", rs.refreshToken, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 8 * 60 * 60 * 1000,
             signed: true,
           })
           .cookie("accessToken", rs.accessToken, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             signed: true,
           })

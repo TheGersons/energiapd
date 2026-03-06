@@ -1,0 +1,32 @@
+<div
+  class="flex flex-col justify-center items-center w-screen h-screen bg-gray-50 p-4">
+  <div class="flex flex-col items-center gap-6 w-full max-w-md">
+    <h2 class="text-gray-600 font-medium text-lg">Firme aquí</h2>
+
+    <div
+      class="bg-white border-2 border-dashed border-gray-300 rounded-xl shadow-sm overflow-hidden">
+      <signature-pad
+        class="border-none"
+        #signature
+        [options]="signaturePadOptions"></signature-pad>
+    </div>
+
+    <div class="flex gap-4 w-full">
+      <button
+        (click)="clear()"
+        class="flex-1 py-3 px-6 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold active:bg-gray-100 transition-colors">
+        Limpiar
+      </button>
+
+      <button
+        (click)="save()"
+        class="flex-[2] py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold shadow-md active:bg-blue-700 transition-colors">
+        Enviar Firma
+      </button>
+    </div>
+
+    <p class="text-xs text-gray-400">
+      La firma se enviará automáticamente a su computadora.
+    </p>
+  </div>
+</div>

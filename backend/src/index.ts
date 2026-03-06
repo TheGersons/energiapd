@@ -4,20 +4,29 @@ import cors from "cors";
 import { route } from "@route/index";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { Server as SocketIOServer, Socket } from "socket.io";
+import { SocketRoutes } from "socket/signature.socket";
 
 class Server {
   private app!: Application;
+  private httpServer: http.Server;
+  public io: SocketIOServer;
 
   constructor() {
     this.app = express();
     this.config();
     this.routes();
+    this.httpServer = http.createServer(this.app);
+    this.io = new SocketIOServer(this.httpServer, { cors: { origin: "*" } });
+
+    this.listenSockets();
   }
 
   config(): void {
     this.app.use(
       cors({
-        origin: ["http://192.168.10.252:4200" ,'http://localhost:4200'],
+        origin: ["http://192.168.10.252:4200", "http://localhost:4200"],
         credentials: true,
       }),
     );
@@ -33,9 +42,14 @@ class Server {
     this.app.use("/api", route);
   }
 
+  private listenSockets(): void {
+    const socketRoutes = new SocketRoutes(this.io);
+    socketRoutes.init();
+  }
+
   start(): void {
-    this.app.listen(this.app.get("port"), () => {
-      console.log(`Server running on port ${this.app.get("port")}`);
+    this.httpServer.listen(this.app.get("port"), () => {
+      console.log("Running on port", this.app.get("port"));
     });
   }
 }

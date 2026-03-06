@@ -193,6 +193,12 @@ export const routes: Routes = [
     ],
   },
 
+  {
+    path: 'firma-herramientas/:id',
+    loadComponent: () =>
+      import('@ui/template/signature/signature').then((m) => m.Signature),
+  },
+
   // --- COMODÍN ---
   { path: '**', redirectTo: 'iniciar-sesion' },
 ];

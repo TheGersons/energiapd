@@ -75,6 +75,9 @@ export class IconRegistry {
     this.registry.set('logout', () =>
       import('./svg/logout').then((m) => m.Logout),
     );
+    this.registry.set('refresh', () =>
+      import('./svg/refresh').then((m) => m.Refresh),
+    );
   }
 
   getIconLoader(name: string): IconLoader {

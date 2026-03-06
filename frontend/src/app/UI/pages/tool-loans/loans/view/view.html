@@ -79,46 +79,174 @@
             @if (loanStatus() === "pendiente") {
               <div
                 *hasPermission="['pestamo-herramientas:autorizar']"
-                class="max-w-2xl mx-auto p-4">
-                <div
-                  class="relative bg-white border-2 border-blue-100 shadow-md rounded-lg overflow-hidden">
+                class="max-w-5xl mx-auto p-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div
-                    class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                    <span
-                      class="text-sm font-bold text-blue-600 uppercase tracking-wider"
-                      >Esperando tu aprobación</span
-                    >
-                    <span class="text-xs text-gray-400"
-                      >Creado: 03/03/2026</span
-                    >
-                  </div>
-
-                  <div class="p-6">
-                    <div class="mb-4">
-                      <label
-                        class="block text-sm font-semibold text-gray-700 mb-2"
-                        >Comentarios de Revisión</label
+                    class="lg:col-span-2 relative bg-white border-2 border-blue-100 shadow-md rounded-lg overflow-hidden">
+                    <div
+                      class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                      <span
+                        class="text-sm font-bold text-blue-600 uppercase tracking-wider">
+                        Esperando tu aprobación
+                      </span>
+                      <span class="text-xs text-gray-400"
+                        >Creado: 03/03/2026</span
                       >
-                      <textarea
-                        placeholder="Escribe aquí tus observaciones antes de aprobar o denegar..."
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                        rows="3"></textarea>
+                    </div>
+
+                    <div class="p-6">
+                      <div class="mb-4">
+                        <label
+                          class="block text-sm font-semibold text-gray-700 mb-2">
+                          Comentarios de Revisión
+                        </label>
+                        <textarea
+                          placeholder="Escribe aquí tus observaciones antes de aprobar o denegar..."
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                          rows="3"></textarea>
+                      </div>
+
+                      @if (signatureImage()) {
+                        <div
+                          class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between animate-fade-in">
+                          <div>
+                            <p class="text-xs font-bold text-blue-800">
+                              Firma cargada
+                            </p>
+                            <button
+                              (click)="signatureImage.set('')"
+                              class="text-[10px] text-red-500 underline">
+                              Quitar firma
+                            </button>
+                          </div>
+                          <img
+                            [src]="signatureImage()"
+                            class="h-14 w-auto mix-blend-multiply" />
+                        </div>
+                      }
+                    </div>
+
+                    <div
+                      class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+                      <button
+                        [disabled]="!signatureImage()"
+                        class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded transition-colors text-sm shadow-sm">
+                        Aprobar Solicitud
+                      </button>
+                      <button
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors text-sm shadow-sm">
+                        Denegar
+                      </button>
                     </div>
                   </div>
 
-                  <div
-                    class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
-                    <button
-                      class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors text-sm">
-                      Aprobar Solicitud
-                    </button>
-                    <button
-                      class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors text-sm">
-                      Denegar
-                    </button>
+                  <div class="flex flex-col gap-4">
+                    <div
+                      class="bg-white border-2 border-dashed border-blue-200 rounded-lg p-6 flex flex-col items-center justify-center shadow-sm min-h-[300px]">
+                      @if (!signatureImage()) {
+                        <h4
+                          class="text-xs font-bold text-blue-800 mb-3 uppercase">
+                          Capturar Firma
+                        </h4>
+
+                        <div
+                          class="relative group cursor-pointer"
+                          (click)="showPcPad.set(true)">
+                          <div
+                            class="bg-white p-2 rounded-lg border border-gray-100 shadow-inner">
+                            <qrcode
+                              [qrdata]="url"
+                              [width]="160"
+                              [errorCorrectionLevel]="'M'"></qrcode>
+                          </div>
+
+                          <div
+                            class="absolute inset-0 bg-blue-600/10 group-hover:bg-blue-600/20 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                            <span
+                              class="bg-blue-700 text-white text-[10px] px-3 py-1.5 rounded-full font-bold shadow-lg">
+                              FIRMÁ AQUÍ (PC/TÁCTIL)
+                            </span>
+                          </div>
+                        </div>
+
+                        <p class="mt-4 text-[11px] text-gray-500 text-center">
+                          Escanea el QR con tu móvil <br />
+                          o <strong>haz clic arriba</strong> para firmar en esta
+                          pantalla.
+                        </p>
+
+                        <div
+                          class="mt-4 flex items-center gap-2 text-[10px] text-blue-400 font-bold animate-pulse">
+                          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          SINCRONIZANDO...
+                        </div>
+                      } @else {
+                        <div class="text-center animate-bounce-in">
+                          <div
+                            class="bg-green-100 text-green-700 rounded-full p-3 mb-3 inline-block">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-8 w-8"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor">
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <h4 class="text-sm font-bold text-green-700">
+                            ¡Firma lista!
+                          </h4>
+                          <p class="text-[10px] text-gray-500 mt-1">
+                            Ya puedes proceder con la aprobación.
+                          </p>
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
+
+              @if (showPcPad()) {
+                <div
+                  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                  <div
+                    class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-200">
+                    <div
+                      class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
+                      <h3 class="font-bold text-gray-700">Firma en pantalla</h3>
+                      <button
+                        (click)="showPcPad.set(false)"
+                        class="text-gray-400 hover:text-gray-600 text-2xl">
+                        &times;
+                      </button>
+                    </div>
+                    <div class="p-6 flex flex-col items-center">
+                      <div
+                        class="bg-white border-2 border-gray-200 rounded-lg shadow-inner">
+                        <signature-pad
+                          #signaturePad
+                          [options]="signaturePadOptions"></signature-pad>
+                      </div>
+                      <div class="flex gap-4 w-full mt-6">
+                        <button
+                          (click)="signaturePad.clear()"
+                          class="flex-1 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-lg">
+                          Limpiar
+                        </button>
+                        <button
+                          (click)="confirmPcSignature(signaturePad)"
+                          class="flex-[2] py-2 bg-blue-600 text-white rounded-lg font-bold shadow-md hover:bg-blue-700">
+                          Usar esta firma
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
 
               <div
                 *hasNoPermission="['pestamo-herramientas:autorizar']"
