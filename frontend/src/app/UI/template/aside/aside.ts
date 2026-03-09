@@ -3,18 +3,41 @@ import { Component, Input, signal } from '@angular/core';
 import { ModuleModel, PageModel } from '@domain/module/module.model';
 import { Loader } from '@ui/icons/loader';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { HasPermissionDirective } from "@base/directive/has-permission.directive";
+import { HasPermissionDirective } from '@base/directive/has-permission.directive';
 
 @Component({
   selector: 'app-aside',
-  imports: [NgClass, Loader, RouterLink, RouterLinkActive, HasPermissionDirective],
+  imports: [
+    NgClass,
+    Loader,
+    RouterLink,
+    RouterLinkActive,
+    HasPermissionDirective,
+],
   templateUrl: './aside.html',
   styleUrl: './aside.scss',
 })
 export class Aside {
   @Input() toggleSidebar = signal<boolean>(false);
 
-  pages = signal<PageModel[]>([]);
+  pages = signal<PageModel[]>([
+    {
+      pageId: 'inventory',
+      moduleId: 'tool-loans',
+      pageName: 'inventory',
+      pageLabel: 'Inventario',
+      pageUrl: '/herramientas/inventario',
+      pageDescription: 'Inventario de Herramientas',
+    },
+    {
+      pageId: 'loans',
+      moduleId: 'tool-loans',
+      pageName: 'loans',
+      pageLabel: 'Préstamos',
+      pageUrl: '/herramientas/prestamos',
+      pageDescription: 'Gestión de Préstamos',
+    },
+  ]);
 
   modules: ModuleModel[] = [
     {
@@ -84,7 +107,7 @@ export class Aside {
     },
   ];
 
-  sModule = signal(new Set<string>());
+  sModule = signal(new Set<string>('tool-loans'));
 
   onToggleSidebar() {
     this.toggleSidebar.set(!this.toggleSidebar());

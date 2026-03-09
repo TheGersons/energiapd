@@ -25,8 +25,8 @@ class RoleRepository {
 
   async create(role: IRolePayload): Promise<IRolePayload> {
     try {
-      const { rolePermission, ...roleDTO } = role;
-
+      const { rolePermission, id, ...roleDTO } = role;
+      console.log(roleDTO, rolePermission);
       return await prisma.role.create({
         data: {
           ...roleDTO,

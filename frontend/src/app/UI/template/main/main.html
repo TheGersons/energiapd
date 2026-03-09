@@ -1,11 +1,11 @@
 <div class="antialiased min-h-screen">
-  <div class="flex">
+  <div class="flex p-2">
     <app-aside
-      [ngClass]="toggleSidebar() ? 'w-79' : 'w-15'"
+      [ngClass]="toggleSidebar() ? 'w-79' : 'w-20'"
       [toggleSidebar]="toggleSidebar"
       class="transition-all duration-300"
     />
-    <div class="bg-gray-100 flex-1">
+    <div class="flex-1 px-2">
       <app-navbar (toggleSidebar)="onToggleSidebar()" />
       <main class="bg-transparent py-6 px-25">
         <router-outlet></router-outlet>
