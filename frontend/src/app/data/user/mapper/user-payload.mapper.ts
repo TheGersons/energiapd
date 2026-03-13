@@ -21,6 +21,7 @@ export class UserPayloadMapper extends Mapper<
         createdAt: a.createdAt,
         updatedAt: a.updatedAt,
       })),
+      userDepartment: param.idDepartment,
       userStatus: param.status,
       createdAt: param.createdAt,
       updatedAt: param.updatedAt,
@@ -43,6 +44,7 @@ export class UserPayloadMapper extends Mapper<
         updatedAt: a.updatedAt,
       })),
       status: param.userStatus,
+      idDepartment: param.userDepartment,
       createdAt: param.createdAt,
       updatedAt: param.updatedAt,
     };

@@ -1,3 +1,4 @@
+import { DepartmentModel } from '@domain/department/department.model';
 import { PlaneRoleModel } from '@domain/role/role.model';
 
 export interface UserModel {
@@ -18,6 +19,7 @@ export interface UserResponseModel {
   userMail: string;
   userStatus: boolean;
   userRoles: PlaneRoleModel[];
+  userDepartment: DepartmentModel;
   needChangePass: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -32,6 +34,7 @@ export interface UserPayloadModel {
   userStatus: boolean;
   userRoles: IUserRole[];
   needChangePass: boolean;
+  userDepartment: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -44,6 +47,7 @@ interface IUserRole {
   updatedAt?: string;
 }
 
-export interface UserFormModel extends Omit<UserPayloadModel, 'userRoles'> {
-
-}
+export interface UserFormModel extends Omit<
+  UserPayloadModel,
+  'userRoles' | 'userDepartment'
+> {}

@@ -21,6 +21,14 @@ class UserRepository {
             },
           },
         },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
 
@@ -39,6 +47,7 @@ class UserRepository {
         description: _b.role.description,
         priority: _b.role.priority,
       })),
+      department: _a.department,
     }));
   }
 
@@ -80,6 +89,14 @@ class UserRepository {
             },
           },
         },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
 
@@ -100,6 +117,7 @@ class UserRepository {
         description: _a.role.description,
         priority: _a.role.priority,
       })),
+      department: a.department,
     };
   }
 

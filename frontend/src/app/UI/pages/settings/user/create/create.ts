@@ -34,6 +34,8 @@ import { Loader } from '@ui/icons/loader';
 import { FormsModule } from '@angular/forms';
 import { PlaneRoleModel } from '@domain/role/role.model';
 import { UpdateUserUseCase } from '@domain/user/usecase/updateUser.usecase';
+import { FindAllDepartmentsUseCase } from '@domain/department/usecase/findAllDepartments.usecase';
+import { DepartmentModel } from '@domain/department/department.model';
 
 @Component({
   selector: 'app-create',
@@ -54,11 +56,13 @@ export class Create {
   private readonly createUser = inject(CreateUserUseCase);
   private readonly findOneUser = inject(FindOneUserUseCase);
   private readonly updateUser = inject(UpdateUserUseCase);
+  private readonly findAllDepartments = inject(FindAllDepartmentsUseCase);
 
   // State
   showPassword = signal(false);
   isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
   sRole: PlaneRoleModel[] = [];
+  sDepartment?: DepartmentModel;
 
   userModel = signal<UserFormModel>({
     userId: '',
@@ -97,6 +101,10 @@ export class Create {
     loader: () => firstValueFrom(this.findAllRoles.execute({})),
   });
 
+  departmentsResource = resource({
+    loader: () => firstValueFrom(this.findAllDepartments.execute()),
+  });
+
   userResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
     loader: async ({ params: id }) => {
@@ -127,6 +135,10 @@ export class Create {
         .value()
         ?.filter((a) => data.userRoles.some((b) => a.roleId === b.roleId)) ??
       [];
+
+    this.sDepartment = this.departmentsResource
+      .value()
+      ?.filter((a) => data.userDepartment.departmentId === a.departmentId)?.[0];
   }
 
   async onUpdate(event: Event) {
@@ -134,12 +146,18 @@ export class Create {
     try {
       await submit(this.userForm, async () => {
         const userForm = this.userForm().controlValue();
+
+        if (!this.sDepartment) throw '';
+
+        if (!this.sRole.length) throw '';
+
         const payload: UserPayloadModel = {
           ...userForm,
           userRoles: this.sRole.map((a) => ({
             roleId: a.roleId,
             userId: userForm.userId ?? '',
           })),
+          userDepartment: this.sDepartment?.departmentId ?? '',
         };
         const response = await firstValueFrom(this.updateUser.execute(payload));
 
@@ -158,6 +176,10 @@ export class Create {
       await submit(this.userForm, async () => {
         const userForm = this.userForm().controlValue();
 
+        if (!this.sDepartment) throw '';
+
+        if (!this.sRole.length) throw '';
+
         const payload: UserPayloadModel = {
           ...userForm,
           userId: undefined,
@@ -165,8 +187,9 @@ export class Create {
             roleId: a.roleId,
             userId: userForm.userId ?? '',
           })),
+          userDepartment: this.sDepartment?.departmentId ?? '',
         };
-        
+
         const response = await firstValueFrom(this.createUser.execute(payload));
 
         if (response?.id) {

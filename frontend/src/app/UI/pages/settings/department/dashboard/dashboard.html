@@ -1,0 +1,94 @@
+<div class="space-y-5">
+  <div class="w-full flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold">Departamentos</h2>
+      <h3 class="text-gray-500">Gestión de Departamentos</h3>
+    </div>
+  </div>
+
+  <div class="flex space-x-10 w-1/2">
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="rounded-lg p-3 bg-blue-200">
+        <app-loader name="total" hostClass="h-6 w-6"></app-loader>
+      </div>
+
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Totales</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="rounded-lg p-3 bg-gray-200">
+        <app-loader name="pending" hostClass="h-6 w-6"></app-loader>
+      </div>
+
+      <div class="">
+        <h2 class="text-2xl font-bold">5</h2>
+        <h3 class="text-slate-500">Pendientes</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="`rounded-lg p-3 bg-green-200">
+        <app-loader name="check" hostClass="h-6 w-6"></app-loader>
+      </div>
+
+      <div class="">
+        <h2 class="text-2xl font-bold">6</h2>
+        <h3 class="text-slate-500">Devueltos</h3>
+      </div>
+    </div>
+    <div
+      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
+      <div class="rounded-lg p-3 bg-red-200">
+        <app-loader name="expired" hostClass="h-6 w-6"></app-loader>
+      </div>
+
+      <div class="">
+        <h2 class="text-2xl font-bold">3</h2>
+        <h3 class="text-slate-500">Vencidos</h3>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
+    <div class="px-3 py-2">
+      <div
+        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
+        <button (click)="navigate(1)" class="p-1">
+          <app-loader name="create" hostClass="h-6 w-6"></app-loader>
+        </button>
+        <button [disabled]="!canEdit()" class="p-1">
+          <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
+        </button>
+        <button
+          
+          (click)="navigate(2)"
+          [disabled]="!canEdit()"
+          class="p-1">
+          <app-loader hostClass="h-6 w-6" name="edit"></app-loader>
+        </button>
+      </div>
+    </div>
+    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
+      <thead class="bg-neutral-100 sticky z-10">
+        <tr class="*:px-6 *:py-3 *:font-semibold">
+          <th>Nombre</th>
+        </tr>
+      </thead>
+      <tbody
+        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
+        @for (a of DepartmentsResource.value(); track $index) {
+          <tr
+            (click)="onSelectRow(a.departmentId ?? '')"
+            [class.bg-blue-200]="selection().has(a.departmentId ?? '')">
+            <td>{{ a.departmentName }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

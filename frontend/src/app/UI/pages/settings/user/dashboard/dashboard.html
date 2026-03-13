@@ -78,6 +78,7 @@
           <th>Correo</th>
           <th>Usuario</th>
           <th>Rol</th>
+          <th>Departamento</th>
           <th>Estado</th>
         </tr>
       </thead>
@@ -99,6 +100,7 @@
                 }
               </div>
             </td>
+            <td>{{ a.userDepartment.departmentName }}</td>
             <td>{{ a.userStatus ? "Activo" : "Inactivo" }}</td>
           </tr>
         }

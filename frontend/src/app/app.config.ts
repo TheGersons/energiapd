@@ -36,6 +36,8 @@ import { httpErrorInterceptor } from '@base/interceptor/http-error-interceptor';
 import { AuthRepository } from '@domain/auth/auth.repository';
 import { AuthImplementation } from '@data/auth/auth-implementation.repository';
 import { authInterceptor } from '@base/interceptor/auth-interceptor';
+import { DepartmentRepository } from '@domain/department/department.repository';
+import { DepartmentImplementation } from '@data/department/department-implementation.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -71,6 +73,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: AuthRepository,
       useClass: AuthImplementation,
+    },
+    {
+      provide: DepartmentRepository,
+      useClass: DepartmentImplementation,
     },
   ],
 };

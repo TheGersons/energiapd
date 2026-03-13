@@ -1,3 +1,4 @@
+import { IDepartment } from "./department.type";
 import { IRole } from "./role.type";
 import { IUserRole } from "./user-role.type";
 
@@ -20,6 +21,7 @@ export interface IUserPayload {
   fullname: string;
   status: boolean;
   roles: IUserRole[];
+  idDepartment: string;
   requestChangePass: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -33,6 +35,7 @@ export interface IUserResponse {
   status: boolean;
   roles: IRole[];
   requestChangePass: boolean;
+  department: IDepartment;
   createdAt?: Date;
   updatedAt?: Date;
 }

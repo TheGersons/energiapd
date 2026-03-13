@@ -13,6 +13,16 @@ datasource db {
   provider = "postgresql"
 }
 
+model Department {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+
+  @@map("department")
+}
+
 model User {
   id                String     @id @default(uuid())
   fullname          String
@@ -25,6 +35,8 @@ model User {
   updatedAt         DateTime   @updatedAt
   userRoles         UserRole[]
   sessions          session[]
+  idDepartment      String
+  department        Department @relation(fields: [idDepartment], references: [id])
 
   @@map("user")
 }

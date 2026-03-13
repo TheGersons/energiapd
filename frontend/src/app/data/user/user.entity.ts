@@ -1,3 +1,4 @@
+import { DepartmentEntity } from '@data/department/department.entity';
 import { PlaneRoleEntity } from '@data/role/role.entity';
 
 export interface UserEntity {
@@ -20,6 +21,7 @@ export interface UserPayloadEntity {
   status: boolean;
   roles: IUserRole[];
   requestChangePass: boolean;
+  idDepartment: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,6 +33,7 @@ export interface UserResponseEntity {
   fullname: string;
   status: boolean;
   roles: PlaneRoleEntity[];
+  department: DepartmentEntity;
   requestChangePass: boolean;
   createdAt?: string;
   updatedAt?: string;
