@@ -19,24 +19,26 @@ model Department {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   users     User[]
+  loans     Loan[]
 
   @@map("department")
 }
 
 model User {
-  id                String     @id @default(uuid())
+  id                String         @id @default(uuid())
   fullname          String
-  nickname          String     @unique
-  email             String     @unique
+  nickname          String         @unique
+  email             String         @unique
   password          String
-  status            Boolean    @default(true)
-  requestChangePass Boolean    @default(false)
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  status            Boolean        @default(true)
+  requestChangePass Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
   userRoles         UserRole[]
   sessions          session[]
   idDepartment      String
-  department        Department @relation(fields: [idDepartment], references: [id])
+  department        Department     @relation(fields: [idDepartment], references: [id])
+  loanApproves      LoanApproves[]
 
   @@map("user")
 }
@@ -109,7 +111,7 @@ model Loan {
   id             String   @id @default(uuid())
   name           String
   dni            String
-  department     String
+  idDepartment   String
   useDescription String
   status         String   @default("pendiente")
   returnDate     DateTime
@@ -119,9 +121,23 @@ model Loan {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  loanDetails LoanDetail[]
+  loanDetails  LoanDetail[]
+  loanApproves LoanApproves[]
+  department   Department     @relation(fields: [idDepartment], references: [id])
 
   @@map("loan")
+}
+
+model LoanApproves {
+  id       String  @id @default(uuid())
+  idLoan   String
+  idUser   String
+  approved Boolean @default(false)
+
+  loan Loan @relation(fields: [idLoan], references: [id])
+  user User @relation(fields: [idUser], references: [id])
+
+  @@map("loan_approves")
 }
 
 model LoanDetail {

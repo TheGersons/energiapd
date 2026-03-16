@@ -26,7 +26,7 @@ class Server {
   config(): void {
     this.app.use(
       cors({
-        origin: ["http://192.168.10.252:4200", "http://localhost:4200"],
+        origin: ["http://192.168.10.252:4201", "http://localhost:4200"],
         credentials: true,
       }),
     );

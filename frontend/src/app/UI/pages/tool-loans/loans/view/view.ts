@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LoanResponseModel } from '@domain/loan/loal.model';
+import { LoanModel, LoanResponseModel } from '@domain/loan/loal.model';
 import { FindOneLoanUseCase } from '@domain/loan/usecase/findOneLoan.usecase';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Loader } from '@ui/icons/loader';
@@ -20,12 +20,15 @@ import { firstValueFrom } from 'rxjs';
 import { HasPermissionDirective } from '@base/directive/has-permission.directive';
 import { HasNoPermissionDirective } from '@base/directive/has-no-permission';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import { SignatureSocket } from '@base/socket/signature.socket';
 import {
   NgSignaturePadOptions,
   SignaturePadComponent,
 } from '@almothafar/angular-signature-pad';
+import { environment } from 'environments/environment.development';
+import { ApproveLoanUseCase } from '@domain/loan/usecase/approveLoan.usecase';
+import { ToolModel } from '@domain/tool/tool.model';
 
 @Component({
   selector: 'app-view',
@@ -55,8 +58,10 @@ export class View implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly findOneLoan = inject(FindOneLoanUseCase);
   private signatureSocket = inject(SignatureSocket);
+  private approveLoan = inject(ApproveLoanUseCase);
   private sessionId = uuidv4();
-  url = `http://192.168.10.252:4200/firma-herramientas/${this.sessionId}`;
+  private toastr = inject(ToastrService);
+  url = `${environment.host}firma-herramientas/${this.sessionId}`;
 
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
@@ -70,6 +75,7 @@ export class View implements OnInit, AfterViewInit {
   loanReturnDate = signal<string>('');
   signatureImage = signal<string>('');
   showPcPad = signal<boolean>(false);
+  loanTools = signal<ToolModel[]>([]);
 
   loanResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
@@ -104,18 +110,40 @@ export class View implements OnInit, AfterViewInit {
   patchForm(data: LoanResponseModel) {
     this.createdAt.set(data.createdAt);
     this.loanName.set(data.loanName);
-    this.loanDepartment.set(data.loanDepartment);
+    this.loanDepartment.set(data.loanDepartment.departmentName);
     this.LoanUseDescription.set(data.LoanUseDescription);
     this.loanStatus.set(data.loanStatus);
     this.loanNotes.set(data.loanNotes);
     this.loanReturnDate.set(data.loanReturnDate);
     this.loanDni.set(data.loanDni);
+    this.loanTools.set(data.tools);
   }
 
   confirmPcSignature(pad: any) {
     const base64 = pad.toDataURL();
     this.signatureImage.set(base64);
     this.showPcPad.set(false);
+  }
+
+  async onApprove(status: boolean, state: string) {
+    if (!this.signatureImage().length) {
+      this.toastr.warning('La firma es necesaria.');
+      return;
+    }
+    const response = await firstValueFrom(
+      this.approveLoan.execute({
+        loan: this.loanResource.value()?.loanId ?? '',
+        status,
+        state,
+      }),
+    );
+    if (!validate(response)) {
+      this.toastr.warning('No hubo cambios');
+      return;
+    }
+
+    this.toastr.success('Permiso actualizado con exito');
+    this.loanResource.reload();
   }
 
   goBack(): void {

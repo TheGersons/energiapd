@@ -1,13 +1,44 @@
-import { ILoan, ILoanDTO } from "@type/loan.type";
+import { ILoan, ILoanDTO, ILoanResponse } from "@type/loan.type";
 import prisma from "@database/index";
 
 class LoanRepository {
   async findAll(): Promise<ILoan[]> {
-    return await prisma.loan.findMany();
+    return await prisma.loan.findMany({
+      include: {
+        department: true,
+      },
+    });
   }
 
-  async findOne(tool: Partial<ILoan>): Promise<ILoan | null> {
-    return await prisma.loan.findUnique({ where: { id: tool.id } });
+  async findOne(tool: Partial<ILoan>): Promise<ILoanResponse | null> {
+    const response = await prisma.loan.findUnique({
+      where: { id: tool.id },
+      include: {
+        loanApproves: {
+          select: {
+            id: true,
+            idLoan: true,
+            idUser: true,
+            approved: true,
+          },
+        },
+        department: true,
+        loanDetails: {
+          include: {
+            tool: true,
+          },
+        },
+      },
+    });
+
+    if (!response) return null;
+
+    const { loanDetails, ...loanData } = response;
+
+    return {
+      ...loanData,
+      tool: response?.loanDetails.map((a) => a?.tool) ?? [],
+    };
   }
 
   async update(loan: ILoan): Promise<number> {
@@ -25,6 +56,30 @@ class LoanRepository {
           ...loanDTO,
           loanDetails: {
             createMany: { data: tools },
+          },
+        },
+      })
+    ).id;
+  }
+
+  async approve(
+    idLoan: string,
+    idUser: string,
+    approved: boolean,
+    status: string,
+  ): Promise<string> {
+    return (
+      await prisma.loan.update({
+        where: {
+          id: idLoan,
+        },
+        data: {
+          status,
+          loanApproves: {
+            create: {
+              idUser,
+              approved,
+            },
           },
         },
       })

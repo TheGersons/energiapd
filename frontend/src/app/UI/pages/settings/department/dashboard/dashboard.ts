@@ -20,6 +20,7 @@ export class Dashboard {
 
   findAllDepartments = inject(FindAllDepartmentsUseCase);
 
+
   DepartmentsResource = resource({
     loader: () => firstValueFrom(this.findAllDepartments.execute()),
   });

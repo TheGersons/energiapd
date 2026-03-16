@@ -1,5 +1,4 @@
 import { ITool } from "@type/tool.type";
-import { ToolModel } from "@model/tool.model";
 import prisma from "@database/index";
 
 class ToolRepository {

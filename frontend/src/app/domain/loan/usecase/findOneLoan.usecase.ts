@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { UseCase } from '@base/use-case';
-import { LoanResponseModel } from '../loal.model';
+import { LoanModel, LoanResponseModel } from '../loal.model';
 import { Observable } from 'rxjs';
 import { LoanRepository } from '../loan.repository';
 

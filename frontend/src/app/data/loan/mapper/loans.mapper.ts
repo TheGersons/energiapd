@@ -1,18 +1,19 @@
 import { Mapper } from '@base/mapper';
-import { LoanResponseEntity } from '../loan.entity';
-import { LoanResponseModel } from '@domain/loan/loal.model';
+import { LoanEntity } from '../loan.entity';
+import { LoanModel } from '@domain/loan/loal.model';
 
-export class LoansResponseMapper extends Mapper<
-  LoanResponseEntity[],
-  LoanResponseModel[]
-> {
-  override mapFrom(param: LoanResponseEntity[]): LoanResponseModel[] {
+export class LoansMapper extends Mapper<LoanEntity[], LoanModel[]> {
+  override mapFrom(param: LoanEntity[]): LoanModel[] {
     return param.map((a) => ({
       loanId: a.id,
       loanName: a.name,
-      loanApprovedBy: a.approvedBy,
       loanDeliveredBy: a.deliveredBy,
-      loanDepartment: a.department,
+      loanDepartment: {
+        departmentId: a.department.id,
+        departmentName: a.department.name,
+        createdAt: a.department.createdAt,
+        updatedAt: a.department.updatedAt,
+      },
       loanDni: a.dni,
       loanNotes: a.notes,
       loanReturnDate: a.returnDate,
@@ -23,13 +24,17 @@ export class LoansResponseMapper extends Mapper<
     }));
   }
 
-  override mapTo(param: LoanResponseModel[]): LoanResponseEntity[] {
+  override mapTo(param: LoanModel[]): LoanEntity[] {
     return param.map((a) => ({
       id: a.loanId,
       name: a.loanName,
-      approvedBy: a.loanApprovedBy,
       deliveredBy: a.loanDeliveredBy,
-      department: a.loanDepartment,
+      department: {
+        id: a.loanDepartment.departmentId,
+        name: a.loanDepartment.departmentName,
+        createdAt: a.loanDepartment.createdAt,
+        updatedAt: a.loanDepartment.updatedAt,
+      },
       dni: a.loanDni,
       notes: a.loanNotes,
       returnDate: a.loanReturnDate,

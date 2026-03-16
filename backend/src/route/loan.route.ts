@@ -15,17 +15,23 @@ class LoanRoute {
     this.router.get(
       "/",
       validateToken,
-      hasPermission(["pestamo-herramientas:leer"]),
+      hasPermission(["prestamo-herramientas:leer"]),
       loanController.findAll,
     );
     this.router.get(
       "/one",
       validateToken,
-      hasPermission(["pestamo-herramientas:leer"]),
+      hasPermission(["prestamo-herramientas:leer:uno"]),
       loanController.findOne,
     );
-    this.router.post("/", validateToken, loanController.create);
+    this.router.post("/", loanController.create);
     this.router.put("/", loanController.update);
+    this.router.patch(
+      "/",
+      validateToken,
+      hasPermission(["prestamo-herramientas:autorizar"]),
+      loanController.approve,
+    );
   }
 }
 

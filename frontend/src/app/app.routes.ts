@@ -93,6 +93,37 @@ export const routes: Routes = [
               },
             ],
           },
+
+          {
+            path: 'departamentos',
+            loadComponent: () =>
+              import('@ui/pages/settings/department/department').then(
+                (m) => m.Department,
+              ),
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('@ui/pages/settings/department/dashboard/dashboard').then(
+                    (m) => m.Dashboard,
+                  ),
+              },
+              {
+                path: 'crear',
+                loadComponent: () =>
+                  import('@ui/pages/settings/department/create/create').then(
+                    (m) => m.Create,
+                  ),
+              },
+              {
+                path: 'editar/:id',
+                loadComponent: () =>
+                  import('@ui/pages/settings/department/create/create').then(
+                    (m) => m.Create,
+                  ),
+              },
+            ],
+          },
         ],
       },
 
@@ -158,7 +189,7 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                canActivate: [permissionGuard(['pestamo-herramientas:leer'])],
+                canActivate: [permissionGuard(['prestamo-herramientas:leer'])],
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/loans/dashboard/dashboard').then(
                     (m) => m.Dashboard,
@@ -166,7 +197,6 @@ export const routes: Routes = [
               },
               {
                 path: 'crear',
-                data: { public: true },
                 loadComponent: () =>
                   import('@ui/pages/tool-loans/loans/create/create').then(
                     (m) => m.Create,
@@ -176,9 +206,9 @@ export const routes: Routes = [
                 path: 'ver/:id',
                 canActivate: [
                   permissionGuard([
-                    'pestamo-herramientas:leer:uno',
-                    'pestamo-herramientas:autorizar',
-                    'pestamo-herramientas:entregar',
+                    'prestamo-herramientas:leer:uno',
+                    'prestamo-herramientas:autorizar',
+                    'prestamo-herramientas:entregar',
                   ]),
                 ],
                 loadComponent: () =>
@@ -197,6 +227,12 @@ export const routes: Routes = [
     path: 'firma-herramientas/:id',
     loadComponent: () =>
       import('@ui/template/signature/signature').then((m) => m.Signature),
+  },
+
+  {
+    path: 'prestamo-herramientas/crear',
+    loadComponent: () =>
+      import('@ui/pages/tool-loans/loans/create/create').then((m) => m.Create),
   },
 
   // --- COMODÍN ---

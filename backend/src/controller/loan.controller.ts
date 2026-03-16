@@ -2,6 +2,7 @@ import { ILoan } from "@type/loan.type";
 import { Request, Response } from "express";
 import { loanRepository } from "repository/loan.repository";
 import { errorResponse } from "utils/errorResponse";
+import { validate } from "uuid";
 
 export interface AuthRequest extends Request {
   idUser?: string;
@@ -31,7 +32,7 @@ class LoanController {
       .findOne(query)
       .then((rs) => {
         if (!rs) {
-          errorResponse(res, 404, "Préstamo no encontrado.");
+          return errorResponse(res, 404, "Préstamo no encontrado.");
         }
         res.status(200).json(rs);
       })
@@ -42,15 +43,13 @@ class LoanController {
 
   create({ body }: Request, res: Response) {
     if (!body?.loan) {
-      errorResponse(res, 400, "El cuerpo de la solicitud es inválido.");
+      return errorResponse(res, 400, "El cuerpo de la solicitud es inválido.");
     }
 
     loanRepository
       .create(body.loan)
       .then((rs) => res.status(201).json(rs))
       .catch((error) => {
-        console.error("[LoanController.create]", error);
-
         if (error?.name === "SequelizeValidationError") {
           return errorResponse(
             res,
@@ -79,7 +78,7 @@ class LoanController {
 
   update({ body }: Request, res: Response) {
     if (!body?.loan?.id) {
-      errorResponse(res, 400, "El ID del préstamo es requerido.");
+      return errorResponse(res, 400, "El ID del préstamo es requerido.");
     }
 
     loanRepository
@@ -102,6 +101,39 @@ class LoanController {
           error?.message,
         ),
       );
+  }
+
+  approve(req: Request, res: Response) {
+    console.log(req.body)
+    if (
+      !("idLoan" in req.body) &&
+      !("approved" in req.body) &&
+      !("status" in req.body)
+    ) {
+      return errorResponse(res, 400, "El ID y Estado son requeridos.");
+    }
+
+    loanRepository
+      .approve(
+        req.body.idLoan,
+        (req as any).idUser,
+        req.body.approved,
+        req.body.status,
+      )
+      .then((rs) => {
+        if (!validate(rs)) {
+          return errorResponse(
+            res,
+            404,
+            "Préstamo no encontrado o sin cambios.",
+          );
+        }
+        return res.status(200).json(rs);
+      })
+      .catch((error) => {
+        console.log(error);
+        errorResponse(res, 500, "Error al actualizar el préstamo.", error);
+      });
   }
 }
 

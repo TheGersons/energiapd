@@ -58,14 +58,17 @@
     <div class="px-3 py-2">
       <div
         class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
-        <button (click)="navigate(1)" class="p-1">
+        <button
+          *hasPermission="['departamentos:crear']"
+          (click)="navigate(1)"
+          class="p-1">
           <app-loader name="create" hostClass="h-6 w-6"></app-loader>
         </button>
         <button [disabled]="!canEdit()" class="p-1">
           <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
         </button>
         <button
-          
+          *hasPermission="['departamentos:editar']"
           (click)="navigate(2)"
           [disabled]="!canEdit()"
           class="p-1">

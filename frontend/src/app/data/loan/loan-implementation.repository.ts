@@ -1,34 +1,39 @@
 import { inject, Injectable } from '@angular/core';
-import { LoanMapper } from './mapper/loan.mapper';
+import { LoanDtoMapper } from './mapper/loanDTO.mapper';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment.development';
 import { map, Observable } from 'rxjs';
 import { LoanRepository } from '@domain/loan/loan.repository';
-import { LoanModelDTO, LoanResponseModel } from '@domain/loan/loal.model';
-import { LoanResponseEntity } from './loan.entity';
-import { LoansResponseMapper } from './mapper/loansResponse.mapper';
+import {
+  LoanModelDTO,
+  LoanModel,
+  LoanResponseModel,
+} from '@domain/loan/loal.model';
+import { LoansMapper } from './mapper/loans.mapper';
+import { LoanMapper } from './mapper/loan.mapper';
+import { LoanEntity, LoanResponseEntity } from './loan.entity';
 import { LoanResponseMapper } from './mapper/loanResponse.mapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoanImplementation extends LoanRepository {
-  private loanMapper = new LoanMapper();
-  private loansResponseMapper = new LoansResponseMapper();
+  private loanDtoMapper = new LoanDtoMapper();
+  private loansMapper = new LoansMapper();
   private loanResponseMapper = new LoanResponseMapper();
   private http = inject(HttpClient);
   private baseURL = `${environment.baseURL}loan/`;
 
   override createLoan(loan: LoanModelDTO): Observable<string> {
     return this.http.post<string>(`${this.baseURL}`, {
-      loan: this.loanMapper.mapTo(loan),
+      loan: this.loanDtoMapper.mapTo(loan),
     });
   }
 
-  override findAllLoans(): Observable<LoanResponseModel[]> {
+  override findAllLoans(): Observable<LoanModel[]> {
     return this.http
-      .get<LoanResponseEntity[]>(`${this.baseURL}`)
-      .pipe(map(this.loansResponseMapper.mapFrom));
+      .get<LoanEntity[]>(`${this.baseURL}`)
+      .pipe(map(this.loansMapper.mapFrom));
   }
 
   override findOneLoan(id: string): Observable<LoanResponseModel> {
@@ -37,5 +42,17 @@ export class LoanImplementation extends LoanRepository {
         params: { id },
       })
       .pipe(map(this.loanResponseMapper.mapFrom));
+  }
+
+  override approveLoan(
+    loan: string,
+    status: boolean,
+    state: string,
+  ): Observable<string> {
+    return this.http.patch<string>(`${this.baseURL}`, {
+      idLoan: loan,
+      approved: status,
+      status: state,
+    });
   }
 }

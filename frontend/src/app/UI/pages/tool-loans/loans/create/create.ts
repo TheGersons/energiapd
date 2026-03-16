@@ -7,6 +7,7 @@ import {
   required,
   submit,
 } from '@angular/forms/signals';
+import { FindAllDepartmentsUseCase } from '@domain/department/usecase/findAllDepartments.usecase';
 import { LoanFormModel, LoanModelDTO } from '@domain/loan/loal.model';
 import { CreateLoanlUseCase } from '@domain/loan/usecase/createLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
@@ -16,10 +17,11 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 import { validate } from 'uuid';
+import { NgSelectComponent } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-create',
-  imports: [Loader, FormField, NgxMaskDirective],
+  imports: [Loader, FormField, NgxMaskDirective, NgSelectComponent],
   templateUrl: './create.html',
   providers: [provideNgxMask()],
   styleUrl: './create.scss',
@@ -27,11 +29,16 @@ import { validate } from 'uuid';
 export class Create {
   createLoan = inject(CreateLoanlUseCase);
   findTools = inject(FindAllToolsUseCase);
+  findDepartments = inject(FindAllDepartmentsUseCase);
   toastr = inject(ToastrService);
   private readonly location = inject(Location);
 
   toolResource = resource({
     loader: () => firstValueFrom(this.findTools.execute({})),
+  });
+
+  departmentsResource = resource({
+    loader: () => firstValueFrom(this.findDepartments.execute()),
   });
 
   tools = signal(new Set<ToolModel>());
@@ -69,7 +76,7 @@ export class Create {
         const dto: LoanModelDTO = {
           ...form,
           loanReturnDate: new Date(form.loanReturnDate).toISOString(),
-          loanStatus: 'pendiente',
+          loanStatus: 'Pendiente',
           loanApprovedBy: '',
           loanDeliveredBy: '',
           loanTools: Array.from(this.tools()).map((a) => ({

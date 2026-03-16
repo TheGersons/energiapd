@@ -1,10 +1,12 @@
+import { IDepartment } from "./department.type";
 import { ILoanDetail } from "./loan-detail.type";
+import { ITool } from "./tool.type";
 
 export interface ILoan {
   id?: string;
   name: string;
   dni: string;
-  department: string;
+  department: IDepartment;
   useDescription: string;
   status: string;
   returnDate: Date;
@@ -18,7 +20,7 @@ export interface ILoan {
 export interface ILoanDTO {
   name: string;
   dni: string;
-  department: string;
+  idDepartment: string;
   useDescription: string;
   status: string;
   returnDate: Date;
@@ -29,5 +31,21 @@ export interface ILoanDTO {
 }
 
 export interface ILoanResponse {
-
+  id: string;
+  name: string;
+  dni: string;
+  department: IDepartment;
+  tool: ITool[];
+  useDescription: string;
+  status: string;
+  returnDate: Date;
+  loanApproves: Array<{
+    id: string;
+    idLoan: string;
+    idUser: string;
+    approved: boolean;
+  }>;
+  notes: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

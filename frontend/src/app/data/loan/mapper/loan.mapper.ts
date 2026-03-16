@@ -1,39 +1,47 @@
 import { Mapper } from '@base/mapper';
-import { LoanEntityDTO } from '../loan.entity';
-import { LoanModelDTO } from '@domain/loan/loal.model';
+import { LoanEntity } from '../loan.entity';
+import { LoanModel } from '@domain/loan/loal.model';
 
-export class LoanMapper extends Mapper<LoanEntityDTO, LoanModelDTO> {
-  override mapFrom(param: LoanEntityDTO): LoanModelDTO {
+export class LoanMapper extends Mapper<LoanEntity, LoanModel> {
+  override mapFrom(param: LoanEntity): LoanModel {
     return {
+      loanId: param.id,
       loanName: param.name,
-      loanDni: param.dni,
-      loanDepartment: param.department,
-      loanUseDescription: param.useDescription,
-      loanStatus: param.status,
-      loanReturnDate: param.returnDate,
-      loanNotes: param.notes,
-      loanApprovedBy: param.approvedBy,
       loanDeliveredBy: param.deliveredBy,
-      loanTools: param.tools.map((a) => ({
-        toolId: a.idTool,
-      })),
+      loanDepartment: {
+        departmentId: param.department.id,
+        departmentName: param.department.name,
+        createdAt: param.department.createdAt,
+        updatedAt: param.department.updatedAt,
+      },
+      loanDni: param.dni,
+      loanNotes: param.notes,
+      loanReturnDate: param.returnDate,
+      loanStatus: param.status,
+      LoanUseDescription: param.useDescription,
+      createdAt: param.createdAt,
+      updatedAt: param.updatedAt,
     };
   }
 
-  override mapTo(param: LoanModelDTO): LoanEntityDTO {
+  override mapTo(param: LoanModel): LoanEntity {
     return {
+      id: param.loanId,
       name: param.loanName,
-      dni: param.loanDni,
-      department: param.loanDepartment,
-      useDescription: param.loanUseDescription,
-      status: param.loanStatus,
-      returnDate: param.loanReturnDate,
-      notes: param.loanNotes,
-      approvedBy: param.loanApprovedBy,
       deliveredBy: param.loanDeliveredBy,
-      tools: param.loanTools.map((a) => ({
-        idTool: a.toolId,
-      })),
+      department: {
+        id: param.loanDepartment.departmentId,
+        name: param.loanDepartment.departmentName,
+        createdAt: param.loanDepartment.createdAt,
+        updatedAt: param.loanDepartment.updatedAt,
+      },
+      dni: param.loanDni,
+      notes: param.loanNotes,
+      returnDate: param.loanReturnDate,
+      status: param.loanStatus,
+      useDescription: param.LoanUseDescription,
+      createdAt: param.createdAt,
+      updatedAt: param.updatedAt,
     };
   }
 }

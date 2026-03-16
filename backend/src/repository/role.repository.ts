@@ -1,5 +1,3 @@
-import { RolePermissionModel } from "@model/role-permission.model";
-import { RoleModel } from "@model/role.model";
 import { IRole, IRolePayload } from "@type/role.type";
 import prisma from "@database/index";
 
