@@ -1,4 +1,4 @@
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule, DatePipe, Location } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -42,13 +42,18 @@ import { ToolModel } from '@domain/tool/tool.model';
     QRCodeComponent,
     Loader,
     SignaturePadComponent,
+    DatePipe,
   ],
   templateUrl: './view.html',
   styleUrl: './view.scss',
 })
 export class View implements OnInit, AfterViewInit {
-  @ViewChild('signature')
+  @ViewChild('signaturePad')
   public signaturePad!: SignaturePadComponent;
+
+  @ViewChild('deliverySignaturePad')
+  public deliverySignaturePad!: SignaturePadComponent;
+
   public signaturePadOptions: NgSignaturePadOptions = {
     maxWidth: 0.5,
     velocityFilterWeight: 0.7,
@@ -60,11 +65,15 @@ export class View implements OnInit, AfterViewInit {
   private signatureSocket = inject(SignatureSocket);
   private approveLoan = inject(ApproveLoanUseCase);
   private sessionId = uuidv4();
+  private deliverySessionId = uuidv4();
   private toastr = inject(ToastrService);
+
   url = `${environment.host}firma-herramientas/${this.sessionId}`;
+  deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}`;
 
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
+  // Loan fields
   createdAt = signal<string>('');
   loanName = signal<string>('');
   loanDepartment = signal<string>('');
@@ -73,9 +82,16 @@ export class View implements OnInit, AfterViewInit {
   loanStatus = signal<string>('');
   loanNotes = signal<string>('');
   loanReturnDate = signal<string>('');
+  loanTools = signal<ToolModel[]>([]);
+
+  // Approval signature
   signatureImage = signal<string>('');
   showPcPad = signal<boolean>(false);
-  loanTools = signal<ToolModel[]>([]);
+
+  // Delivery signature (UI only — wire up onDeliver() with your use case)
+  deliverySignatureImage = signal<string>('');
+  showDeliveryPcPad = signal<boolean>(false);
+  deliveryNotes = signal<string>('');
 
   loanResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
@@ -88,7 +104,6 @@ export class View implements OnInit, AfterViewInit {
   constructor() {
     effect(() => {
       const data = this.loanResource.value();
-
       if (data) {
         setTimeout(() => this.patchForm(data));
       }
@@ -96,15 +111,21 @@ export class View implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Approval signature socket
     this.signatureSocket.joinRoom(this.sessionId);
     this.signatureSocket.onSignatureReceived().subscribe((base64) => {
       this.signatureImage.set(base64);
     });
+
+    // Delivery signature socket — uses a separate room
+    this.signatureSocket.joinRoom(this.deliverySessionId);
   }
 
   ngAfterViewInit(): void {
-    this.signaturePad.set('minWidth', 5);
-    this.signaturePad.clear();
+    if (this.signaturePad) {
+      this.signaturePad.set('minWidth', 5);
+      this.signaturePad.clear();
+    }
   }
 
   patchForm(data: LoanResponseModel) {
@@ -119,10 +140,16 @@ export class View implements OnInit, AfterViewInit {
     this.loanTools.set(data.tools);
   }
 
-  confirmPcSignature(pad: any) {
+  confirmPcSignature(pad: SignaturePadComponent) {
     const base64 = pad.toDataURL();
     this.signatureImage.set(base64);
     this.showPcPad.set(false);
+  }
+
+  confirmDeliveryPcSignature(pad: SignaturePadComponent) {
+    const base64 = pad.toDataURL();
+    this.deliverySignatureImage.set(base64);
+    this.showDeliveryPcPad.set(false);
   }
 
   async onApprove(status: boolean, state: string) {
@@ -141,12 +168,47 @@ export class View implements OnInit, AfterViewInit {
       this.toastr.warning('No hubo cambios');
       return;
     }
-
-    this.toastr.success('Permiso actualizado con exito');
+    this.toastr.success('Permiso actualizado con éxito');
     this.loanResource.reload();
+  }
+
+  /**
+   * TODO: implementar con el use case de entrega
+   * Conectar con: approveLoan.execute({ loan, status: true, state: 'Entregado' })
+   * o el use case que corresponda para cambiar estado a "Entregado".
+   */
+  async onDeliver() {
+    if (!this.deliverySignatureImage().length) {
+      this.toastr.warning('La firma del almacenista es necesaria.');
+      return;
+    }
+    // Implementar lógica de entrega aquí
+    this.toastr.info('Implementar lógica de entrega');
   }
 
   goBack(): void {
     this.location.back();
+  }
+
+  statusLabel(status: string): string {
+    const map: Record<string, string> = {
+      Pendiente: 'Pendiente',
+      Aprobado: 'Aprobado',
+      Denegado: 'Denegado',
+      Entregado: 'Entregado',
+      Devuelto: 'Devuelto',
+    };
+    return map[status] ?? status;
+  }
+
+  statusColorClass(status: string): string {
+    const map: Record<string, string> = {
+      Pendiente: 'bg-amber-100 text-amber-700 border border-amber-300',
+      Aprobado: 'bg-green-100 text-green-700 border border-green-300',
+      Denegado: 'bg-red-100 text-red-700 border border-red-300',
+      Entregado: 'bg-blue-100 text-blue-700 border border-blue-300',
+      Devuelto: 'bg-gray-100 text-gray-700 border border-gray-300',
+    };
+    return map[status] ?? 'bg-gray-100 text-gray-700 border border-gray-300';
   }
 }
