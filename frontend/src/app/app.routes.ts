@@ -230,9 +230,9 @@ export const routes: Routes = [
   },
 
   {
-    path: 'prestamo-herramientas/crear',
+    path: 'prestamo-herramientas',
     loadComponent: () =>
-      import('@ui/pages/tool-loans/loans/create/create').then((m) => m.Create),
+      import('@ui/pages/tool-loans/loans/public/public').then((m) => m.Public),
   },
 
   // --- COMODÍN ---
