@@ -31,6 +31,7 @@ import { environment } from 'environments/environment.development';
 import { ApproveLoanUseCase } from '@domain/loan/usecase/approveLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
 import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
+import { ReturnLoanUseCase } from '@domain/loan/usecase/returnLoan.usecase';
 
 @Component({
   selector: 'app-view',
@@ -42,7 +43,6 @@ import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
     HasPermissionDirective,
     HasNoPermissionDirective,
     QRCodeComponent,
-    Loader,
     SignaturePadComponent,
     DatePipe,
   ],
@@ -50,33 +50,41 @@ import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
   styleUrl: './view.scss',
 })
 export class View implements OnInit, AfterViewInit {
-  @ViewChild('signaturePad')
-  public signaturePad!: SignaturePadComponent;
-
+  // ── ViewChild refs ───────────────────────────────────────────
+  @ViewChild('signaturePad') public signaturePad!: SignaturePadComponent;
   @ViewChild('deliverySignaturePad')
   public deliverySignaturePad!: SignaturePadComponent;
+  @ViewChild('returnSignaturePad')
+  public returnSignaturePad!: SignaturePadComponent;
 
   public signaturePadOptions: NgSignaturePadOptions = {
     maxWidth: 0.5,
     velocityFilterWeight: 0.7,
   };
 
+  // ── Servicios ────────────────────────────────────────────────
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly findOneLoan = inject(FindOneLoanUseCase);
-  private signatureSocket = inject(SignatureSocket);
-  private approveLoan = inject(ApproveLoanUseCase);
-  private deliverLoan = inject(DeliverLoanUseCase);
-  private sessionId = uuidv4();
-  private deliverySessionId = uuidv4();
-  private toastr = inject(ToastrService);
+  private readonly signatureSocket = inject(SignatureSocket);
+  private readonly approveLoan = inject(ApproveLoanUseCase);
+  private readonly deliverLoan = inject(DeliverLoanUseCase);
+  private readonly returnLoan = inject(ReturnLoanUseCase);
+  private readonly toastr = inject(ToastrService);
 
-  url = `${environment.host}firma-herramientas/${this.sessionId}`;
-  deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}`;
+  // ── IDs de sala por etapa ────────────────────────────────────
+  private readonly sessionId = uuidv4();
+  private readonly deliverySessionId = uuidv4();
+  private readonly returnSessionId = uuidv4();
 
+  readonly url = `${environment.host}firma-herramientas/${this.sessionId}`;
+  readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}`;
+  readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}`;
+
+  // ── Tabs ─────────────────────────────────────────────────────
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
-  // Loan fields
+  // ── Campos del préstamo ──────────────────────────────────────
   createdAt = signal<string>('');
   loanName = signal<string>('');
   loanDepartment = signal<string>('');
@@ -87,40 +95,49 @@ export class View implements OnInit, AfterViewInit {
   loanReturnDate = signal<string>('');
   loanTools = signal<ToolModel[]>([]);
 
+  // ── Aprobación ───────────────────────────────────────────────
   signatureImage = signal<string>('');
   showPcPad = signal<boolean>(false);
-  approvalNotes = signal<string>('');
 
+  // ── Entrega ──────────────────────────────────────────────────
   deliverySignatureImage = signal<string>('');
   showDeliveryPcPad = signal<boolean>(false);
   deliveryNotes = signal<string>('');
-
   verifiedTools = signal<Set<string>>(new Set());
 
   verifiedCount = computed(() => this.verifiedTools().size);
-
   allToolsVerified = computed(
     () =>
       this.loanTools().length > 0 &&
       this.verifiedTools().size === this.loanTools().length,
   );
-
   canConfirmDelivery = computed(
     () => this.allToolsVerified() && this.deliverySignatureImage().length > 0,
   );
 
-  toggleToolVerified(toolId: string) {
-    this.verifiedTools.update((prev) => {
-      const next = new Set(prev);
-      next.has(toolId) ? next.delete(toolId) : next.add(toolId);
-      return next;
-    });
-  }
+  // ── Devolución ───────────────────────────────────────────────
+  returnSignatureImage = signal<string>('');
+  showReturnPcPad = signal<boolean>(false);
+  returnNotes = signal<string>('');
+  returnVerifiedTools = signal<Set<string>>(new Set());
 
-  isToolVerified(toolId: string): boolean {
-    return this.verifiedTools().has(toolId);
-  }
+  returnVerifiedCount = computed(() => this.returnVerifiedTools().size);
+  allReturnToolsVerified = computed(
+    () =>
+      this.loanTools().length > 0 &&
+      this.returnVerifiedTools().size === this.loanTools().length,
+  );
+  canConfirmReturn = computed(
+    () =>
+      this.allReturnToolsVerified() && this.returnSignatureImage().length > 0,
+  );
 
+  // ── Ampliación ───────────────────────────────────────────────
+  showExtendModal = signal<boolean>(false);
+  extendReturnDate = signal<string>('');
+  extendNotes = signal<string>('');
+
+  // ── Resource ─────────────────────────────────────────────────
   loanResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
     loader: async ({ params: id }) => {
@@ -132,28 +149,26 @@ export class View implements OnInit, AfterViewInit {
   constructor() {
     effect(() => {
       const data = this.loanResource.value();
-      if (data) {
-        setTimeout(() => this.patchForm(data));
-      }
+      if (data) setTimeout(() => this.patchForm(data));
     });
   }
 
   ngOnInit(): void {
     this.signatureSocket.joinRoom(this.sessionId);
-    this.signatureSocket.onSignatureReceived().subscribe((base64) => {
-      this.signatureImage.set(base64);
-    });
+    this.signatureSocket
+      .onSignatureReceived()
+      .subscribe((b) => this.signatureImage.set(b));
 
     this.signatureSocket.joinRoom(this.deliverySessionId);
+    this.signatureSocket.joinRoom(this.returnSessionId);
   }
 
   ngAfterViewInit(): void {
-    if (this.signaturePad) {
-      this.signaturePad.set('minWidth', 5);
-      this.signaturePad.clear();
-    }
+    this.signaturePad?.set('minWidth', 5);
+    this.signaturePad?.clear();
   }
 
+  // ── Patch ────────────────────────────────────────────────────
   patchForm(data: LoanResponseModel) {
     this.createdAt.set(data.createdAt);
     this.loanName.set(data.loanName);
@@ -165,18 +180,108 @@ export class View implements OnInit, AfterViewInit {
     this.loanDni.set(data.loanDni);
     this.loanTools.set(data.tools);
     this.verifiedTools.set(new Set());
+    this.returnVerifiedTools.set(new Set());
+    // Pre-cargar fecha de ampliación con la fecha actual de retorno
+    this.extendReturnDate.set(data.loanReturnDate?.slice(0, 16) ?? '');
   }
 
+  // ── Helpers de verificación ──────────────────────────────────
+  toggleToolVerified(toolId: string) {
+    this.verifiedTools.update((prev) => {
+      const next = new Set(prev);
+      next.has(toolId) ? next.delete(toolId) : next.add(toolId);
+      return next;
+    });
+  }
+  isToolVerified(toolId: string) {
+    return this.verifiedTools().has(toolId);
+  }
+
+  toggleReturnToolVerified(toolId: string) {
+    this.returnVerifiedTools.update((prev) => {
+      const next = new Set(prev);
+      next.has(toolId) ? next.delete(toolId) : next.add(toolId);
+      return next;
+    });
+  }
+  isReturnToolVerified(toolId: string) {
+    return this.returnVerifiedTools().has(toolId);
+  }
+
+  // ── Confirmación de firmas en PC ─────────────────────────────
   confirmPcSignature(pad: SignaturePadComponent) {
-    const base64 = pad.toDataURL();
-    this.signatureImage.set(base64);
+    this.signatureImage.set(pad.toDataURL());
     this.showPcPad.set(false);
   }
-
   confirmDeliveryPcSignature(pad: SignaturePadComponent) {
-    const base64 = pad.toDataURL();
-    this.deliverySignatureImage.set(base64);
+    this.deliverySignatureImage.set(pad.toDataURL());
     this.showDeliveryPcPad.set(false);
+  }
+  confirmReturnPcSignature(pad: SignaturePadComponent) {
+    this.returnSignatureImage.set(pad.toDataURL());
+    this.showReturnPcPad.set(false);
+  }
+
+  // ── Estado visual de cada paso ───────────────────────────────
+  // Cada paso tiene su propio estado derivado del historial de
+  // progresión, independiente del estado actual del préstamo.
+  //
+  // Flujo:  Pendiente → Aprobado → Entregado → Devuelto
+  //         Pendiente → Denegado
+  //
+  // 'done'    = paso completado (verde)
+  // 'active'  = paso en curso  (azul / ámbar)
+  // 'pending' = paso no alcanzado aún (gris)
+  // 'denied'  = paso denegado (rojo) — solo aplica al paso 1
+  readonly stepStates = computed(() => {
+    const status = this.loanStatus();
+    const order = ['Pendiente', 'Aprobado', 'Entregado', 'Devuelto'];
+    const idx = order.indexOf(status); // -1 si es Denegado u otro
+
+    return {
+      // Paso 1 — Aprobación
+      approval:
+        status === 'Denegado'
+          ? 'denied'
+          : idx >= 1
+            ? 'done' // Aprobado, Entregado, Devuelto
+            : 'active', // Pendiente
+
+      // Paso 2 — Entrega
+      delivery:
+        idx >= 2
+          ? 'done' // Entregado, Devuelto
+          : idx === 1
+            ? 'active' // Aprobado
+            : 'pending',
+
+      // Paso 3 — Devolución
+      return:
+        idx >= 3
+          ? 'done' // Devuelto
+          : idx === 2
+            ? 'active' // Entregado
+            : 'pending',
+    } as const;
+  });
+
+  stepCircleClass(state: 'active' | 'done' | 'pending' | 'denied'): string {
+    return {
+      done: 'bg-green-500 text-white',
+      active: 'bg-blue-500  text-white',
+      pending: 'bg-gray-200  text-gray-400',
+      denied: 'bg-red-500   text-white',
+    }[state];
+  }
+
+  // Línea conectora entre pasos
+  stepLineClass(state: 'active' | 'done' | 'pending' | 'denied'): string {
+    return {
+      done: 'bg-green-400',
+      denied: 'bg-red-300',
+      active: 'bg-blue-300',
+      pending: 'bg-gray-200',
+    }[state];
   }
 
   async onApprove(status: boolean, state: string) {
@@ -226,13 +331,51 @@ export class View implements OnInit, AfterViewInit {
       return;
     }
 
-    this.toastr.info('Implementar lógica de entrega');
+    this.toastr.info('Permiso actualizado con éxito.');
+    this.loanResource.reload();
   }
 
-  goBack(): void {
+  async onReturn(status: boolean, state: string) {
+    if (!this.canConfirmReturn()) {
+      this.toastr.warning(
+        'Verifica todas las herramientas y captura la firma.',
+      );
+      return;
+    }
+
+    const response = await firstValueFrom(
+      this.returnLoan.execute({
+        loan: this.loanResource.value()?.loanId ?? '',
+        status,
+        state,
+        comments: this.returnNotes(),
+      }),
+    );
+
+    if (!validate(response)) {
+      this.toastr.warning('No hubo cambios');
+      return;
+    }
+
+    this.toastr.info('Permiso actualizado con éxito.');
+    this.loanResource.reload();
+  }
+
+  async onExtend() {
+    if (!this.extendReturnDate()) {
+      this.toastr.warning('Selecciona una nueva fecha de retorno.');
+      return;
+    }
+    // TODO: conectar con use case de ampliación → actualizar loanReturnDate
+    this.toastr.info('Implementar lógica de ampliación.');
+    this.showExtendModal.set(false);
+  }
+
+  goBack() {
     this.location.back();
   }
 
+  // ── Helpers de estilo ────────────────────────────────────────
   statusLabel(status: string): string {
     const map: Record<string, string> = {
       Pendiente: 'Pendiente',
@@ -248,9 +391,9 @@ export class View implements OnInit, AfterViewInit {
     const map: Record<string, string> = {
       Pendiente: 'bg-amber-100 text-amber-700 border border-amber-300',
       Aprobado: 'bg-green-100 text-green-700 border border-green-300',
-      Denegado: 'bg-red-100 text-red-700 border border-red-300',
-      Entregado: 'bg-blue-100 text-blue-700 border border-blue-300',
-      Devuelto: 'bg-gray-100 text-gray-700 border border-gray-300',
+      Denegado: 'bg-red-100   text-red-700   border border-red-300',
+      Entregado: 'bg-blue-100  text-blue-700  border border-blue-300',
+      Devuelto: 'bg-gray-100  text-gray-700  border border-gray-300',
     };
     return map[status] ?? 'bg-gray-100 text-gray-700 border border-gray-300';
   }

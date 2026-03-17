@@ -43,6 +43,7 @@ export interface LoanResponseModel extends LoanModel {
     loanId: string;
     userId: string;
     state: boolean;
+    approveType: 'approval' | 'delivery' | 'return';
   }>;
   tools: ToolModel[];
 }

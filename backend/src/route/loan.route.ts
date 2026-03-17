@@ -35,8 +35,14 @@ class LoanRoute {
     this.router.patch(
       "/delivery",
       validateToken,
-      hasPermission(["prestamo-herramientas:autorizar"]),
+      hasPermission(["prestamo-herramientas:entregar"]),
       loanController.delivery,
+    );
+    this.router.patch(
+      "/return",
+      validateToken,
+      hasPermission(["prestamo-herramientas:entregar"]),
+      loanController.return,
     );
   }
 }

@@ -34,6 +34,7 @@ export interface LoanResponseEntity extends LoanEntity {
     idLoan: string;
     idUser: string;
     approved: boolean;
+    type: 'approval' | 'delivery' | 'return';
   }>;
   tool: ToolEntity[];
 }

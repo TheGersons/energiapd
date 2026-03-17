@@ -17,4 +17,10 @@ export abstract class LoanRepository {
     state: string,
     comments: string,
   ): Observable<string>;
+  abstract returnLoan(
+    loan: string,
+    status: boolean,
+    state: string,
+    comments: string,
+  ): Observable<string>;
 }

@@ -44,6 +44,7 @@ export interface ILoanResponse {
     idLoan: string;
     idUser: string;
     approved: boolean;
+    type: string;
   }>;
   notes: string;
   createdAt: Date;
