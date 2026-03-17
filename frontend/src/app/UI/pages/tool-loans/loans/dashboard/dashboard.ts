@@ -1,77 +1,136 @@
 import { DatePipe } from '@angular/common';
-import {
-  Component,
-  computed,
-  inject,
-  OnDestroy,
-  OnInit,
-  resource,
-  signal,
-} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { GetNavigationStateUseCase } from '@domain/navigation/usecase/get-navigation-state.usecase';
-import { SaveNavigationStateUseCase } from '@domain/navigation/usecase/save-navigation-state.usecase';
-import { Loader } from '@ui/icons/loader';
-import { firstValueFrom } from 'rxjs';
-import { HasPermissionDirective } from '@base/directive/has-permission.directive';
+import { Component, computed, inject, resource, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FindAllLoansUseCase } from '@domain/loan/usecase/FindAllLoans.usecase';
+import { LoanModel } from '@domain/loan/loal.model';
+import { Loader } from '@ui/icons/loader';
+import { HasPermissionDirective } from '@base/directive/has-permission.directive';
+import { firstValueFrom } from 'rxjs';
 
-interface Card {
-  data: string;
-  subtitle: string;
-  iconName: string;
-  bgColor: string;
-}
+type StatusFilter =
+  | 'Todos'
+  | 'Pendiente'
+  | 'Aprobado'
+  | 'Entregado'
+  | 'Devuelto'
+  | 'Denegado';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Loader, HasPermissionDirective],
+  imports: [Loader, HasPermissionDirective, FormsModule, DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  /**
-   * UseCases
-   */
   private findAllLoansUseCase = inject(FindAllLoansUseCase);
 
-  cards: Card[] = [
-    {
-      data: '5',
-      subtitle: 'Totales',
-      iconName: 'total',
-      bgColor: 'bg-blue-200',
-    },
-    {
-      data: '3',
-      subtitle: 'Pendientes',
-      iconName: 'pending',
-      bgColor: 'bg-gray-200',
-    },
-    {
-      data: '3',
-      subtitle: 'devueltos',
-      iconName: 'check',
-      bgColor: 'bg-green-200',
-    },
-    {
-      data: '0',
-      subtitle: 'Vencidos',
-      iconName: 'expired',
-      bgColor: 'bg-red-200',
-    },
-  ];
-
+  // ── Estado de UI ────────────────────────────────────────────
   selection = signal(new Set<string>());
   canEdit = computed(() => this.selection().size === 1);
 
+  searchQuery = signal('');
+  statusFilter = signal<StatusFilter>('Todos');
+
+  readonly statusTabs: StatusFilter[] = [
+    'Todos',
+    'Pendiente',
+    'Aprobado',
+    'Entregado',
+    'Devuelto',
+    'Denegado',
+  ];
+
+  // ── Datos ────────────────────────────────────────────────────
   loansResource = resource({
     loader: () => firstValueFrom(this.findAllLoansUseCase.execute()),
   });
 
+  // ── Estadísticas derivadas ───────────────────────────────────
+  stats = computed(() => {
+    const loans = this.loansResource.value() ?? [];
+    return {
+      total: loans.length,
+      pendiente: loans.filter((l) => l.loanStatus === 'Pendiente').length,
+      aprobado: loans.filter((l) => l.loanStatus === 'Aprobado').length,
+      entregado: loans.filter((l) => l.loanStatus === 'Entregado').length,
+      devuelto: loans.filter((l) => l.loanStatus === 'Devuelto').length,
+      denegado: loans.filter((l) => l.loanStatus === 'Denegado').length,
+    };
+  });
+
+  // ── Préstamos filtrados ──────────────────────────────────────
+  filteredLoans = computed(() => {
+    const loans = this.loansResource.value() ?? [];
+    const query = this.searchQuery().trim().toLowerCase();
+    const status = this.statusFilter();
+
+    return loans.filter((loan) => {
+      const matchesStatus = status === 'Todos' || loan.loanStatus === status;
+      const matchesQuery =
+        !query ||
+        loan.loanName.toLowerCase().includes(query) ||
+        loan.loanDepartment?.departmentName?.toLowerCase().includes(query) ||
+        loan.loanDni?.toLowerCase().includes(query);
+      return matchesStatus && matchesQuery;
+    });
+  });
+
+  // ── Helpers de estilo ────────────────────────────────────────
+  statusBadgeClass(status: string): string {
+    const map: Record<string, string> = {
+      Pendiente: 'bg-amber-100  text-amber-700  border border-amber-200',
+      Aprobado: 'bg-green-100  text-green-700  border border-green-200',
+      Entregado: 'bg-blue-100   text-blue-700   border border-blue-200',
+      Devuelto: 'bg-gray-100   text-gray-600   border border-gray-200',
+      Denegado: 'bg-red-100    text-red-700    border border-red-200',
+    };
+    return map[status] ?? 'bg-gray-100 text-gray-600 border border-gray-200';
+  }
+
+  statusDotClass(status: string): string {
+    const map: Record<string, string> = {
+      Pendiente: 'bg-amber-500',
+      Aprobado: 'bg-green-500',
+      Entregado: 'bg-blue-500',
+      Devuelto: 'bg-gray-400',
+      Denegado: 'bg-red-500',
+    };
+    return map[status] ?? 'bg-gray-400';
+  }
+
+  tabCountClass(tab: StatusFilter): string {
+    const map: Record<string, string> = {
+      Todos: 'bg-gray-200   text-gray-600',
+      Pendiente: 'bg-amber-100  text-amber-700',
+      Aprobado: 'bg-green-100  text-green-700',
+      Entregado: 'bg-blue-100   text-blue-700',
+      Devuelto: 'bg-gray-100   text-gray-500',
+      Denegado: 'bg-red-100    text-red-700',
+    };
+    return map[tab] ?? 'bg-gray-100 text-gray-500';
+  }
+
+  tabCount(tab: StatusFilter): number {
+    const s = this.stats();
+    const map: Record<StatusFilter, number> = {
+      Todos: s.total,
+      Pendiente: s.pendiente,
+      Aprobado: s.aprobado,
+      Entregado: s.entregado,
+      Devuelto: s.devuelto,
+      Denegado: s.denegado,
+    };
+    return map[tab];
+  }
+
+  isOverdue(returnDate: string): boolean {
+    if (!returnDate) return false;
+    return new Date(returnDate) < new Date();
+  }
+
+  // ── Acciones ─────────────────────────────────────────────────
   navigate(type: number) {
     if (type === 2) {
       const id = Array.from(this.selection())[0];
@@ -82,10 +141,14 @@ export class Dashboard {
   }
 
   onSelectRow(id: string) {
-    this.selection.update((a) => {
-      const b = new Set(a);
-      b.has(id) ? b.delete(id) : b.add(id);
-      return b;
+    this.selection.update((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
     });
+  }
+
+  isSelected(id: string): boolean {
+    return this.selection().has(id);
   }
 }

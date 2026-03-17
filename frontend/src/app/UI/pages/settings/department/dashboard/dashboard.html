@@ -1,97 +1,194 @@
 <div class="space-y-5">
-  <div class="w-full flex justify-between items-center">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
     <div>
-      <h2 class="text-2xl font-bold">Departamentos</h2>
-      <h3 class="text-gray-500">Gestión de Departamentos</h3>
+      <h2 class="text-2xl font-bold text-gray-900">Departamentos</h2>
+      <p class="text-sm text-gray-500 mt-0.5">
+        Gestión de departamentos de la organización
+      </p>
     </div>
+    <button
+      *hasPermission="['departamentos:crear']"
+      (click)="navigate(1)"
+      class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors">
+      <app-loader name="plus" hostClass="w-4 h-4 text-white"></app-loader>
+      Nuevo departamento
+    </button>
   </div>
 
-  <div class="flex space-x-10 w-1/2">
+  <!-- Tarjeta de estadísticas -->
+  <div class="grid grid-cols-3 gap-3">
     <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-blue-200">
-        <app-loader name="total" hostClass="h-6 w-6"></app-loader>
+      class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4">
+      <div class="p-2.5 bg-blue-100 rounded-lg flex-shrink-0">
+        <app-loader name="total" hostClass="w-5 h-5 text-blue-600"></app-loader>
       </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
-        <h3 class="text-slate-500">Totales</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-gray-200">
-        <app-loader name="pending" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
-        <h3 class="text-slate-500">Pendientes</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="`rounded-lg p-3 bg-green-200">
-        <app-loader name="check" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">6</h2>
-        <h3 class="text-slate-500">Devueltos</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-red-200">
-        <app-loader name="expired" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">3</h2>
-        <h3 class="text-slate-500">Vencidos</h3>
+      <div>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          Total
+        </p>
+        <p class="text-2xl font-bold text-gray-900 leading-none mt-0.5">
+          {{ DepartmentsResource.value()?.length ?? "—" }}
+        </p>
       </div>
     </div>
   </div>
 
+  <!-- Tabla -->
   <div
-    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
-    <div class="px-3 py-2">
-      <div
-        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
+    class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <!-- Barra de acciones -->
+    <div
+      class="px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-1.5">
         <button
           *hasPermission="['departamentos:crear']"
           (click)="navigate(1)"
-          class="p-1">
-          <app-loader name="create" hostClass="h-6 w-6"></app-loader>
+          title="Nuevo"
+          class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
+          <app-loader
+            name="create"
+            hostClass="w-5 h-5 text-gray-600"></app-loader>
         </button>
-        <button [disabled]="!canEdit()" class="p-1">
-          <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
+        <button
+          [disabled]="!canEdit()"
+          title="Eliminar"
+          class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-red-50 hover:border-red-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          <app-loader
+            name="delete"
+            hostClass="w-5 h-5 text-gray-600"></app-loader>
         </button>
         <button
           *hasPermission="['departamentos:editar']"
           (click)="navigate(2)"
           [disabled]="!canEdit()"
-          class="p-1">
-          <app-loader hostClass="h-6 w-6" name="edit"></app-loader>
+          title="Editar"
+          class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          <app-loader
+            name="edit"
+            hostClass="w-5 h-5 text-gray-600"></app-loader>
         </button>
       </div>
+
+      <div class="relative flex-1 min-w-48 max-w-xs">
+        <svg
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="search"
+          placeholder="Buscar departamentos..."
+          class="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 placeholder:text-gray-400" />
+      </div>
     </div>
-    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
-      <thead class="bg-neutral-100 sticky z-10">
-        <tr class="*:px-6 *:py-3 *:font-semibold">
-          <th>Nombre</th>
-        </tr>
-      </thead>
-      <tbody
-        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
-        @for (a of DepartmentsResource.value(); track $index) {
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left text-gray-700">
+        <thead
+          class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
           <tr
-            (click)="onSelectRow(a.departmentId ?? '')"
-            [class.bg-blue-200]="selection().has(a.departmentId ?? '')">
-            <td>{{ a.departmentName }}</td>
+            class="[&_th]:px-5 [&_th]:py-3 [&_th]:border-b [&_th]:border-gray-200">
+            <th>Nombre</th>
+            <th>Creado</th>
+            <th>Actualizado</th>
           </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @if (DepartmentsResource.isLoading()) {
+            @for (i of [1, 2, 3, 4]; track i) {
+              <tr class="[&_td]:px-5 [&_td]:py-3.5">
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-40"></div>
+                </td>
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                </td>
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                </td>
+              </tr>
+            }
+          } @else if (!DepartmentsResource.value()?.length) {
+            <tr>
+              <td colspan="3" class="px-5 py-14 text-center">
+                <div class="flex flex-col items-center gap-2">
+                  <div
+                    class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <app-loader
+                      name="users"
+                      hostClass="w-6 h-6 text-gray-400"></app-loader>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">
+                    No hay departamentos registrados
+                  </p>
+                  <button
+                    (click)="navigate(1)"
+                    class="text-xs text-blue-600 hover:underline">
+                    Agregar el primero
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (a of DepartmentsResource.value(); track a.departmentId) {
+              <tr
+                (click)="onSelectRow(a.departmentId ?? '')"
+                [class]="
+                  '[&_td]:px-5 [&_td]:py-3.5 cursor-pointer transition-colors ' +
+                  (selection().has(a.departmentId ?? '')
+                    ? 'bg-blue-50 hover:bg-blue-100'
+                    : 'hover:bg-gray-50')
+                ">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <span class="text-sm font-bold text-gray-500">
+                        {{ a.departmentName.charAt(0).toUpperCase() }}
+                      </span>
+                    </div>
+                    <span class="font-semibold text-gray-800">{{
+                      a.departmentName
+                    }}</span>
+                  </div>
+                </td>
+
+                <td class="text-gray-400 tabular-nums text-xs">
+                  {{ a.createdAt | date: "dd/MM/yyyy" }}
+                </td>
+
+                <td class="text-gray-400 tabular-nums text-xs">
+                  {{ a.updatedAt | date: "dd/MM/yyyy" }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (
+      !DepartmentsResource.isLoading() && DepartmentsResource.value()?.length
+    ) {
+      <div
+        class="px-5 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span
+          ><strong class="text-gray-700">{{
+            DepartmentsResource.value()!.length
+          }}</strong>
+          departamentos</span
+        >
+        @if (canEdit()) {
+          <span class="text-blue-600 font-medium">1 seleccionado</span>
         }
-      </tbody>
-    </table>
+      </div>
+    }
   </div>
 </div>

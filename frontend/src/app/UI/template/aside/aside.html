@@ -1,139 +1,125 @@
 <aside
   (click)="$event.stopPropagation()"
-  class="sticky top-0 z-10 h-[calc(100vh-1rem)] rounded-3xl overflow-hidden border border-gray-300">
-  <div class="bg-gray-50 flex h-full p-2 text-white rounded-2xl">
-    <div
-      class="w-15 flex flex-col items-center h-full p-4 text-white rounded-2xl bg-gray-950">
+  class="sticky top-0 z-10 h-[calc(100vh-1rem)] flex">
+
+  <!-- ── Columna de íconos (siempre visible) ──────────────────
+       Ancho fijo w-16 = 64px, coincide con el w-16 del main
+       cuando el panel está colapsado.
+       overflow-visible para que los tooltips no se corten.     -->
+  <div class="flex flex-col items-center bg-gray-900 w-16 py-4 gap-1
+              flex-shrink-0 rounded-2xl shadow-lg overflow-visible
+              border border-gray-700/50">
+
+    <!-- Logo -->
+    <div class="mb-3">
+      <div class="w-9 h-9 flex items-center justify-center">
+        <app-loader name="epd" hostClass="w-9 h-9"></app-loader>
+      </div>
+    </div>
+
+    <!-- Separador -->
+    <div class="w-7 h-px bg-gray-700/80 mb-1"></div>
+
+    <!-- Módulos -->
+    @for (m of modules; track m.moduleId) {
       <button
-        class="mb-4 p-2 flex items-center justify-center hover:bg-gray-800 rounded cursor-pointer">
-        <svg
-          viewBox="0 0 1024 1024"
-          class="text-white w-6 h-6"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g
-            id="SVGRepo_tracerCarrier"
-            stroke-linecap="round"
-            stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <path
-              d="M109.632 673.664h519.68c25.152 0 45.568-22.016 45.568-48.896 0-26.88-20.416-48.896-45.568-48.896h-519.68c-25.216 0-45.632 22.016-45.632 48.896 0 26.88 20.48 48.896 45.632 48.896z m0-228.096h519.68c25.152 0 45.568-21.952 45.568-48.896 0-26.88-20.416-48.896-45.568-48.896h-519.68c-25.216 0-45.632 22.016-45.632 48.896 0 26.88 20.48 48.896 45.632 48.896z m3.264-219.904h795.776c26.88 0 50.56-20.352 51.328-47.168A48.896 48.896 0 0 0 911.104 128H115.328c-26.88 0-50.56 20.416-51.328 47.168a48.896 48.896 0 0 0 48.896 50.56z m619.776 447.232V348.672L960 510.784l-227.328 162.112c0 0.768 0 0.768 0 0z m178.432 122.944H115.328c-26.88 0-50.56 20.48-51.328 47.232a48.896 48.896 0 0 0 48.896 50.496h795.776c26.88 0 50.56-20.416 51.328-47.232a48.896 48.896 0 0 0-48.896-50.496z"
-              fill="currentColor"></path>
-          </g>
-        </svg>
-      </button>
-      @for (m of modules; track $index) {
-        <button
-          *hasPermission="m.permissions ?? []"
-          (click)="onClickModule(m)"
-          class="p-2 flex items-center justify-center hover:bg-gray-800 rounded cursor-pointer">
-          <app-loader [name]="m.moduleName" hostClass="w-6 h-6"></app-loader>
-        </button>
-      }
-    </div>
+        *hasPermission="m.permissions ?? []"
+        (click)="onClickModule(m)"
+        [class]="'relative w-10 h-10 flex items-center justify-center rounded-xl
+                  transition-all duration-200 group/btn ' +
+          (sModule().has(m.moduleId ?? '')
+            ? 'bg-blue-600 shadow-lg shadow-blue-900/50'
+            : 'hover:bg-gray-800')">
 
-    <div
-      [ngClass]="toggleSidebar() ? 'w-64 p-4' : 'w-0 p-4 overflow-hidden'"
-      class="flex flex-col items-stretch justify-start transition-all duration-300 text-gray-800 text-xl">
-      <h5 class="font-bold truncate tracking-wider">Componentes</h5>
-
-      <ul class="flex flex-col space-y-2 mt-4">
-        @for (p of pages(); track $index) {
-          <li class="font-medium">
-            <a
-              [routerLink]="p.pageUrl"
-              routerLinkActive="bg-blue-700 text-white shadow-md"
-              class="block w-full whitespace-nowrap p-2 rounded-md transition-all duration-200 hover:bg-white hover:shadow-lg hover:text-blue-700">
-              {{ p.pageLabel }}
-            </a>
-          </li>
+        <!-- Barra activa izquierda -->
+        @if (sModule().has(m.moduleId ?? '')) {
+          <span class="absolute -left-2 top-1/2 -translate-y-1/2
+                       w-1 h-6 bg-blue-400 rounded-r-full"></span>
         }
-      </ul>
-    </div>
+
+        <app-loader
+          [name]="m.moduleName"
+          [hostClass]="'w-5 h-5 transition-colors duration-150 ' +
+            (sModule().has(m.moduleId ?? '')
+              ? 'text-white'
+              : 'text-gray-400 group-hover/btn:text-white')">
+        </app-loader>
+
+        <!-- Tooltip — z-[100] para salir del stacking context -->
+        <span class="pointer-events-none absolute left-[calc(100%+0.75rem)] top-1/2
+                     -translate-y-1/2 z-[100] whitespace-nowrap
+                     rounded-lg border border-gray-700 bg-gray-900 px-2.5 py-1.5
+                     text-xs font-medium text-white shadow-xl
+                     opacity-0 scale-95
+                     group-hover/btn:opacity-100 group-hover/btn:scale-100
+                     transition-all duration-150">
+          {{ m.moduleLabel }}
+          <!-- Flecha -->
+          <span class="absolute right-full top-1/2 -translate-y-1/2
+                       border-[5px] border-transparent border-r-gray-900"></span>
+        </span>
+
+      </button>
+    }
+
+    <!-- Empuja los items siguientes al fondo -->
+    <div class="flex-1"></div>
+    <div class="w-7 h-px bg-gray-700/80 mb-1"></div>
+
+    <!-- Botón de configuración -->
+    <button
+      class="relative w-10 h-10 flex items-center justify-center rounded-xl
+             transition-all duration-200 group/btn hover:bg-gray-800">
+      <app-loader name="settings"
+        hostClass="w-5 h-5 text-gray-500 group-hover/btn:text-gray-200 transition-colors">
+      </app-loader>
+      <span class="pointer-events-none absolute left-[calc(100%+0.75rem)] top-1/2
+                   -translate-y-1/2 z-[100] whitespace-nowrap
+                   rounded-lg border border-gray-700 bg-gray-900 px-2.5 py-1.5
+                   text-xs font-medium text-white shadow-xl
+                   opacity-0 scale-95
+                   group-hover/btn:opacity-100 group-hover/btn:scale-100
+                   transition-all duration-150">
+        Configuraciones
+        <span class="absolute right-full top-1/2 -translate-y-1/2
+                     border-[5px] border-transparent border-r-gray-900"></span>
+      </span>
+    </button>
+
   </div>
+
+  <!-- ── Panel de páginas (colapsable) ────────────────────────
+       Se anima por width. overflow-hidden aquí está bien
+       porque el panel no tiene tooltips.                       -->
+  <div
+    [class]="'flex flex-col bg-gray-50 border border-gray-200 rounded-2xl
+              shadow-lg ml-2 overflow-hidden transition-[width,opacity] duration-300 ' +
+             (toggleSidebar() ? 'w-48 opacity-100' : 'w-0 opacity-0 border-0')">
+
+    <!-- Etiqueta del módulo activo -->
+    <div class="flex-shrink-0 px-4 pt-5 pb-2">
+      <p class="text-[10px] font-bold uppercase tracking-[.15em] text-gray-400 truncate">
+        {{ currentModuleLabel() }}
+      </p>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
+      @for (p of pages(); track p.pageId) {
+        <a
+          [routerLink]="p.pageUrl"
+          routerLinkActive #rla="routerLinkActive"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [class]="'flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium
+                    transition-all duration-150 truncate ' +
+                   (rla.isActive
+                     ? 'bg-blue-600 text-white shadow-sm'
+                     : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900')">
+          <span class="truncate">{{ p.pageLabel }}</span>
+        </a>
+      }
+    </nav>
+
+  </div>
+
 </aside>
-
-<!-- <aside
-  (click)="$event.stopPropagation()"
-  class="sticky top-0 z-10 h-screen overflow-hidden bg-gray-50 bg-gradient-to-t from-blue-700 via-blue-800 to-blue-900 text-white"
-  tabindex="-1">
-  <div class="flex h-full">
-    <div
-      class="flex flex-col items-center h-full border-r border-blue-600 w-15 p-4 space-y-4">
-      <button class="cursor-pointer rounded p-1">
-        <app-loader name="epd" [hostClass]="'w-6 h-6'"></app-loader>
-      </button>
-      @for (m of modules; track $index) {
-        <button
-          (click)="onClickModule(m)"
-          [class.bg-blue-700]="sModule().has(m.moduleId ?? '')"
-          class="cursor-pointer hover:bg-blue-600 rounded p-1">
-          <app-loader [name]="m.moduleName" hostClass="w-6 h-6"></app-loader>
-        </button>
-      }
-    </div>
-    <div
-      [ngClass]="toggleSidebar() ? 'w-64' : 'w-0'"
-      class="border-r border-blue-600 transition-all duration-300 p-4">
-      <h5 class="font-bold truncate tracking-wider">Componentes</h5>
-
-      <ul class="flex-col space-y-2 mt-4">
-        @for (p of pages(); track $index) {
-          <li
-            class="shrink-0 font-medium break-keep rounded-md overflow-hidden">
-            <a
-              class="block whitespace-nowrap hover:bg-blue-500 rounded-md p-1 text-ellipsis"
-              [routerLink]="p.pageUrl"
-              routerLinkActive="bg-blue-700 rounded-md focus:outline-none hover:outline-none"
-              >{{ p.pageLabel }}</a
-            >
-          </li>
-        }
-      </ul>
-    </div>
-  </div>
-</aside> -->
-
-<!-- <aside
-  (click)="$event.stopPropagation()"
-  class="sticky top-0 z-10 h-screen bg-gradient-to-t from-blue-700 via-blue-800 to-blue-900 text-white"
-  tabindex="-1">
-  <div class="flex h-full items-center">
-    <div
-      class="flex flex-col h-full items-center border-r border-blue-600 flex-col w-15 space-y-4 p-4">
-      <button class="cursor-pointer rounded p-1">
-        <app-loader name="epd" [hostClass]="'w-6 h-6'"></app-loader>
-      </button>
-      @for (m of modules; track $index) {
-        <button
-          (click)="onClickModule(m.page)"
-          class="cursor-pointer hover:bg-blue-600 rounded p-1">
-          <app-loader
-            [name]="m.moduleName"
-            [hostClass]="'w-6 h-6'"></app-loader>
-        </button>
-      }
-    </div>
-    <div
-      [ngClass]="toggleSidebar() ? 'w-64' : 'w-0'"
-      class="border-r border-gray-200 transition-all duration-300 p-4 h-full">
-      <h5 class="font-bold truncate tracking-wider">Componentes</h5>
-
-      <ul class="flex-col space-y-2 mt-4">
-        @for (p of pages(); track $index) {
-          <li
-            class="shrink-0 font-medium break-keep rounded-md overflow-hidden">
-            <a
-              class="block whitespace-nowrap hover:bg-blue-500 rounded-md p-1 text-ellipsis"
-              [routerLink]="p.pageUrl"
-              routerLinkActive="bg-blue-700 rounded-md focus:outline-none hover:outline-none"
-              >{{ p.pageLabel }}</a
-            >
-          </li>
-        }
-      </ul>
-    </div>
-  </div>
-</aside> -->

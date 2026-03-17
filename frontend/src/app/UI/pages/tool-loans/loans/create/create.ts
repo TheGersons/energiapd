@@ -41,10 +41,14 @@ export class Create {
     loader: () => firstValueFrom(this.findDepartments.execute()),
   });
 
+  /** Herramientas ya agregadas al préstamo */
   tools = signal(new Set<ToolModel>());
-  toggleModal = signal<boolean>(false);
 
+  /** Herramientas seleccionadas temporalmente en el modal */
   sTool = signal(new Set<ToolModel>());
+
+  /** Controla visibilidad del modal */
+  toggleModal = signal<boolean>(false);
 
   loanModel = signal<LoanFormModel>({
     loanName: '',
@@ -84,9 +88,9 @@ export class Create {
           })),
         };
 
-        const respone = await firstValueFrom(this.createLoan.execute(dto));
+        const response = await firstValueFrom(this.createLoan.execute(dto));
 
-        if (!validate(respone)) throw 'Ha ocurrido un error inesperado';
+        if (!validate(response)) throw 'Ha ocurrido un error inesperado';
 
         this.toastr.success('Préstamo creado exitosamente.');
       });
@@ -104,29 +108,31 @@ export class Create {
     return !!(field?.touched() && field?.errors().length > 0);
   }
 
-  onSelect(id: ToolModel) {
-    this.sTool.update((a) => {
-      const b = new Set(a);
-
-      b.has(id) ? b.delete(id) : b.add(id);
-      return b;
+  /** Toggle selección temporal en el modal */
+  onSelect(tool: ToolModel) {
+    this.sTool.update((prev) => {
+      const next = new Set(prev);
+      next.has(tool) ? next.delete(tool) : next.add(tool);
+      return next;
     });
   }
 
+  /** Confirmar selección: mueve sTool → tools y resetea la selección temporal */
   onAddTool() {
-    this.tools.update((a) => {
-      const b = new Set(a);
-      const c: ToolModel[] = Array.from(this.sTool());
-      c.forEach((tool) => b.add(tool));
-      return b;
+    this.tools.update((prev) => {
+      const next = new Set(prev);
+      this.sTool().forEach((tool) => next.add(tool));
+      return next;
     });
+    this.sTool.set(new Set()); // limpia selección temporal
   }
 
-  onRemoveTool(a: ToolModel) {
-    this.tools.update((_a) => {
-      const b = new Set(_a);
-      b.delete(a);
-      return b;
+  /** Quitar herramienta del carrito */
+  onRemoveTool(tool: ToolModel) {
+    this.tools.update((prev) => {
+      const next = new Set(prev);
+      next.delete(tool);
+      return next;
     });
   }
 }

@@ -4,10 +4,11 @@ import { HasPermissionDirective } from '@base/directive/has-permission.directive
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { FindAllDepartmentsUseCase } from '@domain/department/usecase/findAllDepartments.usecase';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Loader, HasPermissionDirective],
+  imports: [Loader, HasPermissionDirective, DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

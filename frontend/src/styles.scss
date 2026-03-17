@@ -1,8 +1,259 @@
-/* You can add global styles to this file, and also import other style files */
+/* ─────────────────────────────────────────────────────────────
+   styles.scss — Sistema de diseño global
+   ───────────────────────────────────────────────────────────── */
 @use "tailwindcss";
 @use 'ngx-toastr/toastr';
 @use "@ng-select/ng-select/themes/default.theme.css";
 
+/* ── Tokens de diseño ──────────────────────────────────────── */
+:root {
+  /* Superficies */
+  --surface-page:    #f3f4f6;   /* bg de la app completa   */
+  --surface-card:    #ffffff;   /* bg de tarjetas/paneles  */
+  --surface-raised:  #f9fafb;   /* bg de headers de tabla  */
+
+  /* Bordes */
+  --border-subtle:   #e5e7eb;   /* gray-200 */
+  --border-medium:   #d1d5db;   /* gray-300 */
+
+  /* Primario */
+  --color-primary:   #2563eb;   /* blue-600 */
+  --color-primary-h: #1d4ed8;   /* blue-700 hover */
+  --color-primary-s: #eff6ff;   /* blue-50  subtile bg */
+
+  /* Radio & sombra estándar */
+  --radius-card:  0.75rem;  /* rounded-xl  */
+  --radius-inner: 0.5rem;   /* rounded-lg  */
+  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / .07), 0 1px 2px -1px rgb(0 0 0 / .07);
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
+body {
+  background-color: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body:has(.modal.block) {
   overflow: hidden;
 }
+
+/* ── Tarjeta estándar ──────────────────────────────────────── */
+/* Aplica a: tablas, formularios, paneles, dashboards           */
+.card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Tabla estándar ────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+  color: #374151; /* gray-700 */
+}
+
+.data-table thead th {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--surface-raised);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;      /* gray-500 */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid #f3f4f6; /* gray-100 */
+  transition: background-color 150ms;
+  cursor: pointer;
+}
+
+.data-table tbody tr:hover  { background-color: #f9fafb; }  /* gray-50  */
+.data-table tbody tr.active { background-color: #eff6ff; }  /* blue-50  */
+
+.data-table tbody td {
+  padding: 0.875rem 1.25rem;
+}
+
+/* ── Inputs ────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-inner);
+  background-color: #fff;
+  color: #111827;
+  transition: border-color 150ms, box-shadow 150ms;
+  outline: none;
+}
+
+.input::placeholder { color: #9ca3af; }
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / .12);
+}
+
+/* ── Badges de estado ──────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.8;
+}
+
+.badge-pending  { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.badge-approved { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-active   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-returned { background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
+.badge-denied   { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+/* ── Botones ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-inner);
+  transition: background-color 150ms, box-shadow 150ms, opacity 150ms;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 1px 2px rgb(37 99 235 / .25);
+}
+.btn-primary:hover:not(:disabled) { background-color: var(--color-primary-h); }
+
+.btn-secondary {
+  background-color: #fff;
+  color: #374151;
+  border: 1px solid var(--border-subtle);
+}
+.btn-secondary:hover:not(:disabled) { background-color: #f9fafb; }
+
+.btn-ghost {
+  background-color: transparent;
+  color: #6b7280;
+}
+.btn-ghost:hover:not(:disabled) { background-color: #f3f4f6; color: #111827; }
+
+.btn-danger {
+  background-color: #ef4444;
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) { background-color: #dc2626; }
+
+/* ── Barra de acciones de tabla ────────────────────────────── */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-raised);
+  border-radius: 0.375rem;
+  color: #4b5563;
+  transition: background-color 150ms, color 150ms;
+  cursor: pointer;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Animaciones ───────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.fade-in-up {
+  animation: fade-in-up 200ms ease-out both;
+}
+
+/* Skeleton loader */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 0.25rem;
+}
+
+/* ── ng-select override ────────────────────────────────────── */
+.ng-select .ng-control {
+  border-color: var(--border-subtle) !important;
+  border-radius: var(--radius-inner) !important;
+  font-size: 0.875rem !important;
+  min-height: 2.375rem !important;
+}
+
+.ng-select.ng-select-focused .ng-control {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / .12) !important;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }

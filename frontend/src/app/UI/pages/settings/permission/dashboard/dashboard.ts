@@ -1,4 +1,4 @@
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { Component, computed, inject, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlaneRoleModel } from '@domain/role/role.model';
@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Loader],
+  imports: [Loader, DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

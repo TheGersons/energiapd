@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, Input, signal } from '@angular/core';
+import { Component, computed, Input, signal } from '@angular/core';
 import { ModuleModel, PageModel } from '@domain/module/module.model';
 import { Loader } from '@ui/icons/loader';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -8,7 +8,6 @@ import { HasPermissionDirective } from '@base/directive/has-permission.directive
 @Component({
   selector: 'app-aside',
   imports: [
-    NgClass,
     Loader,
     RouterLink,
     RouterLinkActive,
@@ -50,7 +49,6 @@ export class Aside {
         'inventario-herramienta:crear',
         'prestamo-herramientas:leer',
         'prestamo-herramientas:entregar',
-        'inventario-herramienta:eliminar',
         'inventario-herramienta:eliminar',
       ],
       page: [
@@ -115,18 +113,29 @@ export class Aside {
     },
   ];
 
-  sModule = signal(new Set<string>('tool-loans'));
+  sModule = signal(new Set<string>(['tool-loans']));
+
+  /** Label del módulo activo para el header del panel */
+  currentModuleLabel = computed(() => {
+    const activeId = Array.from(this.sModule())[0];
+    return this.modules.find(m => m.moduleId === activeId)?.moduleLabel ?? '';
+  });
 
   onToggleSidebar() {
     this.toggleSidebar.set(!this.toggleSidebar());
   }
 
   onClickModule(module: ModuleModel) {
-    this.sModule.update((_a) => {
-      const _b = new Set<string>().add(module.moduleId ?? '');
-      return _b;
-    });
+    const alreadyActive = this.sModule().has(module.moduleId ?? '');
+
+    this.sModule.set(new Set<string>([module.moduleId ?? '']));
     this.pages.set(module.page);
-    if (!this.toggleSidebar()) this.onToggleSidebar();
+
+    // Si el panel está cerrado, abrirlo. Si el mismo módulo se toca de nuevo, togglarlo.
+    if (!this.toggleSidebar() || !alreadyActive) {
+      this.toggleSidebar.set(true);
+    } else {
+      this.toggleSidebar.set(false);
+    }
   }
 }

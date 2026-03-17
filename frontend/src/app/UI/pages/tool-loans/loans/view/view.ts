@@ -2,6 +2,7 @@ import { CommonModule, DatePipe, Location } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  computed,
   effect,
   inject,
   OnInit,
@@ -83,7 +84,6 @@ export class View implements OnInit, AfterViewInit {
   loanNotes = signal<string>('');
   loanReturnDate = signal<string>('');
   loanTools = signal<ToolModel[]>([]);
-  approvalComments = signal<string>('');
 
   // Approval signature
   signatureImage = signal<string>('');
@@ -93,6 +93,33 @@ export class View implements OnInit, AfterViewInit {
   deliverySignatureImage = signal<string>('');
   showDeliveryPcPad = signal<boolean>(false);
   deliveryNotes = signal<string>('');
+
+  // Tool verification checklist for delivery
+  verifiedTools = signal<Set<string>>(new Set());
+
+  verifiedCount = computed(() => this.verifiedTools().size);
+
+  allToolsVerified = computed(
+    () =>
+      this.loanTools().length > 0 &&
+      this.verifiedTools().size === this.loanTools().length,
+  );
+
+  canConfirmDelivery = computed(
+    () => this.allToolsVerified() && this.deliverySignatureImage().length > 0,
+  );
+
+  toggleToolVerified(toolId: string) {
+    this.verifiedTools.update((prev) => {
+      const next = new Set(prev);
+      next.has(toolId) ? next.delete(toolId) : next.add(toolId);
+      return next;
+    });
+  }
+
+  isToolVerified(toolId: string): boolean {
+    return this.verifiedTools().has(toolId);
+  }
 
   loanResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
@@ -139,6 +166,7 @@ export class View implements OnInit, AfterViewInit {
     this.loanReturnDate.set(data.loanReturnDate);
     this.loanDni.set(data.loanDni);
     this.loanTools.set(data.tools);
+    this.verifiedTools.set(new Set());
   }
 
   confirmPcSignature(pad: SignaturePadComponent) {
@@ -163,7 +191,7 @@ export class View implements OnInit, AfterViewInit {
         loan: this.loanResource.value()?.loanId ?? '',
         status,
         state,
-        comments: this.approvalComments(),
+        comments: this.deliveryNotes(),
       }),
     );
     if (!validate(response)) {
@@ -174,17 +202,19 @@ export class View implements OnInit, AfterViewInit {
     this.loanResource.reload();
   }
 
-  /**
-   * TODO: implementar con el use case de entrega
-   * Conectar con: approveLoan.execute({ loan, status: true, state: 'Entregado' })
-   * o el use case que corresponda para cambiar estado a "Entregado".
-   */
   async onDeliver() {
     if (!this.deliverySignatureImage().length) {
       this.toastr.warning('La firma del almacenista es necesaria.');
       return;
     }
-    // Implementar lógica de entrega aquí
+    if (!this.allToolsVerified()) {
+      this.toastr.warning(
+        'Debes verificar todas las herramientas antes de confirmar.',
+      );
+      return;
+    }
+    // TODO: implementar con el use case de entrega
+    // Conectar con: approveLoan.execute({ loan, status: true, state: 'Entregado' })
     this.toastr.info('Implementar lógica de entrega');
   }
 

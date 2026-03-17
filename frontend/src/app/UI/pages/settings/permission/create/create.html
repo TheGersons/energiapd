@@ -1,156 +1,256 @@
 <div class="space-y-5">
-  <div class="w-full flex justify-between items-center">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      class="p-1.5 w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors flex-shrink-0">
+      <app-loader
+        name="arrow-left"
+        hostClass="w-5 h-5 text-gray-600"></app-loader>
+    </button>
     <div>
-      <div class="flex items-center gap-2">
-        <button
-          (click)="goBack()"
-          class="p-0 rounded-full h-6 w-6 hover:bg-gray-200 rounded-full cursor-pointer">
-          <app-loader [name]="'arrow-left'" hostClass="w-6 h-6"></app-loader>
-        </button>
-        <h2 class="text-2xl font-bold">
-          Creación o Modificación de Rol y Permisos
-        </h2>
-      </div>
-      <h3 class="text-gray-500">Gestión de Permisos de herrramientas</h3>
+      <h2 class="text-2xl font-bold text-gray-900 leading-tight">
+        {{ roleId().length ? "Editar Rol" : "Nuevo Rol" }}
+      </h2>
+      <p class="text-sm text-gray-500">
+        Define el nombre, descripción y permisos asignados al rol.
+      </p>
     </div>
   </div>
 
-  <div class="space-y-4">
-    <div
-      class="p-4 rounded-md shadow-md border border-blue-200 bg-white grid grid-cols-1 gap-4">
-      <div class="flex flex-col gap-2">
-        <label htmlFor="name" class="ps-1 text-gray-700 text-sm font-medium">
-          Nombre *
-        </label>
-        <input
-          [(ngModel)]="roleName"
-          class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-          id="name"
-          name="name"
-          type="text"
-          placeholder="Ej: Administrador" />
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+    <!-- Columna principal: permisos (2/3) -->
+    <div class="lg:col-span-2 space-y-4">
+      <!-- Buscador de permisos -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <div class="relative">
+          <svg
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Buscar permisos por módulo o página..."
+            class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 placeholder:text-gray-400" />
+        </div>
       </div>
-      <div class="flex flex-col gap-2">
-        <label
-          htmlFor="description"
-          class="ps-1 text-gray-700 text-sm font-medium">
-          Descripción *
-        </label>
-        <textarea
-          [(ngModel)]="roleDescription"
-          class="rounded-md border border-blue-200 p-2 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0 resize-none"
-          name="description"
-          id="description"
-          rows="2"
-          placeholder="Cuentanos sobre tu motivación para unirte a nuestro equipo..."></textarea>
-      </div>
-    </div>
 
-    <h3 class="text-lg font-semibold text-gray-900">Configuración del Rol</h3>
-
-    <div class="grid grid-cols-1 grid-cols-5 gap-3">
-      <input
-        class="col-span-2 rounded-md border border-blue-200 px-2 py-1 hover:bg-gray-100 focus:bg-gray-200 focus:outline-0"
-        type="search"
-        placeholder="Buscar roles por nombre o módulo" />
-    </div>
-
-    <div class="flex flex-col space-y-5">
-      @for (p of permissions.value(); track $index) {
-        @let a = permissionStates().get(p.permissionId);
-        <div
-          class="rounded-md border border-blue-200 bg-white flex flex-col overflow-hidden">
-          <div class="w-full p-4 flex justify-between items-center bg-gray-50">
-            <div class="flex items-center gap-2">
-              <div
-                class="p-2 bg-blue-50 rounded border border-blue-100 flex items-center justify-center">
-                <app-loader
-                  [name]="'cart'"
-                  hostClass="w-5 h-5 text-blue-600"></app-loader>
-              </div>
-              <div
-                (click)="toggleExpand(p.permissionId)"
-                class="cursor-pointer">
-                <h3 class="font-semibold text-gray-900">{{ p.nameModule }}</h3>
-                <p class="text-sm text-gray-500">{{ a?.count }}</p>
-              </div>
-            </div>
-            <div class="flex gap-2 items-center">
-              <!-- Checkbox de seleccionar todo el módulo -->
-              <input
-                [checked]="a?.checked"
-                [indeterminate]="a?.indeterminate"
-                (change)="selectAll(p.permissionId)"
-                class="h-5 w-5"
-                type="checkbox" />
-              <label class="text-sm text-gray-700">Todo el módulo</label>
-            </div>
-          </div>
+      <!-- Módulos de permisos -->
+      <div class="space-y-3">
+        @for (p of permissions.value(); track p.permissionId) {
+          @let a = permissionStates().get(p.permissionId);
           <div
-            class="flex flex-col space-y-4 px-4 overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-in-out"
-            [class.max-h-0]="!expandedItems().has(p.permissionId)"
-            [class.max-h-[500px]]="expandedItems().has(p.permissionId)"
-            [class.opacity-0]="!expandedItems().has(p.permissionId)"
-            [class.opacity-100]="expandedItems().has(p.permissionId)"
-            [class.py-4]="expandedItems().has(p.permissionId)">
-            @for (page of p.pages; track $index) {
-              @let b = permissionStates().get(page.pageId);
-              <div class="flex flex-col space-y-2">
-                <div class="flex gap-2 items-center justify-between">
-                  <!-- Checkebox de seleccionar todas las páginas -->
-                  <div class="flex gap-2 items-center">
-                    <input
-                      [checked]="b?.checked"
-                      [indeterminate]="b?.indeterminate"
-                      (change)="selectAll(page.pageId)"
-                      class="h-5 w-5"
-                      type="checkbox" />
-                    <div
-                      (click)="toggleExpand(page.pageId)"
-                      class="flex gap-2 items-center cursor-pointer hover:underline cursor-pointer">
-                      <app-loader
-                        name="arrow-left"
-                        [hostClass]="`h-4 w-4  transition-transform duration-300 ${!expandedItems().has(page.pageId) ? 'rotate-180' : 'rotate-270'}`" />
-                      <span class="font-medium text-gray-900">{{
-                        page.pageName
-                      }}</span>
-                    </div>
-                  </div>
-                  <div class="text-sm text-gray-500 text-center">
-                    {{ b?.count }}
-                  </div>
+            class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <!-- Header del módulo -->
+            <div
+              class="px-5 py-3.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-1.5 bg-blue-100 rounded-lg">
+                  <app-loader
+                    name="settings"
+                    hostClass="w-4 h-4 text-blue-600"></app-loader>
                 </div>
                 <div
-                  class="flex flex-col space-y-3 ms-10 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out"
-                  [class.max-h-0]="!expandedItems().has(page.pageId)"
-                  [class.max-h-[500px]]="expandedItems().has(page.pageId)"
-                  [class.opacity-0]="!expandedItems().has(page.pageId)"
-                  [class.opacity-100]="expandedItems().has(page.pageId)">
-                  @for (item of page.permissions; track $index) {
-                    <div class="flex gap-4 items-center">
-                      <input
-                        [checked]="sPermission().has(item.permissionId)"
-                        (change)="togglePermission(item.permissionId)"
-                        class="h-5 w-5"
-                        type="checkbox" />
-                      <div class="flex flex-col justify-center">
-                        <span class="text-gray-700">{{
-                          item.permissionLabel
-                        }}</span>
-                        <span class="text-xs text-gray-400">{{
-                          item.value
-                        }}</span>
-                      </div>
-                    </div>
-                  }
+                  (click)="toggleExpand(p.permissionId)"
+                  class="cursor-pointer select-none">
+                  <p class="text-sm font-semibold text-gray-800">
+                    {{ p.nameModule }}
+                  </p>
+                  <p class="text-xs text-gray-400">{{ a?.count }}</p>
                 </div>
               </div>
-            }
+
+              <div class="flex items-center gap-2">
+                <label
+                  class="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    [checked]="a?.checked"
+                    [indeterminate]="a?.indeterminate"
+                    (change)="selectAll(p.permissionId)"
+                    class="h-4 w-4 rounded accent-blue-600" />
+                  Todo el módulo
+                </label>
+                <button
+                  type="button"
+                  (click)="toggleExpand(p.permissionId)"
+                  class="p-1 rounded hover:bg-gray-200 transition-colors">
+                  <app-loader
+                    name="arrow-left"
+                    [hostClass]="
+                      'w-4 h-4 text-gray-400 transition-transform duration-200 ' +
+                      (expandedItems().has(p.permissionId)
+                        ? '-rotate-90'
+                        : 'rotate-180')
+                    ">
+                  </app-loader>
+                </button>
+              </div>
+            </div>
+
+            <!-- Páginas del módulo -->
+            <div
+              [class]="
+                'overflow-hidden transition-all duration-200 ' +
+                (expandedItems().has(p.permissionId)
+                  ? 'max-h-[600px] opacity-100'
+                  : 'max-h-0 opacity-0')
+              ">
+              <div class="divide-y divide-gray-100">
+                @for (page of p.pages; track page.pageId) {
+                  @let b = permissionStates().get(page.pageId);
+                  <div class="px-5 py-3">
+                    <!-- Header de página -->
+                    <div class="flex items-center justify-between mb-2.5">
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          [checked]="b?.checked"
+                          [indeterminate]="b?.indeterminate"
+                          (change)="selectAll(page.pageId)"
+                          class="h-4 w-4 rounded accent-blue-600" />
+                        <button
+                          type="button"
+                          (click)="toggleExpand(page.pageId)"
+                          class="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                          <app-loader
+                            name="arrow-left"
+                            [hostClass]="
+                              'w-3.5 h-3.5 transition-transform duration-200 ' +
+                              (expandedItems().has(page.pageId)
+                                ? '-rotate-90'
+                                : 'rotate-180')
+                            ">
+                          </app-loader>
+                          {{ page.pageName }}
+                        </button>
+                      </div>
+                      <span class="text-xs text-gray-400">{{ b?.count }}</span>
+                    </div>
+
+                    <!-- Permisos de la página -->
+                    <div
+                      [class]="
+                        'ms-6 overflow-hidden transition-all duration-200 ' +
+                        (expandedItems().has(page.pageId)
+                          ? 'max-h-[300px] opacity-100'
+                          : 'max-h-0 opacity-0')
+                      ">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        @for (
+                          item of page.permissions;
+                          track item.permissionId
+                        ) {
+                          <label
+                            class="flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition-all select-none"
+                            [class]="
+                              sPermission().has(item.permissionId)
+                                ? 'border-blue-200 bg-blue-50'
+                                : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                            ">
+                            <input
+                              type="checkbox"
+                              [checked]="sPermission().has(item.permissionId)"
+                              (change)="togglePermission(item.permissionId)"
+                              class="h-4 w-4 rounded accent-blue-600 mt-0.5 flex-shrink-0" />
+                            <div class="min-w-0">
+                              <p class="text-xs font-semibold text-gray-700">
+                                {{ item.permissionLabel }}
+                              </p>
+                              <p
+                                class="text-[10px] text-gray-400 font-mono truncate">
+                                {{ item.value }}
+                              </p>
+                            </div>
+                          </label>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
 
-    <button (click)="roleId().length ? update() : save()">Guardar</button>
+    <!-- Columna derecha: datos del rol + acciones (1/3, sticky) -->
+    <div class="space-y-4 lg:sticky lg:top-4">
+      <!-- Datos del rol -->
+      <div
+        class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 border-b border-gray-100 bg-gray-50">
+          <h3 class="text-sm font-semibold text-gray-700">Datos del rol</h3>
+        </div>
+        <div class="p-5 space-y-4">
+          <div class="flex flex-col gap-1.5">
+            <label
+              class="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Nombre <span class="text-red-400">*</span>
+            </label>
+            <input
+              [(ngModel)]="roleName"
+              type="text"
+              placeholder="Ej: Administrador"
+              class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label
+              class="text-xs font-semibold text-gray-600 uppercase tracking-wide"
+              >Descripción</label
+            >
+            <textarea
+              [(ngModel)]="roleDescription"
+              rows="3"
+              placeholder="Describe el propósito de este rol..."
+              class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 resize-none transition-all">
+            </textarea>
+          </div>
+
+          <!-- Resumen de permisos seleccionados -->
+          <div class="pt-2 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <p class="text-xs text-gray-500">Permisos seleccionados</p>
+              <span class="text-sm font-bold text-blue-600">{{
+                sPermission().size
+              }}</span>
+            </div>
+            <div class="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-blue-500 rounded-full transition-all duration-300"
+                [style.width.%]="permissions.value()?.length
+                  ? 5
+                  : 0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex flex-col gap-2">
+        <button
+          type="button"
+          (click)="roleId().length ? update() : save()"
+          class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all">
+          <app-loader name="check" hostClass="w-4 h-4"></app-loader>
+          {{ roleId().length ? "Guardar cambios" : "Crear rol" }}
+        </button>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="w-full px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+          Cancelar
+        </button>
+      </div>
+    </div>
   </div>
 </div>

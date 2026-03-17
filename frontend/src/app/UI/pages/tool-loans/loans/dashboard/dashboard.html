@@ -1,68 +1,186 @@
 <div class="space-y-5">
-  <div class="w-full flex justify-between items-center">
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between">
     <div>
-      <h2 class="text-2xl font-bold">Préstamos</h2>
-      <h3 class="text-gray-500">Gestión de Préstamos de herrramientas</h3>
+      <h2 class="text-2xl font-bold text-gray-900">Préstamos</h2>
+      <p class="text-sm text-gray-500 mt-0.5">
+        Gestión de préstamos de herramientas
+      </p>
+    </div>
+    <button
+      (click)="navigate(1)"
+      class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors">
+      <app-loader name="plus" hostClass="w-4 h-4 text-white"></app-loader>
+      Nueva solicitud
+    </button>
+  </div>
+
+  <!-- ── Tarjetas de estadísticas ───────────────────────────── -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <!-- Total -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <p
+            class="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            Total
+          </p>
+          <p class="text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {{ loansResource.isLoading() ? "—" : stats().total }}
+          </p>
+        </div>
+        <div class="p-2 bg-gray-100 rounded-lg">
+          <app-loader
+            name="total"
+            hostClass="w-5 h-5 text-gray-500"></app-loader>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pendiente -->
+    <div
+      (click)="statusFilter.set('Pendiente')"
+      [class]="
+        'rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Pendiente'
+          ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-200'
+          : 'bg-white border-gray-200 hover:border-amber-200 hover:bg-amber-50/40')
+      ">
+      <div class="flex items-start justify-between">
+        <div>
+          <p
+            class="text-xs font-semibold text-amber-600 uppercase tracking-wide">
+            Pendiente
+          </p>
+          <p class="text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {{ loansResource.isLoading() ? "—" : stats().pendiente }}
+          </p>
+        </div>
+        <div class="p-2 bg-amber-100 rounded-lg">
+          <app-loader
+            name="pending"
+            hostClass="w-5 h-5 text-amber-600"></app-loader>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aprobado -->
+    <div
+      (click)="statusFilter.set('Aprobado')"
+      [class]="
+        'rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Aprobado'
+          ? 'bg-green-50 border-green-300 ring-2 ring-green-200'
+          : 'bg-white border-gray-200 hover:border-green-200 hover:bg-green-50/40')
+      ">
+      <div class="flex items-start justify-between">
+        <div>
+          <p
+            class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+            Aprobado
+          </p>
+          <p class="text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {{ loansResource.isLoading() ? "—" : stats().aprobado }}
+          </p>
+        </div>
+        <div class="p-2 bg-green-100 rounded-lg">
+          <app-loader
+            name="check"
+            hostClass="w-5 h-5 text-green-600"></app-loader>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entregado -->
+    <div
+      (click)="statusFilter.set('Entregado')"
+      [class]="
+        'rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Entregado'
+          ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200'
+          : 'bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50/40')
+      ">
+      <div class="flex items-start justify-between">
+        <div>
+          <p
+            class="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+            Entregado
+          </p>
+          <p class="text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {{ loansResource.isLoading() ? "—" : stats().entregado }}
+          </p>
+        </div>
+        <div class="p-2 bg-blue-100 rounded-lg">
+          <app-loader
+            name="cart"
+            hostClass="w-5 h-5 text-blue-600"></app-loader>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vencidos -->
+    <div
+      (click)="statusFilter.set('Devuelto')"
+      [class]="
+        'rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Devuelto'
+          ? 'bg-gray-100 border-gray-400 ring-2 ring-gray-200'
+          : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/60')
+      ">
+      <div class="flex items-start justify-between">
+        <div>
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Devuelto
+          </p>
+          <p class="text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {{ loansResource.isLoading() ? "—" : stats().devuelto }}
+          </p>
+        </div>
+        <div class="p-2 bg-gray-100 rounded-lg">
+          <app-loader
+            name="refresh"
+            hostClass="w-5 h-5 text-gray-500"></app-loader>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="flex space-x-10 w-1/2">
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-blue-200">
-        <app-loader name="total" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
-        <h3 class="text-slate-500">Totales</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-gray-200">
-        <app-loader name="pending" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">5</h2>
-        <h3 class="text-slate-500">Pendientes</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="`rounded-lg p-3 bg-green-200">
-        <app-loader name="check" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">6</h2>
-        <h3 class="text-slate-500">Devueltos</h3>
-      </div>
-    </div>
-    <div
-      class="rounded-lg border border-gray-200 items-center space-x-5 bg-white shadow-sm p-4 flex w-full">
-      <div class="rounded-lg p-3 bg-red-200">
-        <app-loader name="expired" hostClass="h-6 w-6"></app-loader>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold">3</h2>
-        <h3 class="text-slate-500">Vencidos</h3>
-      </div>
-    </div>
-  </div>
-
+  <!-- ── Tabla principal ────────────────────────────────────── -->
   <div
-    class="overflow-x-auto rounded-xl shadow-sm border border-gray-200 bg-white">
-    <div class="px-3 py-2">
-      <div
-        class="flex *:border *:border-gray-200 *:bg-neutral-100 *:cursor-pointer *:disabled:cursor-not-allowed *:disabled:opacity-50 inline-flex rounded-md *:first:rounded-s-md *:last:rounded-e-md overflow-hidden">
-        <button (click)="navigate(1)" class="p-1">
-          <app-loader name="create" hostClass="h-6 w-6"></app-loader>
-        </button>
-        <button [disabled]="!canEdit()" class="p-1">
-          <app-loader name="delete" hostClass="h-6 w-6"></app-loader>
+    class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <!-- Barra superior: búsqueda + acciones -->
+    <div
+      class="px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-wrap">
+      <!-- Búsqueda -->
+      <div class="relative flex-1 min-w-48">
+        <svg
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar por nombre, DNI o departamento..."
+          class="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 placeholder:text-gray-400" />
+      </div>
+
+      <!-- Acciones contextuales -->
+      <div class="flex items-center gap-1.5">
+        <button
+          (click)="navigate(1)"
+          title="Nueva solicitud"
+          class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
+          <app-loader
+            name="create"
+            hostClass="w-5 h-5 text-gray-600"></app-loader>
         </button>
         <button
           *hasPermission="[
@@ -72,33 +190,211 @@
           ]"
           (click)="navigate(2)"
           [disabled]="!canEdit()"
-          class="p-1">
-          <app-loader hostClass="h-6 w-6" name="eye"></app-loader>
+          title="Ver detalle"
+          class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          <app-loader name="eye" hostClass="w-5 h-5 text-gray-600"></app-loader>
         </button>
       </div>
     </div>
-    <table class="min-w-full border-collapse text-left text-sm text-gray-700">
-      <thead class="bg-neutral-100 sticky z-10">
-        <tr class="*:px-6 *:py-3 *:font-semibold">
-          <th>Nombre</th>
-          <th>Fecha Solicitud</th>
-          <th>Fecha Devolución</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody
-        class="divide-y divide-gray-200 [&_td]:px-6 [&_td]:py-3 [&_tr]:hover:bg-blue-50 cursor-pointer">
-        @for (a of loansResource.value(); track $index) {
+
+    <!-- Tabs de filtro por estado -->
+    <div class="px-4 border-b border-gray-100 flex gap-0.5 overflow-x-auto">
+      @for (tab of statusTabs; track tab) {
+        <button
+          (click)="statusFilter.set(tab)"
+          [class]="
+            'flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 ' +
+            (statusFilter() === tab
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700')
+          ">
+          {{ tab }}
+          <span
+            [class]="
+              'inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 rounded-full text-[10px] font-bold ' +
+              tabCountClass(tab)
+            ">
+            {{ tabCount(tab) }}
+          </span>
+        </button>
+      }
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left text-gray-700">
+        <thead
+          class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
           <tr
-            (click)="onSelectRow(a.loanId)"
-            [class.bg-blue-200]="selection().has(a.loanId)">
-            <td>{{ a.loanName }}</td>
-            <td>{{ a.createdAt }}</td>
-            <td>{{ a.loanReturnDate }}</td>
-            <td>{{ a.loanStatus }}</td>
+            class="[&_th]:px-5 [&_th]:py-3 [&_th]:border-b [&_th]:border-gray-200">
+            <th>Solicitante</th>
+            <th>Departamento</th>
+            <th>Fecha solicitud</th>
+            <th>Retorno previsto</th>
+            <th>Estado</th>
           </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <!-- Loading state -->
+          @if (loansResource.isLoading()) {
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <tr class="[&_td]:px-5 [&_td]:py-3.5">
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-36"></div>
+                </td>
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-28"></div>
+                </td>
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                </td>
+                <td>
+                  <div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                </td>
+                <td>
+                  <div
+                    class="h-5 bg-gray-200 rounded-full animate-pulse w-20"></div>
+                </td>
+              </tr>
+            }
+          }
+
+          <!-- Empty state -->
+          @else if (filteredLoans().length === 0) {
+            <tr>
+              <td colspan="5" class="px-5 py-14 text-center">
+                <div class="flex flex-col items-center gap-2">
+                  <div
+                    class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <app-loader
+                      name="cart"
+                      hostClass="w-6 h-6 text-gray-400"></app-loader>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">
+                    @if (searchQuery() || statusFilter() !== "Todos") {
+                      Sin resultados para los filtros aplicados
+                    } @else {
+                      No hay préstamos registrados
+                    }
+                  </p>
+                  @if (searchQuery() || statusFilter() !== "Todos") {
+                    <button
+                      (click)="searchQuery.set(''); statusFilter.set('Todos')"
+                      class="text-xs text-blue-600 hover:underline mt-1">
+                      Limpiar filtros
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+
+          <!-- Filas de datos -->
+          @else {
+            @for (loan of filteredLoans(); track loan.loanId) {
+              <tr
+                (click)="onSelectRow(loan.loanId)"
+                [class]="
+                  '[&_td]:px-5 [&_td]:py-3.5 cursor-pointer transition-colors ' +
+                  (isSelected(loan.loanId)
+                    ? 'bg-blue-50 hover:bg-blue-100'
+                    : 'hover:bg-gray-50')
+                ">
+                <!-- Solicitante -->
+                <td>
+                  <div class="flex items-center gap-2.5">
+                    <!-- Avatar -->
+                    <div
+                      class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-blue-600">
+                        {{ loan.loanName.charAt(0).toUpperCase() }}
+                      </span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800 leading-tight">
+                        {{ loan.loanName }}
+                      </p>
+                      <p class="text-xs text-gray-400 font-mono">
+                        {{ loan.loanDni }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Departamento -->
+                <td>
+                  <span class="text-gray-600">
+                    {{ loan.loanDepartment.departmentName || "—" }}
+                  </span>
+                </td>
+
+                <!-- Fecha solicitud -->
+                <td>
+                  <span class="text-gray-600 tabular-nums">
+                    {{ loan.createdAt | date: "dd/MM/yyyy" }}
+                  </span>
+                  <p class="text-xs text-gray-400 tabular-nums">
+                    {{ loan.createdAt | date: "HH:mm" }}
+                  </p>
+                </td>
+
+                <!-- Retorno previsto -->
+                <td>
+                  <span
+                    [class]="
+                      'tabular-nums ' +
+                      (isOverdue(loan.loanReturnDate) &&
+                      loan.loanStatus !== 'Devuelto'
+                        ? 'text-red-600 font-semibold'
+                        : 'text-gray-600')
+                    ">
+                    {{ loan.loanReturnDate | date: "dd/MM/yyyy" }}
+                  </span>
+                  @if (
+                    isOverdue(loan.loanReturnDate) &&
+                    loan.loanStatus !== "Devuelto"
+                  ) {
+                    <p class="text-[10px] text-red-500 font-semibold">
+                      Vencido
+                    </p>
+                  }
+                </td>
+
+                <!-- Estado -->
+                <td>
+                  <span
+                    [class]="
+                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
+                      statusBadgeClass(loan.loanStatus)
+                    ">
+                    <span
+                      [class]="
+                        'w-1.5 h-1.5 rounded-full ' +
+                        statusDotClass(loan.loanStatus)
+                      "></span>
+                    {{ loan.loanStatus }}
+                  </span>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer de la tabla -->
+    @if (!loansResource.isLoading() && filteredLoans().length > 0) {
+      <div
+        class="px-5 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span>
+          Mostrando
+          <strong class="text-gray-700">{{ filteredLoans().length }}</strong> de
+          <strong class="text-gray-700">{{ stats().total }}</strong> préstamos
+        </span>
+        @if (canEdit()) {
+          <span class="text-blue-600 font-medium">1 seleccionado</span>
         }
-      </tbody>
-    </table>
+      </div>
+    }
   </div>
 </div>
