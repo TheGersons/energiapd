@@ -229,6 +229,7 @@
                         >Comentarios (opcional)</label
                       >
                       <textarea
+                        [(ngModel)]="approvalNotes"
                         placeholder="Observaciones antes de aprobar o denegar..."
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all"
                         rows="3"></textarea>
@@ -502,9 +503,7 @@
                       <!-- Progreso de verificación -->
                       <div class="flex items-center gap-2">
                         <span class="text-xs text-gray-500">
-                          {{ verifiedCount() }}/{{
-                            loanTools().length
-                          }}
+                          {{ verifiedCount() }}/{{ loanTools().length }}
                           verificadas
                         </span>
                         <div
@@ -525,7 +524,7 @@
                       </div>
                     </div>
 
-                    <!-- Checklist de herramientas (altura fija + scroll) -->
+                    <!-- Checklist de herramientas -->
                     <div class="overflow-y-auto" style="max-height: 260px">
                       @for (
                         tool of loanTools();
@@ -673,7 +672,7 @@
                         </p>
                       }
                       <button
-                        (click)="onDeliver()"
+                        (click)="onDeliver(true, 'Entregado')"
                         [disabled]="!canConfirmDelivery()"
                         class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
                         <svg

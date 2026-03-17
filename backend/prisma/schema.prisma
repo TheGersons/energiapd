@@ -113,7 +113,7 @@ model Loan {
   dni            String
   idDepartment   String
   useDescription String
-  status         String   @default("pendiente")
+  status         String   @default("Pendiente")
   returnDate     DateTime
   approvedBy     String
   deliveredBy    String
@@ -134,6 +134,7 @@ model LoanApproves {
   idUser   String
   approved Boolean @default(false)
   notes    String?
+  type     String?
 
   loan Loan @relation(fields: [idLoan], references: [id])
   user User @relation(fields: [idUser], references: [id])

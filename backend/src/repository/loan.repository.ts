@@ -62,7 +62,7 @@ class LoanRepository {
     ).id;
   }
 
-  async approve(
+  async approval(
     idLoan: string,
     idUser: string,
     approved: boolean,
@@ -81,6 +81,34 @@ class LoanRepository {
               idUser,
               approved,
               notes,
+              type: "approval",
+            },
+          },
+        },
+      })
+    ).id;
+  }
+
+  async delivery(
+    idLoan: string,
+    idUser: string,
+    approved: boolean,
+    status: string,
+    notes: string,
+  ): Promise<string> {
+    return (
+      await prisma.loan.update({
+        where: {
+          id: idLoan,
+        },
+        data: {
+          status,
+          loanApproves: {
+            create: {
+              idUser,
+              approved,
+              notes,
+              type: "delivery",
             },
           },
         },

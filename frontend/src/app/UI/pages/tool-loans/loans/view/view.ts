@@ -30,6 +30,7 @@ import {
 import { environment } from 'environments/environment.development';
 import { ApproveLoanUseCase } from '@domain/loan/usecase/approveLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
+import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
 
 @Component({
   selector: 'app-view',
@@ -65,6 +66,7 @@ export class View implements OnInit, AfterViewInit {
   private readonly findOneLoan = inject(FindOneLoanUseCase);
   private signatureSocket = inject(SignatureSocket);
   private approveLoan = inject(ApproveLoanUseCase);
+  private deliverLoan = inject(DeliverLoanUseCase);
   private sessionId = uuidv4();
   private deliverySessionId = uuidv4();
   private toastr = inject(ToastrService);
@@ -85,16 +87,14 @@ export class View implements OnInit, AfterViewInit {
   loanReturnDate = signal<string>('');
   loanTools = signal<ToolModel[]>([]);
 
-  // Approval signature
   signatureImage = signal<string>('');
   showPcPad = signal<boolean>(false);
+  approvalNotes = signal<string>('');
 
-  // Delivery signature (UI only — wire up onDeliver() with your use case)
   deliverySignatureImage = signal<string>('');
   showDeliveryPcPad = signal<boolean>(false);
   deliveryNotes = signal<string>('');
 
-  // Tool verification checklist for delivery
   verifiedTools = signal<Set<string>>(new Set());
 
   verifiedCount = computed(() => this.verifiedTools().size);
@@ -139,13 +139,11 @@ export class View implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Approval signature socket
     this.signatureSocket.joinRoom(this.sessionId);
     this.signatureSocket.onSignatureReceived().subscribe((base64) => {
       this.signatureImage.set(base64);
     });
 
-    // Delivery signature socket — uses a separate room
     this.signatureSocket.joinRoom(this.deliverySessionId);
   }
 
@@ -202,7 +200,7 @@ export class View implements OnInit, AfterViewInit {
     this.loanResource.reload();
   }
 
-  async onDeliver() {
+  async onDeliver(status: boolean, state: string) {
     if (!this.deliverySignatureImage().length) {
       this.toastr.warning('La firma del almacenista es necesaria.');
       return;
@@ -213,8 +211,21 @@ export class View implements OnInit, AfterViewInit {
       );
       return;
     }
-    // TODO: implementar con el use case de entrega
-    // Conectar con: approveLoan.execute({ loan, status: true, state: 'Entregado' })
+
+    const response = await firstValueFrom(
+      this.deliverLoan.execute({
+        loan: this.loanResource.value()?.loanId ?? '',
+        status,
+        state,
+        comments: this.deliveryNotes(),
+      }),
+    );
+
+    if (!validate(response)) {
+      this.toastr.warning('No hubo cambios');
+      return;
+    }
+
     this.toastr.info('Implementar lógica de entrega');
   }
 

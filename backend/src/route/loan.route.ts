@@ -27,10 +27,16 @@ class LoanRoute {
     this.router.post("/", loanController.create);
     this.router.put("/", loanController.update);
     this.router.patch(
-      "/",
+      "/approval",
       validateToken,
       hasPermission(["prestamo-herramientas:autorizar"]),
       loanController.approve,
+    );
+    this.router.patch(
+      "/delivery",
+      validateToken,
+      hasPermission(["prestamo-herramientas:autorizar"]),
+      loanController.delivery,
     );
   }
 }

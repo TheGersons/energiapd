@@ -50,7 +50,21 @@ export class LoanImplementation extends LoanRepository {
     state: string,
     comments: string,
   ): Observable<string> {
-    return this.http.patch<string>(`${this.baseURL}`, {
+    return this.http.patch<string>(`${this.baseURL}approval`, {
+      idLoan: loan,
+      approved: status,
+      status: state,
+      notes: comments,
+    });
+  }
+
+  override deliverLoan(
+    loan: string,
+    status: boolean,
+    state: string,
+    comments: string,
+  ): Observable<string> {
+    return this.http.patch<string>(`${this.baseURL}delivery`, {
       idLoan: loan,
       approved: status,
       status: state,

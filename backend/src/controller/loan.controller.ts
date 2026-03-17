@@ -113,7 +113,7 @@ class LoanController {
     }
 
     loanRepository
-      .approve(
+      .approval(
         req.body.idLoan,
         (req as any).idUser,
         req.body.approved,
@@ -130,8 +130,40 @@ class LoanController {
         }
         return res.status(200).json(rs);
       })
-      .catch((error) => 
-        errorResponse(res, 500, "Error al actualizar el préstamo.", error)
+      .catch((error) =>
+        errorResponse(res, 500, "Error al actualizar el préstamo.", error),
+      );
+  }
+
+  delivery(req: Request, res: Response) {
+    if (
+      !("idLoan" in req.body) &&
+      !("approved" in req.body) &&
+      !("status" in req.body)
+    ) {
+      return errorResponse(res, 400, "El ID y Estado son requeridos.");
+    }
+
+    loanRepository
+      .delivery(
+        req.body.idLoan,
+        (req as any).idUser,
+        req.body.approved,
+        req.body.status,
+        req.body.notes || "",
+      )
+      .then((rs) => {
+        if (!validate(rs)) {
+          return errorResponse(
+            res,
+            404,
+            "Préstamo no encontrado o sin cambios.",
+          );
+        }
+        return res.status(200).json(rs);
+      })
+      .catch((error) =>
+        errorResponse(res, 500, "Error al actualizar el préstamo.", error),
       );
   }
 }
