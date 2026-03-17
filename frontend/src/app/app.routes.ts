@@ -235,6 +235,14 @@ export const routes: Routes = [
       import('@ui/pages/tool-loans/loans/public/public').then((m) => m.Public),
   },
 
+  {
+    path: 'pase-salida/:id',
+    loadComponent: () =>
+      import('@ui/pages/tool-loans/loans/exit-pass/exit-pass').then(
+        (m) => m.ExitPass,
+      ),
+  },
+
   // --- COMODÍN ---
   { path: '**', redirectTo: 'iniciar-sesion' },
 ];

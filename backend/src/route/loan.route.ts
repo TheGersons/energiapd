@@ -50,6 +50,7 @@ class LoanRoute {
       hasPermission(["prestamo-herramientas:autorizar"]),
       loanController.extend,
     );
+    this.router.get("/pass", loanController.findOnePublic);
   }
 }
 

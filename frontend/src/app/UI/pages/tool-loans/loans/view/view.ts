@@ -116,6 +116,10 @@ export class View implements OnInit, AfterViewInit {
   canConfirmDelivery = computed(
     () => this.allToolsVerified() && this.deliverySignatureImage().length > 0,
   );
+  passUrl = computed(
+    () =>
+      `${environment.host}pase-salida/${this.loanResource.value()?.loanId ?? ''}`,
+  );
 
   // ── Devolución ───────────────────────────────────────────────
   returnSignatureImage = signal<string>('');

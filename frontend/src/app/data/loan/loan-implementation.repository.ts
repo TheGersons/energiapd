@@ -10,7 +10,6 @@ import {
   LoanResponseModel,
 } from '@domain/loan/loal.model';
 import { LoansMapper } from './mapper/loans.mapper';
-import { LoanMapper } from './mapper/loan.mapper';
 import { LoanEntity, LoanResponseEntity } from './loan.entity';
 import { LoanResponseMapper } from './mapper/loanResponse.mapper';
 
@@ -96,5 +95,13 @@ export class LoanImplementation extends LoanRepository {
       notes: comments,
       returnDate: loanReturn,
     });
+  }
+
+  findOnePublicLoan(id: string): Observable<LoanResponseModel> {
+    return this.http
+      .get<LoanResponseEntity>(`${this.baseURL}pass`, {
+        params: { id },
+      })
+      .pipe(map(this.loanResponseMapper.mapFrom));
   }
 }
