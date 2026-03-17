@@ -36,9 +36,10 @@ class LoanController {
         }
         res.status(200).json(rs);
       })
-      .catch((error) =>
-        errorResponse(res, 500, "Error al buscar el préstamo.", error?.message),
-      );
+      .catch((error) => {
+        console.log(error);
+        errorResponse(res, 500, "Error al buscar el préstamo.", error?.message);
+      });
   }
 
   create({ body }: Request, res: Response) {
@@ -197,6 +198,35 @@ class LoanController {
       .catch((error) =>
         errorResponse(res, 500, "Error al actualizar el préstamo.", error),
       );
+  }
+
+  extend(req: Request, res: Response) {
+    if (!("idLoan" in req.body)) {
+      return errorResponse(res, 400, "El ID es requerido.");
+    }
+
+    loanRepository
+      .extend(
+        req.body.idLoan,
+        (req as any).idUser,
+        req.body.returnDate,
+        req.body.notes,
+      )
+      .then((rs) => {
+        if (!validate(rs)) {
+          return errorResponse(
+            res,
+            404,
+            "Prestamo no encontrado o sin cambios",
+          );
+        }
+
+        return res.status(200).json(rs);
+      })
+      .catch((error) => {
+        console.log(error);
+        errorResponse(res, 500, "Error al actualizar el préstamo", error);
+      });
   }
 }
 

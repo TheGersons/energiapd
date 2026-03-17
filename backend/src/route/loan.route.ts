@@ -44,6 +44,12 @@ class LoanRoute {
       hasPermission(["prestamo-herramientas:entregar"]),
       loanController.return,
     );
+    this.router.patch(
+      "/extend",
+      validateToken,
+      hasPermission(["prestamo-herramientas:autorizar"]),
+      loanController.extend,
+    );
   }
 }
 

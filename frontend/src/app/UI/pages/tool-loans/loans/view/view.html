@@ -1327,6 +1327,14 @@
                               : "Devolución denegada"
                           }}
                         }
+
+                        @if (approve.approveType === "extension") {
+                          Plazo ampliado hasta
+                          {{
+                            loanResource.value()?.loanReturnDate
+                              | date: "dd/MM/yyyy"
+                          }}
+                        }
                       </p>
                       <p class="text-xs text-gray-500 mt-0.5">
                         Acción realizada por usuario

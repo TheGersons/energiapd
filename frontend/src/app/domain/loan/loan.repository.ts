@@ -23,4 +23,9 @@ export abstract class LoanRepository {
     state: string,
     comments: string,
   ): Observable<string>;
+  abstract extendLoan(
+    loan: string,
+    comments: string,
+    loanReturn: string,
+  ): Observable<string>;
 }

@@ -97,24 +97,37 @@ class LoanRepository {
     status: string,
     notes: string,
   ): Promise<string> {
-    return (
-      await prisma.loan.update({
-        where: {
-          id: idLoan,
-        },
-        data: {
-          status,
-          loanApproves: {
-            create: {
-              idUser,
-              approved,
-              notes,
-              type: "delivery",
+    return await prisma.$transaction(async (transaction) => {
+      const ids = (
+        await transaction.loanDetail.findMany({ where: { idLoan } })
+      ).map((a) => a.idTool);
+
+      const id = (
+        await transaction.loan.update({
+          where: {
+            id: idLoan,
+          },
+          data: {
+            status,
+            loanApproves: {
+              create: {
+                idUser,
+                approved,
+                notes,
+                type: "delivery",
+              },
             },
           },
-        },
-      })
-    ).id;
+        })
+      ).id;
+
+      await transaction.tool.updateMany({
+        where: { id: { in: ids } },
+        data: { available: !approved },
+      });
+
+      return id;
+    });
   }
 
   async return(
@@ -124,19 +137,56 @@ class LoanRepository {
     status: string,
     notes: string,
   ): Promise<string> {
+    return prisma.$transaction(async (transaction) => {
+      const ids = (
+        await transaction.loanDetail.findMany({ where: { idLoan } })
+      ).map((a) => a.idTool);
+
+      const id = (
+        await prisma.loan.update({
+          where: {
+            id: idLoan,
+          },
+          data: {
+            status,
+            loanApproves: {
+              create: {
+                idUser,
+                approved,
+                notes,
+                type: "return",
+              },
+            },
+          },
+        })
+      ).id;
+
+      await transaction.tool.updateMany({
+        where: { id: { in: ids } },
+        data: { available: approved },
+      });
+
+      return id;
+    });
+  }
+
+  async extend(
+    idLoan: string,
+    idUser: string,
+    newReturnDate: Date,
+    notes: string,
+  ): Promise<string> {
     return (
       await prisma.loan.update({
-        where: {
-          id: idLoan,
-        },
+        where: { id: idLoan },
         data: {
-          status,
+          returnDate: newReturnDate,
           loanApproves: {
             create: {
               idUser,
-              approved,
+              approved: true,
               notes,
-              type: "return",
+              type: "extension",
             },
           },
         },

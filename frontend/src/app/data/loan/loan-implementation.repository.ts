@@ -85,4 +85,16 @@ export class LoanImplementation extends LoanRepository {
       notes: comments,
     });
   }
+
+  override extendLoan(
+    loan: string,
+    comments: string,
+    loanReturn: string,
+  ): Observable<string> {
+    return this.http.patch<string>(`${this.baseURL}extend`, {
+      idLoan: loan,
+      notes: comments,
+      returnDate: loanReturn,
+    });
+  }
 }

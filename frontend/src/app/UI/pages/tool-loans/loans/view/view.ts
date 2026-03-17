@@ -32,6 +32,7 @@ import { ApproveLoanUseCase } from '@domain/loan/usecase/approveLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
 import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
 import { ReturnLoanUseCase } from '@domain/loan/usecase/returnLoan.usecase';
+import { ExtendLoanUseCase } from '@domain/loan/usecase/extendLoan.usecase';
 
 @Component({
   selector: 'app-view',
@@ -70,6 +71,7 @@ export class View implements OnInit, AfterViewInit {
   private readonly approveLoan = inject(ApproveLoanUseCase);
   private readonly deliverLoan = inject(DeliverLoanUseCase);
   private readonly returnLoan = inject(ReturnLoanUseCase);
+  private readonly extendLoan = inject(ExtendLoanUseCase);
   private readonly toastr = inject(ToastrService);
 
   // ── IDs de sala por etapa ────────────────────────────────────
@@ -366,8 +368,22 @@ export class View implements OnInit, AfterViewInit {
       this.toastr.warning('Selecciona una nueva fecha de retorno.');
       return;
     }
-    // TODO: conectar con use case de ampliación → actualizar loanReturnDate
-    this.toastr.info('Implementar lógica de ampliación.');
+
+    const response = await firstValueFrom(
+      this.extendLoan.execute({
+        loan: this.loanResource.value()?.loanId ?? '',
+        comments: this.extendNotes(),
+        loanReturn: new Date(this.extendReturnDate()).toISOString(),
+      }),
+    );
+
+    if (!validate(response)) {
+      this.toastr.warning('No hubo cambios');
+      return;
+    }
+
+    this.toastr.info('Permiso actualizado con éxito.');
+    this.loanResource.reload();
     this.showExtendModal.set(false);
   }
 
