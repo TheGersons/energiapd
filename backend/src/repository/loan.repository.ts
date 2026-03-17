@@ -67,6 +67,7 @@ class LoanRepository {
     idUser: string,
     approved: boolean,
     status: string,
+    notes: string,
   ): Promise<string> {
     return (
       await prisma.loan.update({
@@ -79,6 +80,7 @@ class LoanRepository {
             create: {
               idUser,
               approved,
+              notes,
             },
           },
         },

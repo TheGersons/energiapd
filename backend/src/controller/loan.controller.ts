@@ -104,7 +104,6 @@ class LoanController {
   }
 
   approve(req: Request, res: Response) {
-    console.log(req.body)
     if (
       !("idLoan" in req.body) &&
       !("approved" in req.body) &&
@@ -119,6 +118,7 @@ class LoanController {
         (req as any).idUser,
         req.body.approved,
         req.body.status,
+        req.body.notes || "",
       )
       .then((rs) => {
         if (!validate(rs)) {
@@ -130,10 +130,9 @@ class LoanController {
         }
         return res.status(200).json(rs);
       })
-      .catch((error) => {
-        console.log(error);
-        errorResponse(res, 500, "Error al actualizar el préstamo.", error);
-      });
+      .catch((error) => 
+        errorResponse(res, 500, "Error al actualizar el préstamo.", error)
+      );
   }
 }
 

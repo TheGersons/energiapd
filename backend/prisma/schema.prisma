@@ -133,6 +133,7 @@ model LoanApproves {
   idLoan   String
   idUser   String
   approved Boolean @default(false)
+  notes    String?
 
   loan Loan @relation(fields: [idLoan], references: [id])
   user User @relation(fields: [idUser], references: [id])

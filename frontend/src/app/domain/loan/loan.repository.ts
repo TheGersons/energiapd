@@ -9,5 +9,6 @@ export abstract class LoanRepository {
     loan: string,
     status: boolean,
     state: string,
+    comments: string,
   ): Observable<string>;
 }

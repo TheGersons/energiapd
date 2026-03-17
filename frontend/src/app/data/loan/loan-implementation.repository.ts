@@ -48,11 +48,13 @@ export class LoanImplementation extends LoanRepository {
     loan: string,
     status: boolean,
     state: string,
+    comments: string,
   ): Observable<string> {
     return this.http.patch<string>(`${this.baseURL}`, {
       idLoan: loan,
       approved: status,
       status: state,
+      notes: comments,
     });
   }
 }

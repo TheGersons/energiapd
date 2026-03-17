@@ -83,6 +83,7 @@ export class View implements OnInit, AfterViewInit {
   loanNotes = signal<string>('');
   loanReturnDate = signal<string>('');
   loanTools = signal<ToolModel[]>([]);
+  approvalComments = signal<string>('');
 
   // Approval signature
   signatureImage = signal<string>('');
@@ -162,6 +163,7 @@ export class View implements OnInit, AfterViewInit {
         loan: this.loanResource.value()?.loanId ?? '',
         status,
         state,
+        comments: this.approvalComments(),
       }),
     );
     if (!validate(response)) {
