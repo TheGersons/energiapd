@@ -18,6 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 import { validate } from 'uuid';
 import { NgSelectComponent } from '@ng-select/ng-select';
+import { FindAllPublicToolsUseCase } from '@domain/tool/usecase/findAllPublicTools.usecase';
 
 @Component({
   selector: 'app-create',
@@ -28,13 +29,13 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 })
 export class Create {
   createLoan = inject(CreateLoanlUseCase);
-  findTools = inject(FindAllToolsUseCase);
+  findTools = inject(FindAllPublicToolsUseCase);
   findDepartments = inject(FindAllDepartmentsUseCase);
   toastr = inject(ToastrService);
   private readonly location = inject(Location);
 
   toolResource = resource({
-    loader: () => firstValueFrom(this.findTools.execute({})),
+    loader: () => firstValueFrom(this.findTools.execute()),
   });
 
   departmentsResource = resource({

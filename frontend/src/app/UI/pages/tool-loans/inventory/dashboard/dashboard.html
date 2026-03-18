@@ -13,8 +13,15 @@
 
   <!-- Tarjetas de estadísticas -->
   <div class="grid grid-cols-3 gap-3">
+    <!-- Card Total -->
     <div
-      class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4">
+      (click)="statusFilter.set('Todos')"
+      [class]="
+        'flex gap-4 rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Todos'
+          ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-200'
+          : 'bg-white border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/40')
+      ">
       <div class="p-2.5 bg-blue-100 rounded-lg flex-shrink-0">
         <app-loader name="tool" hostClass="w-5 h-5 text-blue-600"></app-loader>
       </div>
@@ -23,12 +30,20 @@
           Total
         </p>
         <p class="text-2xl font-bold text-gray-900 leading-none mt-0.5">
-          {{ toolsResource.value()?.length ?? "—" }}
+          {{ stats().total }}
         </p>
       </div>
     </div>
+
+    <!-- Card Disponibles -->
     <div
-      class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4">
+      (click)="statusFilter.set('Disponible')"
+      [class]="
+        'flex gap-4 rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Disponible'
+          ? 'bg-green-50 border-green-300 ring-2 ring-green-200'
+          : 'bg-white border-gray-200 hover:border-green-200 hover:bg-green-50/40')
+      ">
       <div class="p-2.5 bg-green-100 rounded-lg flex-shrink-0">
         <app-loader
           name="active"
@@ -39,12 +54,20 @@
           Disponibles
         </p>
         <p class="text-2xl font-bold text-gray-900 leading-none mt-0.5">
-          {{ toolsResource.value()?.length }}
+          {{ stats().available }}
         </p>
       </div>
     </div>
+
+    <!-- Card Prestadas -->
     <div
-      class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4">
+      (click)="statusFilter.set('Prestadas')"
+      [class]="
+        'flex gap-4 rounded-xl border shadow-sm p-4 cursor-pointer transition-all ' +
+        (statusFilter() === 'Prestadas'
+          ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-200'
+          : 'bg-white border-gray-200 hover:border-amber-200 hover:bg-amber-50/40')
+      ">
       <div class="p-2.5 bg-amber-100 rounded-lg flex-shrink-0">
         <app-loader name="cart" hostClass="w-5 h-5 text-amber-600"></app-loader>
       </div>
@@ -52,7 +75,9 @@
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">
           Prestadas
         </p>
-        <p class="text-2xl font-bold text-gray-900 leading-none mt-0.5">—</p>
+        <p class="text-2xl font-bold text-gray-900 leading-none mt-0.5">
+          {{ stats().lended }}
+        </p>
       </div>
     </div>
   </div>
@@ -106,9 +131,33 @@
         </svg>
         <input
           type="search"
+          [(ngModel)]="searchQuery"
           placeholder="Buscar herramientas..."
           class="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 placeholder:text-gray-400" />
       </div>
+    </div>
+
+    <!-- Tabs de filtro por estado -->
+    <div class="px-4 border-b border-gray-100 flex gap-0.5 overflow-x-auto">
+      @for (tab of statusTabs; track tab) {
+        <button
+          (click)="statusFilter.set(tab)"
+          [class]="
+            'flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 ' +
+            (statusFilter() === tab
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700')
+          ">
+          {{ tab }}
+          <span
+            [class]="
+              'inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 rounded-full text-[10px] font-bold ' +
+              tabCountClass(tab)
+            ">
+            {{ tabCount(tab) }}
+          </span>
+        </button>
+      }
     </div>
 
     <!-- Tabla de herramientas -->
@@ -152,7 +201,7 @@
                 </td>
               </tr>
             }
-          } @else if (!toolsResource.value()?.length) {
+          } @else if (!filteredTools().length) {
             <tr>
               <td colspan="5" class="px-5 py-14 text-center">
                 <div class="flex flex-col items-center gap-2">
@@ -163,18 +212,22 @@
                       hostClass="w-6 h-6 text-gray-400"></app-loader>
                   </div>
                   <p class="text-sm font-medium text-gray-500">
-                    No hay herramientas registradas
+                    @if (searchQuery() || statusFilter() !== "Todos") {
+                      Sin resultados para los filtros aplicados
+                    } @else {
+                      No hay préstamos registrados
+                      <button
+                        (click)="navigate(1)"
+                        class="text-xs text-blue-600 hover:underline">
+                        Agregar la primera herramienta
+                      </button>
+                    }
                   </p>
-                  <button
-                    (click)="navigate(1)"
-                    class="text-xs text-blue-600 hover:underline">
-                    Agregar la primera herramienta
-                  </button>
                 </div>
               </td>
             </tr>
           } @else {
-            @for (t of toolsResource.value(); track t.toolId) {
+            @for (t of filteredTools(); track t.toolId) {
               <tr
                 (click)="toggleSelection(t.toolId ?? '')"
                 [class]="

@@ -14,15 +14,9 @@ import { GetNavigationStateUseCase } from '@domain/navigation/usecase/get-naviga
 import { firstValueFrom, timestamp } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { FindAllToolsUseCase } from '@domain/tool/usecase/findAllTools.usecase';
-import { ToolModel } from '@domain/tool/tool.model';
 import { DeleteToolUseCase } from '@domain/tool/usecase/deleteTool.usecase';
 
-interface Card {
-  data: string;
-  subtitle: string;
-  iconName: string;
-  bgColor: string;
-}
+type StatusFilter = 'Todos' | 'Disponible' | 'Prestadas';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,36 +37,48 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private readonly COMPONENT_KEY = 'tool-inventory-dashboard';
 
-  cards: Card[] = [
-    {
-      data: '5',
-      subtitle: 'Herramientas',
-      iconName: 'tool',
-      bgColor: 'bg-blue-200',
-    },
-    {
-      data: '5',
-      subtitle: 'Herramientas Disponibles',
-      iconName: 'active',
-      bgColor: 'bg-green-200',
-    },
-    {
-      data: '5',
-      subtitle: 'Herramientas Prestadas',
-      iconName: 'inactive',
-      bgColor: 'bg-red-200',
-    },
-  ];
-
   toolsResource = resource({
     loader: async () => await firstValueFrom(this.findAllTools.execute({})),
   });
 
   selection = signal(new Set<string>());
 
+  readonly statusTabs: StatusFilter[] = ['Todos', 'Disponible', 'Prestadas'];
+  searchQuery = signal('');
+  statusFilter = signal<StatusFilter>('Todos');
+
   readonly selectedCount = computed(() => this.selection().size);
 
   readonly canEdit = computed(() => this.selectedCount() !== 1);
+
+  readonly stats = computed(() => {
+    const tools = this.toolsResource.value() ?? [];
+    return {
+      total: tools.length,
+      available: tools.filter((a) => a.toolAvailable).length,
+      lended: tools.filter((a) => !a.toolAvailable).length,
+    };
+  });
+
+  filteredTools = computed(() => {
+    const tools = this.toolsResource.value() ?? [];
+    const query = this.searchQuery().trim().toLowerCase();
+    const status = this.statusFilter();
+
+    return tools.filter((tool) => {
+      const matchesStatus =
+        status === 'Todos' ||
+        (tool.toolAvailable ? 'Disponible' : 'Prestadas') === status;
+      const matchesQuery =
+        !query ||
+        tool.toolName?.toLowerCase().includes(query) ||
+        tool.toolModel?.toLowerCase().includes(query) ||
+        tool.toolBrand?.toLowerCase().includes(query);
+      tool.toolSerial?.toLowerCase().includes(query);
+      tool.toolCode?.toLowerCase().includes(query);
+      return matchesStatus && matchesQuery;
+    });
+  });
 
   async ngOnInit(): Promise<void> {
     const savedState = await firstValueFrom(
@@ -128,9 +134,27 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onDelete() {
-    console.log(this.canEdit());
     if (!this.canEdit()) {
       firstValueFrom(this.deleteTool.execute(Array.from(this.selection())[0]));
     }
+  }
+
+  tabCountClass(tab: StatusFilter): string {
+    const map: Record<string, string> = {
+      Todos: 'bg-gray-200   text-gray-600',
+      Disponible: 'bg-amber-100  text-amber-700',
+      Prestado: 'bg-green-100  text-green-700',
+    };
+    return map[tab] ?? 'bg-gray-100 text-gray-500';
+  }
+
+  tabCount(tab: StatusFilter): number {
+    const s = this.stats();
+    const map: Record<StatusFilter, number> = {
+      Todos: s.total,
+      Disponible: s.available,
+      Prestadas: s.lended,
+    };
+    return map[tab];
   }
 }

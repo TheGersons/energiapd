@@ -3,6 +3,7 @@ import { ToolModel } from './tool.model';
 
 export abstract class ToolRepository {
   abstract findAllTools(): Observable<ToolModel[]>;
+  abstract findAllPublicTools(): Observable<ToolModel[]>;
   abstract findOneTool(tool: Partial<ToolModel>): Observable<ToolModel>;
   abstract createTool(param: {
     tool: ToolModel;

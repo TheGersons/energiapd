@@ -83,4 +83,10 @@ export class ToolImplementation extends ToolRepository {
       params: { id },
     });
   }
+
+  override findAllPublicTools(): Observable<ToolModel[]> {
+    return this.http
+      .get<ToolEntity[]>(`${this.baseURL}/public`)
+      .pipe(map(this.toolsMapper.mapFrom));
+  }
 }

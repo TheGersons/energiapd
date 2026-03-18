@@ -4,12 +4,11 @@ import { LoanResponseModel } from '@domain/loan/loal.model';
 import { FindOnePublicLoan } from '@domain/loan/usecase/findOnePublicLoan.usecase';
 import { environment } from 'environments/environment.development';
 import { firstValueFrom } from 'rxjs';
-import { QRCodeComponent } from 'angularx-qrcode';
 import { DatePipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-exit-pass',
-  imports: [QRCodeComponent, DatePipe, NgClass],
+  imports: [DatePipe, NgClass],
   templateUrl: './exit-pass.html',
   styleUrl: './exit-pass.scss',
 })

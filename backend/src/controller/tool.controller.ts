@@ -22,6 +22,20 @@ class ToolController {
     }
   };
 
+  findAvailable = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await toolRepository.findAvailable();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener las herramientas",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
   findOne = async (req: Request, res: Response): Promise<void> => {
     try {
       const { query } = req;
