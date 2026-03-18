@@ -6,7 +6,7 @@
         <button
           (click)="goBack()"
           class="p-1 h-8 w-8 flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer transition-colors">
-          <app-loader [name]="'arrow-left'" hostClass="w-5 h-5"></app-loader>
+          <app-loader [name]="'chevron-left'" hostClass="w-5 h-5"></app-loader>
         </button>
         <h2 class="text-2xl font-bold text-gray-900">Solicitud de Préstamo</h2>
         <!-- Status badge -->
@@ -422,12 +422,14 @@
                 @if (loanResource.value()?.approves?.length) {
                   <p class="text-xs text-green-600 mt-0.5">
                     Aprobada por
-                    {{
-                      loanResource.value()?.approves![0]?.userId | slice: 0 : 8
-                    }}...
+                    {{ loanResource.value()?.approves![0]?.approveUser?.name }}
                   </p>
                 }
               </div>
+              <time class="text-xs text-gray-400">{{
+                loanResource.value()?.approves![0]?.createdAt
+                  | date: "dd/MM/yy HH:mm"
+              }}</time>
             </div>
           }
 
@@ -531,7 +533,7 @@
                     Herramientas entregadas
                   </p>
                   <p class="text-xs text-blue-600 mt-0.5">
-                    Las herramientas fueron entregadas al solicitante.
+                    Las herramientas fueron entregadas al solicitante
                   </p>
                 </div>
               </div>
@@ -1408,10 +1410,15 @@
                       <p class="text-xs text-gray-500 mt-0.5">
                         Acción realizada por usuario
                         <code class="text-xs bg-gray-100 px-1 rounded"
-                          >{{ approve.userId | slice: 0 : 8 }}...</code
+                          >{{
+                            approve.approveUser.name | slice: 0 : 8
+                          }}...</code
                         >
                       </p>
                     </div>
+                    <time class="text-xs text-gray-400">{{
+                      approve.createdAt | date: "dd/MM/yy HH:mm"
+                    }}</time>
                   </div>
                 </div>
               </li>

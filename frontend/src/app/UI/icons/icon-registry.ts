@@ -25,8 +25,8 @@ export class IconRegistry {
     this.registry.set('inactive', () =>
       import('./svg/inactive').then((m) => m.Inactive),
     );
-    this.registry.set('arrow-left', () =>
-      import('./svg/arrow-left').then((m) => m.ArrowLeft),
+    this.registry.set('chevron-left', () =>
+      import('./svg/chevron-left').then((m) => m.ChevronLeft),
     );
     this.registry.set('img', () => import('./svg/img').then((m) => m.Img));
     this.registry.set('expired', () =>
@@ -77,6 +77,12 @@ export class IconRegistry {
     );
     this.registry.set('refresh', () =>
       import('./svg/refresh').then((m) => m.Refresh),
+    );
+    this.registry.set('arrow-left', () =>
+      import('./svg/arrow-left').then((m) => m.ArrowLeft),
+    );
+    this.registry.set('department', () =>
+      import('./svg/department').then((m) => m.Department),
     );
   }
 

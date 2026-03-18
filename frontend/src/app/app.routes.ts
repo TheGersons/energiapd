@@ -238,8 +238,8 @@ export const routes: Routes = [
   {
     path: 'pase-salida/:id',
     loadComponent: () =>
-      import('@ui/pages/tool-loans/loans/exit-pass/exit-pass').then(
-        (m) => m.ExitPass,
+      import('@ui/pages/tool-loans/loans/exit-loan/exit-loan').then(
+        (m) => m.ExitLoan,
       ),
   },
 

@@ -32,9 +32,13 @@ export interface LoanResponseEntity extends LoanEntity {
   loanApproves: Array<{
     id: string;
     idLoan: string;
-    idUser: string;
+    user: {
+      id: string;
+      fullname: string;
+    };
     approved: boolean;
     type: 'approval' | 'delivery' | 'return' | 'extension';
+    createdAt: string;
   }>;
   tool: ToolEntity[];
 }

@@ -11,9 +11,13 @@ export class LoanResponseMapper extends Mapper<
       approves: param.loanApproves.map((a) => ({
         approveId: a.id,
         loanId: a.idLoan,
-        userId: a.idUser,
         state: a.approved,
         approveType: a.type,
+        createdAt: a.createdAt,
+        approveUser: {
+          userId: a.user.id,
+          name: a.user.fullname,
+        },
       })),
       tools: param.tool.map((a) => ({
         toolId: a.id,
@@ -52,9 +56,13 @@ export class LoanResponseMapper extends Mapper<
       loanApproves: param.approves.map((a) => ({
         id: a.approveId,
         idLoan: a.loanId,
-        idUser: a.userId,
         approved: a.state,
         type: a.approveType,
+        createdAt: a.createdAt,
+        user: {
+          id: a.approveUser.userId,
+          fullname: a.approveUser.name,
+        },
       })),
       tool: param.tools.map((a) => ({
         id: a.toolId,

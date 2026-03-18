@@ -38,6 +38,8 @@ import { AuthImplementation } from '@data/auth/auth-implementation.repository';
 import { authInterceptor } from '@base/interceptor/auth-interceptor';
 import { DepartmentRepository } from '@domain/department/department.repository';
 import { DepartmentImplementation } from '@data/department/department-implementation.repository';
+import { ExitLoanRepository } from '@domain/exitLoan/exitLoan.reposotory';
+import { ExitLoanImplementation } from '@data/exitLoan/exitLoan-implementation.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -77,6 +79,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: DepartmentRepository,
       useClass: DepartmentImplementation,
+    },
+    {
+      provide: ExitLoanRepository,
+      useClass: ExitLoanImplementation,
     },
   ],
 };

@@ -41,9 +41,13 @@ export interface LoanResponseModel extends LoanModel {
   approves: Array<{
     approveId: string;
     loanId: string;
-    userId: string;
     state: boolean;
     approveType: 'approval' | 'delivery' | 'return' | 'extension';
+    createdAt: string;
+    approveUser: {
+      userId: string;
+      name: string;
+    };
   }>;
   tools: ToolModel[];
 }

@@ -9,7 +9,6 @@ export interface AuthRequest extends Request {
 }
 
 class LoanController {
-  // Helper para mensajes de error
   private getErrorMessage = (error: unknown): string => {
     return error instanceof Error ? error.message : String(error);
   };
@@ -43,6 +42,7 @@ class LoanController {
       }
       res.status(200).json(rs);
     } catch (error) {
+      console.log(error);
       errorResponse(
         res,
         500,

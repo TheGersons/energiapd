@@ -42,9 +42,10 @@ export interface ILoanResponse {
   loanApproves: Array<{
     id: string;
     idLoan: string;
-    idUser: string;
+    user: { id: string; fullname: string };
     approved: boolean;
     type: string;
+    createdAt: Date;
   }>;
   notes: string;
   createdAt: Date;

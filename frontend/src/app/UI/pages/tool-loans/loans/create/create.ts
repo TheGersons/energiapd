@@ -118,14 +118,13 @@ export class Create {
     });
   }
 
-  /** Confirmar selección: mueve sTool → tools y resetea la selección temporal */
   onAddTool() {
     this.tools.update((prev) => {
       const next = new Set(prev);
       this.sTool().forEach((tool) => next.add(tool));
       return next;
     });
-    this.sTool.set(new Set()); // limpia selección temporal
+    this.sTool.set(new Set());
   }
 
   /** Quitar herramienta del carrito */

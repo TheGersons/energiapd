@@ -124,17 +124,19 @@ model Loan {
   loanDetails  LoanDetail[]
   loanApproves LoanApproves[]
   department   Department     @relation(fields: [idDepartment], references: [id])
+  loanPasses   LoanPass[]
 
   @@map("loan")
 }
 
 model LoanApproves {
-  id       String  @id @default(uuid())
-  idLoan   String
-  idUser   String
-  approved Boolean @default(false)
-  notes    String?
-  type     String
+  id        String   @id @default(uuid())
+  idLoan    String
+  idUser    String
+  approved  Boolean  @default(false)
+  notes     String?
+  type      String
+  createdAt DateTime @default(now())
 
   loan Loan @relation(fields: [idLoan], references: [id])
   user User @relation(fields: [idUser], references: [id])
@@ -163,4 +165,20 @@ model session {
   user User @relation(fields: [idUser], references: [id])
 
   @@map("session")
+}
+
+enum PassType {
+  salida
+  ingreso
+}
+
+model LoanPass {
+  id        String   @id @default(uuid())
+  idLoan    String
+  type      PassType
+  createdAt DateTime @default(now())
+
+  loan Loan @relation(fields: [idLoan], references: [id])
+
+  @@map("loan_pass")
 }

@@ -27,9 +27,15 @@ class LoanRepository {
           select: {
             id: true,
             idLoan: true,
-            idUser: true,
             approved: true,
             type: true,
+            createdAt: true,
+            user: {
+              select: {
+                fullname: true,
+                id: true,
+              },
+            },
           },
         },
         department: true,
