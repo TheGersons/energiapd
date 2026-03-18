@@ -3,79 +3,12 @@ import { IUser, IUserPayload, IUserResponse } from "@type/user.type";
 import { hash } from "bcrypt";
 
 class UserRepository {
+  /**
+   * Obtiene todos los usuarios con sus roles y departamento.
+   */
   async findAll(): Promise<IUserResponse[]> {
-    const a = await prisma.user.findMany({
-      omit: {
-        password: true,
-      },
-      include: {
-        userRoles: {
-          include: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-                priority: true,
-              },
-            },
-          },
-        },
-        department: {
-          select: {
-            id: true,
-            name: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-      },
-    });
-
-    return a.map((_a) => ({
-      id: _a.id,
-      nickname: _a.nickname,
-      email: _a.email,
-      fullname: _a.fullname,
-      status: _a.status,
-      requestChangePass: _a.requestChangePass,
-      createdAt: _a.createdAt,
-      updatedAt: _a.updatedAt,
-      roles: _a.userRoles.map((_b) => ({
-        id: _b.role.id,
-        name: _b.role.name,
-        description: _b.role.description,
-        priority: _b.role.priority,
-      })),
-      department: _a.department,
-    }));
-  }
-
-  async create(user: IUserPayload): Promise<{ id: string }> {
-    try {
-      const { roles, ...userDTO } = user;
-      return await prisma.user.create({
-        data: {
-          ...userDTO,
-          password: await hash(user.password, 10),
-          userRoles: {
-            createMany: {
-              data: roles.map((a) => ({
-                idRole: a.idRole,
-              })),
-            },
-          },
-        },
-      });
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async findOne(user: Partial<IUser>): Promise<IUserResponse | undefined> {
-    const a = await prisma.user.findUnique({
+    const users = await prisma.user.findMany({
       omit: { password: true },
-      where: { id: user.id },
       include: {
         userRoles: {
           include: {
@@ -100,53 +33,95 @@ class UserRepository {
       },
     });
 
-    if (!a) return undefined;
-
-    return {
-      id: a?.id,
-      nickname: a?.nickname,
-      email: a.email,
-      fullname: a.fullname,
-      status: a.status,
-      requestChangePass: a.requestChangePass,
-      createdAt: a.createdAt,
-      updatedAt: a.updatedAt,
-      roles: a.userRoles.map((_a) => ({
-        id: _a.role.id,
-        name: _a.role.name,
-        description: _a.role.description,
-        priority: _a.role.priority,
-      })),
-      department: a.department,
-    };
+    return users.map((user) => this.mapToUserResponse(user));
   }
 
-  async update(user: IUserPayload): Promise<number> {
-    try {
-      const { roles, ...userDTO } = user;
-      return await prisma.$transaction(async (transaction) => {
-        const rsUser = [
-          {
-            ...(await transaction.user.update({
-              data: { ...userDTO, password: await hash(user.password, 10) },
-              where: { id: user.id },
-            })),
+  /**
+   * Crea un usuario, hashea su password y asigna roles en una operación.
+   */
+  async create(user: IUserPayload): Promise<{ id: string }> {
+    const { roles, password, ...userDTO } = user;
+    const hashedPassword = await hash(password, 10);
+
+    return await prisma.user.create({
+      data: {
+        ...userDTO,
+        password: hashedPassword,
+        userRoles: {
+          createMany: {
+            data: roles.map((r) => ({ idRole: r.idRole })),
           },
-        ].length;
+        },
+      },
+      select: { id: true },
+    });
+  }
 
-        const rsUserRoleDestroy = (
-          await transaction.userRole.deleteMany({ where: { idUser: user.id } })
-        ).count;
+  /**
+   * Busca un usuario por ID y formatea la respuesta.
+   */
+  async findOne(where: Partial<IUser>): Promise<IUserResponse | undefined> {
+    if (!where.id) return undefined;
 
-        const rsUserRoleCreate = (
-          await transaction.userRole.createMany({ data: user.roles })
-        ).count;
+    const user = await prisma.user.findUnique({
+      omit: { password: true },
+      where: { id: where.id },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                priority: true,
+              },
+            },
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
 
-        return rsUser + rsUserRoleCreate + rsUserRoleDestroy;
+    return user ? this.mapToUserResponse(user) : undefined;
+  }
+
+  /**
+   * Actualiza datos de usuario y sincroniza roles mediante una transacción.
+   */
+  async update(user: IUserPayload): Promise<number> {
+    const { roles, password, id, ...userDTO } = user;
+
+    if (!id) throw new Error("ID de usuario no proporcionado");
+
+    return await prisma.$transaction(async (tx) => {
+      let totalChanges = 0;
+
+      const hashedPassword = await hash(password, 10);
+      await tx.user.update({
+        data: { ...userDTO, password: hashedPassword },
+        where: { id },
       });
-    } catch (e) {
-      throw e;
-    }
+      totalChanges++;
+
+      // 2. Sincronizar Roles: Eliminar anteriores e insertar nuevos
+      const deleted = await tx.userRole.deleteMany({ where: { idUser: id } });
+      totalChanges += deleted.count;
+
+      const created = await tx.userRole.createMany({
+        data: roles.map((r) => ({ idUser: id, idRole: r.idRole })),
+      });
+      totalChanges += created.count;
+
+      return totalChanges;
+    });
   }
 
   async activeCount(): Promise<number> {
@@ -159,6 +134,26 @@ class UserRepository {
 
   async totalCount(): Promise<number> {
     return await prisma.user.count();
+  }
+
+  private mapToUserResponse(user: any): IUserResponse {
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      email: user.email,
+      fullname: user.fullname,
+      status: user.status,
+      requestChangePass: user.requestChangePass,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      department: user.department,
+      roles: user.userRoles.map((ur: any) => ({
+        id: ur.role.id,
+        name: ur.role.name,
+        description: ur.role.description,
+        priority: ur.role.priority,
+      })),
+    };
   }
 }
 

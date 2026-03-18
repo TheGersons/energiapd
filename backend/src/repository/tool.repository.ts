@@ -2,6 +2,9 @@ import { ITool } from "@type/tool.type";
 import prisma from "@database/index";
 
 class ToolRepository {
+  /**
+   * Obtiene todas las herramientas activas ordenadas por fecha de creación.
+   */
   async findAll(): Promise<ITool[]> {
     return await prisma.tool.findMany({
       where: { status: true },
@@ -11,24 +14,50 @@ class ToolRepository {
     });
   }
 
-  async findOne(tool: Partial<ITool>): Promise<ITool | null> {
-    return await prisma.tool.findUnique({ where: { id: tool.id } });
+  /**
+   * Busca una herramienta específica por ID.
+   */
+  async findOne(where: Partial<ITool>): Promise<ITool | null> {
+    if (!where.id) return null;
+
+    return await prisma.tool.findUnique({
+      where: { id: where.id },
+    });
   }
 
+  /**
+   * Actualiza los datos de una herramienta.
+   */
   async update(tool: ITool): Promise<number> {
-    return (
-      await prisma.tool.updateMany({ data: tool, where: { id: tool.id } })
-    ).count;
+    const { id, ...data } = tool;
+
+    const rs = await prisma.tool.updateMany({
+      data,
+      where: { id },
+    });
+
+    return rs.count;
   }
 
+  /**
+   * Registra una nueva herramienta en la base de datos.
+   */
   async create(tool: ITool): Promise<ITool> {
-    return await prisma.tool.create({ data: tool });
+    return await prisma.tool.create({
+      data: tool,
+    });
   }
 
+  /**
+   * Realiza un borrado lógico cambiando el estado a inactivo.
+   */
   async delete(id: string): Promise<number> {
-    return (
-      await prisma.tool.updateMany({ data: { status: false }, where: { id } })
-    ).count;
+    const rs = await prisma.tool.updateMany({
+      data: { status: false },
+      where: { id },
+    });
+
+    return rs.count;
   }
 }
 

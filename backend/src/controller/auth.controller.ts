@@ -3,60 +3,78 @@ import { authRepository } from "repository/auth.repository";
 import { errorResponse } from "utils/errorResponse";
 
 class AuthController {
-  authenticate(req: Request, res: Response) {
-    if (!req.ip) errorResponse(res, 400, "No se pudo leer la dirección IP");
+  private getErrorMessage = (error: unknown): string => {
+    return error instanceof Error ? error.message : String(error);
+  };
 
-    authRepository
-      .authenticate(req.body.login, req.body.password, req)
-      .then((rs) => {
-        res
-          .cookie("refreshToken", rs.refreshToken, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 8 * 60 * 60 * 1000,
-            signed: true,
-          })
-          .cookie("accessToken", rs.accessToken, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 15 * 60 * 1000,
-            signed: true,
-          })
-          .json("ok");
-      })
-      .catch((error: any) => {
-        errorResponse(res, error.code, error.message);
-      });
-  }
+  authenticate = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.ip) {
+        errorResponse(res, 400, "No se pudo leer la dirección IP");
+        return;
+      }
 
-  refreshToken(req: Request, res: Response) {
-    if (!req.signedCookies.refreshToken)
-      return errorResponse(res, 401, "No se pudo leer el refresh token");
+      const rs = await authRepository.authenticate(
+        req.body.login,
+        req.body.password,
+        req,
+      );
 
-    const { refreshToken } = req.signedCookies;
+      res
+        .cookie("refreshToken", rs.refreshToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 8 * 60 * 60 * 1000,
+          signed: true,
+        })
+        .cookie("accessToken", rs.accessToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 15 * 60 * 1000,
+          signed: true,
+        })
+        .status(200)
+        .json("ok");
+    } catch (error: any) {
+      const status = error?.code || 500;
+      errorResponse(res, status, this.getErrorMessage(error));
+    }
+  };
 
-    authRepository
-      .refreshToken(refreshToken, req)
-      .then((rs) => {
-        res
-          .cookie("refreshToken", rs.refreshToken, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 8 * 60 * 60 * 1000,
-            signed: true,
-          })
-          .cookie("accessToken", rs.accessToken, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 15 * 60 * 1000,
-            signed: true,
-          })
-          .json("ok");
-      })
-      .catch((error) => {
-        errorResponse(res, 500, "Error al refrescar el token", error);
-      });
-  }
+  refreshToken = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.signedCookies?.refreshToken) {
+        errorResponse(res, 401, "No se pudo leer el refresh token");
+        return;
+      }
+
+      const { refreshToken } = req.signedCookies;
+      const rs = await authRepository.refreshToken(refreshToken, req);
+
+      res
+        .cookie("refreshToken", rs.refreshToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 8 * 60 * 60 * 1000,
+          signed: true,
+        })
+        .cookie("accessToken", rs.accessToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 15 * 60 * 1000,
+          signed: true,
+        })
+        .status(200)
+        .json("ok");
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al refrescar el token",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 }
 
 export const authController = new AuthController();

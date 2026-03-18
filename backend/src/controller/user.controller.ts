@@ -1,65 +1,125 @@
 import { Request, Response } from "express";
 import { userRepository } from "repository/user.repository";
+import { errorResponse } from "utils/errorResponse";
 
 class UserController {
-  async findAll(req: Request, res: Response) {
-    userRepository
-      .findAll()
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => {
-        res.status(400).json(error);
-      });
-  }
+  private getErrorMessage = (error: unknown): string => {
+    return error instanceof Error ? error.message : String(error);
+  };
 
-  async findOne({ query }: Request, res: Response) {
-    if (!query || Object.keys(query).length === 0) {
-      res.json({});
-      return;
+  findAll = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await userRepository.findAll();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener los usuarios.",
+        this.getErrorMessage(error),
+      );
     }
-    userRepository
-      .findOne(query)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => res.status(500).json(error));
-  }
+  };
 
-  async create(req: Request, res: Response) {
-    userRepository
-      .create(req.body.user)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json(error);
-      });
-  }
+  findOne = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { query } = req;
+      if (!query || Object.keys(query).length === 0) {
+        res.status(200).json({});
+        return;
+      }
+      const rs = await userRepository.findOne(query);
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al buscar el usuario.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 
-  async update({ body }: Request, res: Response) {
-    userRepository
-      .update(body.user)
-      .then((rs) => res.status(200).json(rs))
-      .catch((e) => {
-        console.log(e);
-        res.status(500).json(e);
-      });
-  }
+  create = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.body?.user) {
+        errorResponse(res, 400, "Los datos del usuario son requeridos.");
+        return;
+      }
+      const rs = await userRepository.create(req.body.user);
+      res.status(201).json(rs);
+    } catch (error) {
+      console.error("[UserController.create]", error);
+      errorResponse(
+        res,
+        500,
+        "Error al crear el usuario.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 
-  async activeCount(req: Request, res: Response) {
-    userRepository
-      .activeCount()
-      .then((rs) => res.status(200).json(rs))
-      .catch((e) => res.status(500).json(e));
-  }
-  async inactiveCount(req: Request, res: Response) {
-    userRepository
-      .inactiveCount()
-      .then((rs) => res.status(200).json(rs))
-      .catch((e) => res.status(500).json(e));
-  }
-  async totalCount(req: Request, res: Response) {
-    userRepository
-      .totalCount()
-      .then((rs) => res.status(200).json(rs))
-      .catch((e) => res.status(500).json(e));
-  }
+  update = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { body } = req;
+      if (!body?.user?.id) {
+        errorResponse(res, 400, "El ID del usuario es requerido.");
+        return;
+      }
+      const rs = await userRepository.update(body.user);
+      res.status(200).json(rs);
+    } catch (error) {
+      console.error("[UserController.update]", error);
+      errorResponse(
+        res,
+        500,
+        "Error al actualizar el usuario.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
+  activeCount = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await userRepository.activeCount();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener conteo de activos.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
+  inactiveCount = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await userRepository.inactiveCount();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener conteo de inactivos.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
+  totalCount = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await userRepository.totalCount();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener el total de usuarios.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 }
 
 export const userController = new UserController();

@@ -7,34 +7,36 @@ export interface AuthRequest extends Request {
 }
 
 export function hasPermission(requiredPermissions: string[]) {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       if (!req.idUser) {
-        return errorResponse(
+        errorResponse(
           res,
           401,
           "Debe iniciar sesión para acceder a este recurso.",
         );
+        return;
       }
 
-      const userPermissions = await findPermissions(req.idUser ?? "");
+      const userPermissions = await findPermissions(req.idUser);
 
-      const hasPermission = requiredPermissions.some((perm) =>
+      const authorized = requiredPermissions.some((perm) =>
         userPermissions.includes(perm),
       );
 
-      if (!hasPermission) {
-        return errorResponse(
-          res,
-          403,
-          "No tiene permisos para realizar esta acción",
-        );
+      if (!authorized) {
+        errorResponse(res, 403, "No tiene permisos para realizar esta acción");
+        return;
       }
 
       next();
     } catch (error) {
       console.error("[authorize middleware]", error);
-      return errorResponse(res, 500, "Error verificando permisos");
+      errorResponse(res, 500, "Error verificando permisos");
     }
   };
 }
@@ -54,7 +56,10 @@ const findPermissions = async (idUser: string): Promise<string[]> => {
         },
       },
     },
+    select: {
+      slug: true,
+    },
   });
 
-  return rsS.flatMap((a) => [a.slug]);
+  return rsS.map((a) => a.slug);
 };

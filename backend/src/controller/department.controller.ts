@@ -3,94 +3,104 @@ import { departmentRepository } from "repository/department.repository";
 import { errorResponse } from "utils/errorResponse";
 
 class DepartmentController {
-  findAll(req: Request, res: Response) {
-    departmentRepository
-      .findAll()
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) =>
-        errorResponse(
-          res,
-          500,
-          "Error al obtener los departamentos",
-          error?.message,
-        ),
-      );
-  }
+  private getErrorMessage = (error: unknown): string => {
+    return error instanceof Error ? error.message : String(error);
+  };
 
-  findOne({ query }: Request, res: Response) {
-    if (!query || Object.keys(query).length === 0) {
-      res.json({});
+  findAll = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const rs = await departmentRepository.findAll();
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al obtener los departamentos",
+        this.getErrorMessage(error),
+      );
     }
-    departmentRepository
-      .findOne(query)
-      .then((rs) => {
-        if (!rs) errorResponse(res, 404, "Departamento no encontrado");
+  };
 
-        res.status(200).json(rs);
-      })
-      .catch((error) =>
+  findOne = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { query } = req;
+      if (!query || Object.keys(query).length === 0) {
+        res.status(200).json({});
+        return;
+      }
+
+      const rs = await departmentRepository.findOne(query);
+      if (!rs) {
+        errorResponse(res, 404, "Departamento no encontrado");
+        return;
+      }
+
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al buscar el departamento",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
+  create = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { body } = req;
+      if (!body?.department) {
+        errorResponse(res, 400, "El cuerpo de la solicitud es inválido.");
+        return;
+      }
+
+      const rs = await departmentRepository.create(body.department);
+      res.status(201).json(rs);
+    } catch (error: any) {
+      console.error(error);
+      if (error?.name === "SequelizeValidationError") {
         errorResponse(
           res,
-          500,
-          "Error al buscar el departamento",
-          error?.message,
-        ),
-      );
-  }
-
-  create({ body }: Request, res: Response) {
-    if (!body?.department)
-      errorResponse(res, 400, "El cuerpo de la solicitud es inválido.");
-
-    departmentRepository
-      .create(body.department)
-      .then((rs) => res.status(200).json(rs))
-      .catch((error) => {
-        console.log(error);
-        if (error?.name === "SequelizeValidationError") {
-          return errorResponse(
-            res,
-            422,
-            "Datos del departamento inválidos.",
-            error.errors?.map((e: any) => e.message),
-          );
-        }
-
-        return errorResponse(
-          res,
-          500,
-          "Ocurrió un error al crear el departamento.",
-          error?.message,
+          422,
+          "Datos del departamento inválidos.",
+          error.errors?.map((e: any) => e.message),
         );
-      });
-  }
+        return;
+      }
 
-  update({ body }: Request, res: Response) {
-    if (!body?.department?.id) {
-      return errorResponse(res, 400, "El ID del departamento es requerido.");
-    }
-
-    departmentRepository
-      .update(body.department)
-      .then((rs) => {
-        if (rs === 0) {
-          return errorResponse(
-            res,
-            404,
-            "Departamento no encontrado o sin cambios",
-          );
-        }
-        res.status(200).json(rs);
-      })
-      .catch((error) =>
-        errorResponse(
-          res,
-          500,
-          "Error al actualizar el departamento.",
-          error?.message,
-        ),
+      errorResponse(
+        res,
+        500,
+        "Ocurrió un error al crear el departamento.",
+        this.getErrorMessage(error),
       );
-  }
+    }
+  };
+
+  update = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { body } = req;
+      if (!body?.department?.id) {
+        errorResponse(res, 400, "El ID del departamento es requerido.");
+        return;
+      }
+
+      const rs = await departmentRepository.update(body.department);
+      if (rs === 0) {
+        errorResponse(res, 404, "Departamento no encontrado o sin cambios");
+        return;
+      }
+
+      res.status(200).json(rs);
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al actualizar el departamento.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 }
 
 export const departmentController = new DepartmentController();

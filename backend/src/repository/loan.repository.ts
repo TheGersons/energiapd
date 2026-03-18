@@ -2,6 +2,9 @@ import { ILoan, ILoanDTO, ILoanResponse } from "@type/loan.type";
 import prisma from "@database/index";
 
 class LoanRepository {
+  /**
+   * Obtiene todos los préstamos incluyendo el departamento asociado.
+   */
   async findAll(): Promise<ILoan[]> {
     return await prisma.loan.findMany({
       include: {
@@ -10,9 +13,15 @@ class LoanRepository {
     });
   }
 
-  async findOne(tool: Partial<ILoan>): Promise<ILoanResponse | null> {
+  /**
+   * Busca un préstamo detallado.
+   * Transforma la estructura de loanDetails para retornar una lista plana de herramientas.
+   */
+  async findOne(where: Partial<ILoan>): Promise<ILoanResponse | null> {
+    if (!where.id) return null;
+
     const response = await prisma.loan.findUnique({
-      where: { id: tool.id },
+      where: { id: where.id },
       include: {
         loanApproves: {
           select: {
@@ -38,31 +47,42 @@ class LoanRepository {
 
     return {
       ...loanData,
-      tool: response?.loanDetails.map((a) => a?.tool) ?? [],
+      tool: loanDetails.map((detail) => detail.tool),
     };
   }
 
+  /**
+   * Actualiza los datos generales de un préstamo.
+   */
   async update(loan: ILoan): Promise<number> {
-    return (
-      await prisma.loan.updateMany({ data: loan, where: { id: loan.id } })
-    ).count;
+    const { id, ...data } = loan;
+    const rs = await prisma.loan.updateMany({
+      data,
+      where: { id },
+    });
+    return rs.count;
   }
 
+  /**
+   * Crea un préstamo y sus detalles (herramientas asociadas) en una sola operación.
+   */
   async create(loan: ILoanDTO): Promise<string> {
     const { tools, ...loanDTO } = loan;
 
-    return (
-      await prisma.loan.create({
-        data: {
-          ...loanDTO,
-          loanDetails: {
-            createMany: { data: tools },
-          },
+    const rs = await prisma.loan.create({
+      data: {
+        ...loanDTO,
+        loanDetails: {
+          createMany: { data: tools },
         },
-      })
-    ).id;
+      },
+    });
+    return rs.id;
   }
 
+  /**
+   * Registra la aprobación de un préstamo.
+   */
   async approval(
     idLoan: string,
     idUser: string,
@@ -70,26 +90,26 @@ class LoanRepository {
     status: string,
     notes: string,
   ): Promise<string> {
-    return (
-      await prisma.loan.update({
-        where: {
-          id: idLoan,
-        },
-        data: {
-          status,
-          loanApproves: {
-            create: {
-              idUser,
-              approved,
-              notes,
-              type: "approval",
-            },
+    const rs = await prisma.loan.update({
+      where: { id: idLoan },
+      data: {
+        status,
+        loanApproves: {
+          create: {
+            idUser,
+            approved,
+            notes,
+            type: "approval",
           },
         },
-      })
-    ).id;
+      },
+    });
+    return rs.id;
   }
 
+  /**
+   * Procesa la entrega física. Usa una transacción para actualizar el estado de las herramientas.
+   */
   async delivery(
     idLoan: string,
     idUser: string,
@@ -97,39 +117,40 @@ class LoanRepository {
     status: string,
     notes: string,
   ): Promise<string> {
-    return await prisma.$transaction(async (transaction) => {
-      const ids = (
-        await transaction.loanDetail.findMany({ where: { idLoan } })
-      ).map((a) => a.idTool);
+    return await prisma.$transaction(async (tx) => {
+      const details = await tx.loanDetail.findMany({
+        where: { idLoan },
+        select: { idTool: true },
+      });
+      const toolIds = details.map((d) => d.idTool);
 
-      const id = (
-        await transaction.loan.update({
-          where: {
-            id: idLoan,
-          },
-          data: {
-            status,
-            loanApproves: {
-              create: {
-                idUser,
-                approved,
-                notes,
-                type: "delivery",
-              },
+      const loanUpdate = await tx.loan.update({
+        where: { id: idLoan },
+        data: {
+          status,
+          loanApproves: {
+            create: {
+              idUser,
+              approved,
+              notes,
+              type: "delivery",
             },
           },
-        })
-      ).id;
+        },
+      });
 
-      await transaction.tool.updateMany({
-        where: { id: { in: ids } },
+      await tx.tool.updateMany({
+        where: { id: { in: toolIds } },
         data: { available: !approved },
       });
 
-      return id;
+      return loanUpdate.id;
     });
   }
 
+  /**
+   * Procesa la devolución. Las herramientas vuelven a estar disponibles.
+   */
   async return(
     idLoan: string,
     idUser: string,
@@ -137,61 +158,61 @@ class LoanRepository {
     status: string,
     notes: string,
   ): Promise<string> {
-    return prisma.$transaction(async (transaction) => {
-      const ids = (
-        await transaction.loanDetail.findMany({ where: { idLoan } })
-      ).map((a) => a.idTool);
+    return await prisma.$transaction(async (tx) => {
+      const details = await tx.loanDetail.findMany({
+        where: { idLoan },
+        select: { idTool: true },
+      });
+      const toolIds = details.map((d) => d.idTool);
 
-      const id = (
-        await prisma.loan.update({
-          where: {
-            id: idLoan,
-          },
-          data: {
-            status,
-            loanApproves: {
-              create: {
-                idUser,
-                approved,
-                notes,
-                type: "return",
-              },
+      const loanUpdate = await tx.loan.update({
+        where: { id: idLoan },
+        data: {
+          status,
+          loanApproves: {
+            create: {
+              idUser,
+              approved,
+              notes,
+              type: "return",
             },
           },
-        })
-      ).id;
+        },
+      });
 
-      await transaction.tool.updateMany({
-        where: { id: { in: ids } },
+      await tx.tool.updateMany({
+        where: { id: { in: toolIds } },
         data: { available: approved },
       });
 
-      return id;
+      return loanUpdate.id;
     });
   }
 
+  /**
+   * Extiende la fecha de retorno de un préstamo.
+   */
   async extend(
     idLoan: string,
     idUser: string,
     newReturnDate: Date,
     notes: string,
   ): Promise<string> {
-    return (
-      await prisma.loan.update({
-        where: { id: idLoan },
-        data: {
-          returnDate: newReturnDate,
-          loanApproves: {
-            create: {
-              idUser,
-              approved: true,
-              notes,
-              type: "extension",
-            },
+    const rs = await prisma.loan.update({
+      where: { id: idLoan },
+      data: {
+        returnDate: newReturnDate,
+        loanApproves: {
+          create: {
+            idUser,
+            approved: true,
+            notes,
+            type: "extension",
           },
         },
-      })
-    ).id;
+      },
+    });
+    return rs.id;
   }
 }
 
