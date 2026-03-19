@@ -115,11 +115,12 @@ class LoanController {
 
   approve = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { idLoan, approved, status, notes } = req.body;
+      const { idLoan, approved, status, notes, signature } = req.body;
       if (
         idLoan === undefined ||
         approved === undefined ||
-        status === undefined
+        status === undefined ||
+        signature === undefined
       ) {
         errorResponse(res, 400, "El ID y Estado son requeridos.");
         return;
@@ -130,6 +131,7 @@ class LoanController {
         (req as any).idUser,
         approved,
         status,
+        signature,
         notes || "",
       );
       if (!validate(rs)) {
@@ -149,13 +151,14 @@ class LoanController {
 
   delivery = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { idLoan, approved, status, notes } = req.body;
+      const { idLoan, approved, status, notes, signature } = req.body;
       const rs = await loanRepository.delivery(
         idLoan,
         (req as any).idUser,
         approved,
         status,
         notes || "",
+        signature,
       );
       if (!validate(rs)) {
         errorResponse(res, 404, "Préstamo no encontrado.");
@@ -174,13 +177,14 @@ class LoanController {
 
   return = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { idLoan, approved, status, notes } = req.body;
+      const { idLoan, approved, status, notes, signature } = req.body;
       const rs = await loanRepository.return(
         idLoan,
         (req as any).idUser,
         approved,
         status,
         notes || "",
+        signature,
       );
       if (!validate(rs)) {
         errorResponse(res, 404, "Préstamo no encontrado.");
@@ -199,12 +203,13 @@ class LoanController {
 
   extend = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { idLoan, returnDate, notes } = req.body;
+      const { idLoan, returnDate, notes, signature } = req.body;
       const rs = await loanRepository.extend(
         idLoan,
         (req as any).idUser,
         returnDate,
         notes,
+        signature,
       );
       if (!validate(rs)) {
         errorResponse(res, 404, "Préstamo no encontrado.");

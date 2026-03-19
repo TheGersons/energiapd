@@ -14,15 +14,22 @@ export class SignatureSocket {
     this.socket.emit('join-room', roomId);
   }
 
-  onSignatureReceived(): Observable<string> {
+  onSignatureReceived(): Observable<{ base64: string; signatureType: string }> {
     return new Observable((observer) => {
-      this.socket.on('signature-uploaded', (base64: string) => {
-        observer.next(base64);
-      });
+      this.socket.on(
+        'signature-uploaded',
+        (data: { base64: string; signatureType: string }) => {
+          observer.next(data);
+        },
+      );
     });
   }
 
-  sendSignature(roomId: string, base64: string) {
-    this.socket.emit('send-signature', { roomId, base64 });
+  sendSignature(
+    roomId: string,
+    base64: string,
+    signatureType: 'delivery' | 'return' | 'approval',
+  ) {
+    this.socket.emit('send-signature', { roomId, base64, signatureType });
   }
 }

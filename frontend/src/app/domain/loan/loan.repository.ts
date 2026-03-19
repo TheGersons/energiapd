@@ -10,18 +10,21 @@ export abstract class LoanRepository {
     status: boolean,
     state: string,
     comments: string,
+    sign: string,
   ): Observable<string>;
   abstract deliverLoan(
     loan: string,
     status: boolean,
     state: string,
     comments: string,
+    sign: string,
   ): Observable<string>;
   abstract returnLoan(
     loan: string,
     status: boolean,
     state: string,
     comments: string,
+    sign: string,
   ): Observable<string>;
   abstract extendLoan(
     loan: string,

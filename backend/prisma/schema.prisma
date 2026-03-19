@@ -129,14 +129,22 @@ model Loan {
   @@map("loan")
 }
 
+enum approveType {
+  delivery
+  approval
+  extension
+  return
+}
+
 model LoanApproves {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   idLoan    String
   idUser    String
-  approved  Boolean  @default(false)
+  approved  Boolean     @default(false)
   notes     String?
-  type      String
-  createdAt DateTime @default(now())
+  type      approveType
+  signature String
+  createdAt DateTime    @default(now())
 
   loan Loan @relation(fields: [idLoan], references: [id])
   user User @relation(fields: [idUser], references: [id])

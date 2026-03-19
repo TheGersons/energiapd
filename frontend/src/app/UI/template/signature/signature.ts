@@ -16,21 +16,22 @@ export class Signature {
   @ViewChild('signature')
   public signaturePad!: SignaturePadComponent;
   sessionId!: string;
+  signatureType!: 'approval' | 'return' | 'delivery';
 
   public signaturePadOptions: NgSignaturePadOptions = {
     maxWidth: 0.5,
-    velocityFilterWeight: 1,
+    velocityFilterWeight: 0.7,
     canvasWidth: 300,
-    canvasHeight: 200
+    canvasHeight: 200,
   };
 
   private signatureSocket = inject(SignatureSocket);
   private route = inject(ActivatedRoute);
 
   ngAfterViewInit() {
-    this.signaturePad.set('minWidth', 5);
     this.signaturePad.clear();
     this.sessionId = this.route.snapshot.params['id'];
+    this.signatureType = this.route.snapshot.params['type'];
   }
 
   drawComplete(event: MouseEvent | Touch) {
@@ -44,7 +45,11 @@ export class Signature {
 
   save() {
     const base64 = this.signaturePad.toDataURL('image/png');
-    this.signatureSocket.sendSignature(this.sessionId, base64);
+    this.signatureSocket.sendSignature(
+      this.sessionId,
+      base64,
+      this.signatureType,
+    );
   }
 
   clear() {

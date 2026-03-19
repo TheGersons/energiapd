@@ -11,8 +11,11 @@ export class SocketRoutes {
 
       socket.on(
         "send-signature",
-        (data: { roomId: string; base64: string }) => {
-          this.io.to(data.roomId).emit("signature-uploaded", data.base64);
+        (data: { roomId: string; base64: string; signatureType: string }) => {
+          this.io.to(data.roomId).emit("signature-uploaded", {
+            base64: data.base64,
+            signatureType: data.signatureType,
+          });
         },
       );
 

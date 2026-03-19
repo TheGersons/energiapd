@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  resource,
-  signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoanResponseModel } from '@domain/loan/loal.model';
 import { FindOnePublicLoan } from '@domain/loan/usecase/findOnePublicLoan.usecase';
@@ -64,6 +58,22 @@ export class ExitLoan {
   isLoading = signal(true);
   hasError = signal(false);
   errorMsg = signal('');
+
+  // ── Derivados de estado ──────────────────────────────────────
+  /** Préstamo vencido (fecha de retorno ya pasó) */
+  get isExpired(): boolean {
+    return new Date(this.loan()?.loanReturnDate ?? '') < new Date();
+  }
+
+  /** Préstamo cerrado (ya se devolvieron las herramientas) */
+  get isClosed(): boolean {
+    return this.loan()?.loanStatus === 'Devuelto';
+  }
+
+  /** Indica si el pase puede registrar movimientos */
+  get canRegister(): boolean {
+    return !this.isExpired && !this.isClosed;
+  }
 
   // ── Mapa de configuración por estado del préstamo ────────────
   readonly statusConfig: Record<string, StatusConfig> = {
@@ -145,16 +155,16 @@ export class ExitLoan {
       wrapper: 'bg-orange-50 border border-orange-200',
       icon: 'text-orange-500',
       iconName: 'arrow-left',
-      eventTitle: 'Salida de instalaciones',
       titleClass: 'text-orange-500',
+      eventTitle: 'Salida de instalaciones',
       eventLabel: 'Salida registrada',
     },
     ingreso: {
-      wrapper: 'bg-green-50 border border-green-200 ',
+      wrapper: 'bg-green-50 border border-green-200',
       icon: 'text-green-600 rotate-180',
       iconName: 'arrow-left',
-      eventTitle: 'Ingreso a instalaciones',
       titleClass: 'text-green-600',
+      eventTitle: 'Ingreso a instalaciones',
       eventLabel: 'Ingreso registrado',
     },
   };
@@ -188,16 +198,20 @@ export class ExitLoan {
     this.loanId.set(id);
 
     try {
-      const [loan, log] = await Promise.all([
-        firstValueFrom(this.findOneLoan.execute(id)),
-        firstValueFrom(this.registerVehicleLog.execute(id)),
-      ]);
-
+      const loan = await firstValueFrom(this.findOneLoan.execute(id));
       this.loan.set(loan);
-      this.currentLog.set(log);
 
-      const logs = await firstValueFrom(this.findVehicleLogs.execute(id));
-      this.history.set(logs);
+      // Solo registra movimiento si el pase está activo
+      if (this.canRegister) {
+        const log = await firstValueFrom(this.registerVehicleLog.execute(id));
+        this.currentLog.set(log);
+        const logs = await firstValueFrom(this.findVehicleLogs.execute(id));
+        this.history.set(logs);
+      } else {
+        // Igual cargamos el historial para mostrarlo en modo lectura
+        const logs = await firstValueFrom(this.findVehicleLogs.execute(id));
+        this.history.set(logs);
+      }
     } catch (err: any) {
       this.hasError.set(true);
       this.errorMsg.set(err?.error?.message ?? 'No se pudo cargar el pase.');

@@ -224,7 +224,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'firma-herramientas/:id',
+    path: 'firma-herramientas/:id/:type',
     loadComponent: () =>
       import('@ui/template/signature/signature').then((m) => m.Signature),
   },

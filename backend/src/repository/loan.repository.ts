@@ -94,6 +94,7 @@ class LoanRepository {
     idUser: string,
     approved: boolean,
     status: string,
+    signature: string,
     notes: string,
   ): Promise<string> {
     const rs = await prisma.loan.update({
@@ -106,6 +107,7 @@ class LoanRepository {
             approved,
             notes,
             type: "approval",
+            signature,
           },
         },
       },
@@ -122,6 +124,7 @@ class LoanRepository {
     approved: boolean,
     status: string,
     notes: string,
+    signature: string,
   ): Promise<string> {
     return await prisma.$transaction(async (tx) => {
       const details = await tx.loanDetail.findMany({
@@ -140,6 +143,7 @@ class LoanRepository {
               approved,
               notes,
               type: "delivery",
+              signature,
             },
           },
         },
@@ -163,6 +167,7 @@ class LoanRepository {
     approved: boolean,
     status: string,
     notes: string,
+    signature: string,
   ): Promise<string> {
     return await prisma.$transaction(async (tx) => {
       const details = await tx.loanDetail.findMany({
@@ -181,6 +186,7 @@ class LoanRepository {
               approved,
               notes,
               type: "return",
+              signature,
             },
           },
         },
@@ -203,6 +209,7 @@ class LoanRepository {
     idUser: string,
     newReturnDate: Date,
     notes: string,
+    signature: string,
   ): Promise<string> {
     const rs = await prisma.loan.update({
       where: { id: idLoan },
@@ -214,6 +221,7 @@ class LoanRepository {
             approved: true,
             notes,
             type: "extension",
+            signature,
           },
         },
       },

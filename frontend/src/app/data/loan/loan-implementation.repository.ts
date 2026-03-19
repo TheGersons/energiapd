@@ -48,12 +48,14 @@ export class LoanImplementation extends LoanRepository {
     status: boolean,
     state: string,
     comments: string,
+    sign: string
   ): Observable<string> {
     return this.http.patch<string>(`${this.baseURL}approval`, {
       idLoan: loan,
       approved: status,
       status: state,
       notes: comments,
+      signature: sign
     });
   }
 
@@ -62,12 +64,14 @@ export class LoanImplementation extends LoanRepository {
     status: boolean,
     state: string,
     comments: string,
+    sign: string
   ): Observable<string> {
     return this.http.patch<string>(`${this.baseURL}delivery`, {
       idLoan: loan,
       approved: status,
       status: state,
       notes: comments,
+      signature: sign
     });
   }
 
@@ -76,12 +80,14 @@ export class LoanImplementation extends LoanRepository {
     status: boolean,
     state: string,
     comments: string,
+    sign: string
   ): Observable<string> {
     return this.http.patch<string>(`${this.baseURL}return`, {
       idLoan: loan,
       approved: status,
       status: state,
       notes: comments,
+      signature: sign
     });
   }
 

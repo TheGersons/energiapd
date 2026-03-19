@@ -34,6 +34,8 @@ import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
 import { ReturnLoanUseCase } from '@domain/loan/usecase/returnLoan.usecase';
 import { ExtendLoanUseCase } from '@domain/loan/usecase/extendLoan.usecase';
 
+export type signatureType = 'delivery' | 'return' | 'approval';
+
 @Component({
   selector: 'app-view',
   imports: [
@@ -61,6 +63,8 @@ export class View implements OnInit, AfterViewInit {
   public signaturePadOptions: NgSignaturePadOptions = {
     maxWidth: 0.5,
     velocityFilterWeight: 0.7,
+    canvasWidth: 300,
+    canvasHeight: 200,
   };
 
   // ── Servicios ────────────────────────────────────────────────
@@ -79,12 +83,18 @@ export class View implements OnInit, AfterViewInit {
   private readonly deliverySessionId = uuidv4();
   private readonly returnSessionId = uuidv4();
 
-  readonly url = `${environment.host}firma-herramientas/${this.sessionId}`;
-  readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}`;
-  readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}`;
+  readonly url = `${environment.host}firma-herramientas/${this.sessionId}/`;
+  readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}/delivery`;
+  readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}/return`;
 
   // ── Tabs ─────────────────────────────────────────────────────
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
+
+  signatureActions: Record<string, (val: string) => void> = {
+    delivery: (val) => this.deliverySignatureImage.set(val),
+    return: (val) => this.returnSignatureImage.set(val),
+    approval: (val) => this.signatureImage.set(val),
+  };
 
   // ── Campos del préstamo ──────────────────────────────────────
   createdAt = signal<string>('');
@@ -161,16 +171,16 @@ export class View implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.signatureSocket.joinRoom(this.sessionId);
-    this.signatureSocket
-      .onSignatureReceived()
-      .subscribe((b) => this.signatureImage.set(b));
-
     this.signatureSocket.joinRoom(this.deliverySessionId);
     this.signatureSocket.joinRoom(this.returnSessionId);
+
+    this.signatureSocket.onSignatureReceived().subscribe((data) => {
+      const actions = this.signatureActions[data.signatureType];
+      actions(data.base64);
+    });
   }
 
   ngAfterViewInit(): void {
-    this.signaturePad?.set('minWidth', 5);
     this.signaturePad?.clear();
   }
 
@@ -187,7 +197,6 @@ export class View implements OnInit, AfterViewInit {
     this.loanTools.set(data.tools);
     this.verifiedTools.set(new Set());
     this.returnVerifiedTools.set(new Set());
-    // Pre-cargar fecha de ampliación con la fecha actual de retorno
     this.extendReturnDate.set(data.loanReturnDate?.slice(0, 16) ?? '');
   }
 
@@ -301,6 +310,7 @@ export class View implements OnInit, AfterViewInit {
         status,
         state,
         comments: this.deliveryNotes(),
+        sign: this.signatureImage(),
       }),
     );
     if (!validate(response)) {
@@ -308,6 +318,7 @@ export class View implements OnInit, AfterViewInit {
       return;
     }
     this.toastr.success('Permiso actualizado con éxito');
+    this.signatureImage.set('');
     this.loanResource.reload();
   }
 
@@ -329,6 +340,7 @@ export class View implements OnInit, AfterViewInit {
         status,
         state,
         comments: this.deliveryNotes(),
+        sign: this.deliverySignatureImage(),
       }),
     );
 
@@ -355,6 +367,7 @@ export class View implements OnInit, AfterViewInit {
         status,
         state,
         comments: this.returnNotes(),
+        sign: this.returnSignatureImage(),
       }),
     );
 

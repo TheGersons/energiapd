@@ -34,11 +34,11 @@
         class="bg-white rounded-xl border border-gray-200 shadow-sm p-16 flex flex-col items-center gap-4">
         <div
           class="w-8 h-8 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400">Registrando movimiento...</p>
+        <p class="text-sm text-gray-400">Cargando pase...</p>
       </div>
     }
 
-    <!-- ── Error ── -->
+    <!-- ── Error de red / sistema ── -->
     @else if (hasError()) {
       <div
         class="bg-white rounded-xl border border-red-200 shadow-sm p-12 flex flex-col items-center gap-4 text-center">
@@ -57,46 +57,115 @@
           </svg>
         </div>
         <div>
-          <p class="text-sm font-bold text-gray-800">No se pudo registrar</p>
+          <p class="text-sm font-bold text-gray-800">
+            No se pudo cargar el pase
+          </p>
           <p class="text-xs text-gray-400 mt-1">{{ errorMsg() }}</p>
         </div>
       </div>
-    } @else if (loan(); as l) {
-      <!-- ── 1. Evento registrado ── -->
-      @let logCfg = currentLogConfig;
-      <div
-        class="bg-white rounded-xl border shadow-sm overflow-hidden"
-        [ngClass]="logCfg.wrapper">
+    }
+
+    <!-- ── Contenido principal (siempre que haya datos) ── -->
+    @else if (loan(); as l) {
+      <!-- ── BANNER: Préstamo vencido ── -->
+      @if (isExpired && !isClosed) {
         <div
-          class="h-1.5 w-full bg-gradient-to-r"
-          [ngClass]="
-            currentLog()?.exitPassType === 'salida'
-              ? 'from-orange-400 to-orange-500'
-              : 'from-green-400 to-green-500'
-          "></div>
-        <div class="p-5 flex items-center gap-5">
+          class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
           <div
-            class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-            [ngClass]="logCfg.wrapper">
-            <app-loader
-              [name]="logCfg.iconName"
-              [hostClass]="logCfg.icon"></app-loader>
+            class="w-8 h-8 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg
+              class="w-4 h-4 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-          <div class="flex-1">
-            <p
-              class="text-xs font-semibold uppercase tracking-widest mb-1"
-              [ngClass]="logCfg.titleClass">
-              {{ logCfg.eventLabel }}
+          <div>
+            <p class="text-sm font-bold text-red-800">
+              Pase vencido — Sin registro de movimiento
             </p>
-            <p class="text-xl font-black text-gray-900">
-              {{ logCfg.eventTitle }}
-            </p>
-            <p class="text-xs text-gray-400 mt-1">
-              {{ currentLog()?.createdAt | date: "dd/MM/yyyy · HH:mm:ss" }}
+            <p class="text-xs text-red-600 mt-0.5 leading-relaxed">
+              La fecha de retorno era el
+              <strong>{{ l.loanReturnDate | date: "dd/MM/yyyy" }}</strong
+              >. El movimiento no fue registrado. Por favor, hacer entrega en
+              almacén.
             </p>
           </div>
         </div>
-      </div>
+      }
+
+      <!-- ── BANNER: Préstamo cerrado ── -->
+      @if (isClosed) {
+        <div
+          class="bg-gray-50 border border-gray-300 rounded-xl p-4 flex items-start gap-3">
+          <div
+            class="w-8 h-8 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg
+              class="w-4 h-4 text-gray-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-700">
+              Préstamo cerrado — Sin registro de movimiento
+            </p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              Las herramientas ya fueron devueltas al almacén. Este pase ya no
+              está activo.
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- ── 1. Evento registrado (solo cuando el pase está activo) ── -->
+      @if (canRegister && currentLog()) {
+        @let logCfg = currentLogConfig;
+        <div
+          class="bg-white rounded-xl border shadow-sm overflow-hidden"
+          [ngClass]="logCfg.wrapper">
+          <div
+            class="h-1.5 w-full bg-gradient-to-r"
+            [ngClass]="
+              currentLog()?.exitPassType === 'salida'
+                ? 'from-orange-400 to-orange-500'
+                : 'from-green-400 to-green-500'
+            "></div>
+          <div class="p-5 flex items-center gap-5">
+            <div
+              class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+              [ngClass]="logCfg.wrapper">
+              <app-loader
+                [name]="logCfg.iconName"
+                [hostClass]="logCfg.icon"></app-loader>
+            </div>
+            <div class="flex-1">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest mb-1"
+                [ngClass]="logCfg.titleClass">
+                {{ logCfg.eventLabel }}
+              </p>
+              <p class="text-xl font-black text-gray-900">
+                {{ logCfg.eventTitle }}
+              </p>
+              <p class="text-xs text-gray-400 mt-1">
+                {{ currentLog()?.createdAt | date: "dd/MM/yyyy · HH:mm:ss" }}
+              </p>
+            </div>
+          </div>
+        </div>
+      }
 
       <!-- ── 2. Solicitante ── -->
       @let sc = currentStatus;
@@ -166,9 +235,11 @@
             <p
               class="text-sm font-semibold"
               [ngClass]="
-                l.loanStatus === 'Devuelto'
+                isClosed
                   ? 'text-gray-400 line-through'
-                  : 'text-red-600'
+                  : isExpired
+                    ? 'text-red-600 font-bold'
+                    : 'text-red-600'
               ">
               {{ l.loanReturnDate | date: "dd/MM/yyyy" }}
             </p>
@@ -251,7 +322,6 @@
             @for (approve of l.approves; track approve.approveId) {
               @let cfg = getApproveConfig(approve.approveType);
               <div class="flex items-center gap-4 px-5 py-4">
-                <!-- Ícono -->
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                   [ngClass]="cfg.wrapperClass(approve.state)">
@@ -268,8 +338,6 @@
                       [attr.d]="cfg.iconPath" />
                   </svg>
                 </div>
-
-                <!-- Texto + quien lo hizo -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-gray-800">
                     {{ cfg.label }}
@@ -283,8 +351,6 @@
                     </p>
                   }
                 </div>
-
-                <!-- Badge -->
                 <span
                   class="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
                   [ngClass]="cfg.badgeClass(approve.state)">

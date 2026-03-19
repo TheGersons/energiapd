@@ -7,7 +7,13 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ReturnLoanUseCase implements UseCase<
-  { loan: string; status: boolean; state: string; comments: string },
+  {
+    loan: string;
+    status: boolean;
+    state: string;
+    comments: string;
+    sign: string;
+  },
   string
 > {
   private repository = inject(LoanRepository);
@@ -17,12 +23,14 @@ export class ReturnLoanUseCase implements UseCase<
     status: boolean;
     state: string;
     comments: string;
+    sign: string;
   }): Observable<string> {
     return this.repository.returnLoan(
       params.loan,
       params.status,
       params.state,
       params.comments,
+      params.sign,
     );
   }
 }
