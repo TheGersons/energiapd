@@ -61,58 +61,35 @@
           <p class="text-xs text-gray-400 mt-1">{{ errorMsg() }}</p>
         </div>
       </div>
-    } @else if (loan()) {
+    } @else if (loan(); as l) {
       <!-- ── 1. Evento registrado ── -->
+      @let logCfg = currentLogConfig;
       <div
         class="bg-white rounded-xl border shadow-sm overflow-hidden"
-        [ngClass]="isSalida ? 'border-orange-200' : 'border-green-200'">
+        [ngClass]="logCfg.wrapper">
         <div
-          class="h-1.5 w-full"
-          [ngClass]="isSalida ? 'bg-orange-400' : 'bg-green-500'"></div>
+          class="h-1.5 w-full bg-gradient-to-r"
+          [ngClass]="
+            currentLog()?.exitPassType === 'salida'
+              ? 'from-orange-400 to-orange-500'
+              : 'from-green-400 to-green-500'
+          "></div>
         <div class="p-5 flex items-center gap-5">
           <div
             class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-            [ngClass]="
-              isSalida
-                ? 'bg-orange-50 border border-orange-200'
-                : 'bg-green-50 border border-green-200'
-            ">
-            @if (isSalida) {
-              <svg
-                class="w-7 h-7 text-orange-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            } @else {
-              <svg
-                class="w-7 h-7 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-              </svg>
-            }
+            [ngClass]="logCfg.wrapper">
+            <app-loader
+              [name]="logCfg.iconName"
+              [hostClass]="logCfg.icon"></app-loader>
           </div>
           <div class="flex-1">
             <p
               class="text-xs font-semibold uppercase tracking-widest mb-1"
-              [ngClass]="isSalida ? 'text-orange-500' : 'text-green-600'">
-              {{ isSalida ? "Salida registrada" : "Ingreso registrado" }}
+              [ngClass]="logCfg.titleClass">
+              {{ logCfg.eventLabel }}
             </p>
             <p class="text-xl font-black text-gray-900">
-              {{
-                isSalida ? "Salida de instalaciones" : "Ingreso a instalaciones"
-              }}
+              {{ logCfg.eventTitle }}
             </p>
             <p class="text-xs text-gray-400 mt-1">
               {{ currentLog()?.createdAt | date: "dd/MM/yyyy · HH:mm:ss" }}
@@ -122,9 +99,10 @@
       </div>
 
       <!-- ── 2. Solicitante ── -->
+      @let sc = currentStatus;
       <div
         class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="h-1 w-full bg-gradient-to-r" [ngClass]="statusBand"></div>
+        <div class="h-1 w-full bg-gradient-to-r" [ngClass]="sc.band"></div>
         <div class="p-5 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4">
             <div
@@ -142,22 +120,20 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">
-                {{ loan()!.loanName }}
-              </p>
+              <p class="text-sm font-bold text-gray-900">{{ l.loanName }}</p>
               <p class="text-xs text-gray-500 font-mono mt-0.5">
-                {{ loan()!.loanDni }}
+                {{ l.loanDni }}
               </p>
               <p class="text-xs text-gray-400 mt-0.5">
-                {{ loan()!.loanDepartment.departmentName }}
+                {{ l.loanDepartment.departmentName }}
               </p>
             </div>
           </div>
           <span
             class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full flex-shrink-0"
-            [ngClass]="statusBadge">
-            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="dotColor"></span>
-            {{ statusLabel }}
+            [ngClass]="sc.badge">
+            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="sc.dot"></span>
+            {{ sc.label }}
           </span>
         </div>
       </div>
@@ -172,46 +148,37 @@
           </h3>
         </div>
         <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Descripción de uso -->
           <div
             class="sm:col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
-            <p class="text-xs text-gray-400 mb-0.5">
-              Descripción de uso / Destino
-            </p>
+            <p class="text-xs text-gray-400 mb-0.5">Descripción de uso</p>
             <p class="text-sm font-semibold text-gray-800">
-              {{ loan()!.LoanUseDescription }}
+              {{ l.LoanUseDescription }}
             </p>
           </div>
-
-          <!-- Fecha de emisión -->
           <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
             <p class="text-xs text-gray-400 mb-0.5">Fecha de emisión</p>
             <p class="text-sm font-semibold text-gray-800">
-              {{ loan()!.createdAt | date: "dd/MM/yyyy" }}
+              {{ l.createdAt | date: "dd/MM/yyyy" }}
             </p>
           </div>
-
-          <!-- Fecha de retorno -->
           <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
             <p class="text-xs text-gray-400 mb-0.5">Fecha de retorno</p>
             <p
               class="text-sm font-semibold"
               [ngClass]="
-                loan()!.loanStatus === 'Devuelto'
+                l.loanStatus === 'Devuelto'
                   ? 'text-gray-400 line-through'
                   : 'text-red-600'
               ">
-              {{ loan()!.loanReturnDate | date: "dd/MM/yyyy" }}
+              {{ l.loanReturnDate | date: "dd/MM/yyyy" }}
             </p>
           </div>
-
-          <!-- Entregado por -->
-          @if (loan()!.loanDeliveredBy) {
+          @if (l.loanDeliveredBy) {
             <div
               class="sm:col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
               <p class="text-xs text-gray-400 mb-0.5">Entregado por</p>
               <p class="text-sm font-semibold text-gray-800">
-                {{ loan()!.loanDeliveredBy }}
+                {{ l.loanDeliveredBy }}
               </p>
             </div>
           }
@@ -228,47 +195,45 @@
             Herramientas en préstamo
           </h3>
           <span
-            class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-            {{ loan()!.tools.length }}
-          </span>
+            class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+            >{{ l.tools.length }}</span
+          >
         </div>
-        <div class="p-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            @for (tool of loan()!.tools; track tool.toolId) {
+        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          @for (tool of l.tools; track tool.toolId) {
+            <div
+              class="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
               <div
-                class="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
-                <div
-                  class="w-5 h-5 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-100">
-                  <svg
-                    class="w-3 h-3 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2.5"
-                      d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <span
-                  class="text-sm font-medium text-gray-700 flex-1 leading-snug"
-                  >{{ tool.toolName }}</span
-                >
-                @if (tool.toolCode) {
-                  <span
-                    class="text-[10px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded font-mono">
-                    {{ tool.toolCode }}
-                  </span>
-                }
+                class="w-5 h-5 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-100">
+                <svg
+                  class="w-3 h-3 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            }
-          </div>
+              <span
+                class="text-sm font-medium text-gray-700 flex-1 leading-snug"
+                >{{ tool.toolName }}</span
+              >
+              @if (tool.toolCode) {
+                <span
+                  class="text-[10px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded font-mono">
+                  {{ tool.toolCode }}
+                </span>
+              }
+            </div>
+          }
         </div>
       </div>
 
       <!-- ── 5. Historial de autorizaciones ── -->
-      @if (loan()!.approves.length > 0) {
+      @if (l.approves.length > 0) {
         <div
           class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div
@@ -278,106 +243,52 @@
               Historial de autorizaciones
             </h3>
             <span
-              class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-              {{ loan()!.approves.length }}
-            </span>
+              class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+              >{{ l.approves.length }}</span
+            >
           </div>
           <div class="divide-y divide-gray-100">
-            @for (approve of loan()!.approves; track approve.approveId) {
-              <div class="flex items-center gap-4 px-5 py-3.5">
-                <!-- Ícono según tipo -->
+            @for (approve of l.approves; track approve.approveId) {
+              @let cfg = getApproveConfig(approve.approveType);
+              <div class="flex items-center gap-4 px-5 py-4">
+                <!-- Ícono -->
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  [ngClass]="{
-                    'bg-green-50 border border-green-200':
-                      approve.state && approve.approveType !== 'return',
-                    'bg-gray-50 border border-gray-200':
-                      approve.approveType === 'return',
-                    'bg-red-50 border border-red-200': !approve.state,
-                  }">
-                  @if (approve.approveType === "approval") {
-                    <!-- Escudo aprobación -->
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      [ngClass]="
-                        approve.state ? 'text-green-600' : 'text-red-500'
-                      ">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  } @else if (approve.approveType === "delivery") {
-                    <!-- Caja entrega -->
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      [ngClass]="
-                        approve.state ? 'text-green-600' : 'text-red-500'
-                      ">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  } @else {
-                    <!-- Flecha retorno -->
-                    <svg
-                      class="w-4 h-4 text-gray-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                    </svg>
-                  }
+                  [ngClass]="cfg.wrapperClass(approve.state)">
+                  <svg
+                    class="w-4 h-4"
+                    [ngClass]="cfg.iconClass(approve.state)"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      [attr.d]="cfg.iconPath" />
+                  </svg>
                 </div>
 
-                <!-- Etiqueta -->
-                <div class="flex-1">
+                <!-- Texto + quien lo hizo -->
+                <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-gray-800">
-                    @if (approve.approveType === "approval") {
-                      Aprobación de solicitud
-                    } @else if (approve.approveType === "delivery") {
-                      Entrega de herramientas
-                    } @else {
-                      Devolución a almacén
-                    }
+                    {{ cfg.label }}
                   </p>
-                  @if (approve.approveType === "approval" && !approve.state) {
-                    <p class="text-xs text-red-500 mt-0.5">
-                      Solicitud denegada
+                  @if (approve.approveUser.name) {
+                    <p class="text-xs text-gray-400 mt-0.5 truncate">
+                      Por:
+                      <span class="font-medium text-gray-600">{{
+                        approve.approveUser.name
+                      }}</span>
                     </p>
                   }
                 </div>
 
-                <!-- Estado -->
+                <!-- Badge -->
                 <span
                   class="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
-                  [ngClass]="{
-                    'bg-green-100 text-green-700':
-                      approve.state && approve.approveType !== 'return',
-                    'bg-gray-100 text-gray-600':
-                      approve.approveType === 'return',
-                    'bg-red-100 text-red-700': !approve.state,
-                  }">
-                  @if (approve.approveType === "return") {
-                    Completado
-                  } @else if (approve.state) {
-                    Autorizado
-                  } @else {
-                    Denegado
-                  }
+                  [ngClass]="cfg.badgeClass(approve.state)">
+                  {{ cfg.badgeLabel(approve.state) }}
                 </span>
               </div>
             }
@@ -385,7 +296,7 @@
         </div>
       }
 
-      <!-- ── 6. Historial de movimientos de garita ── -->
+      <!-- ── 6. Movimientos de garita ── -->
       @if (history().length > 0) {
         <div
           class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -396,51 +307,25 @@
               Movimientos de garita
             </h3>
             <span
-              class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-              {{ history().length }}
-            </span>
+              class="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+              >{{ history().length }}</span
+            >
           </div>
           <div class="divide-y divide-gray-100">
             @for (log of history(); track log.exitPassId) {
+              @let lc = getLogConfig(log.exitPassType);
               <div class="flex items-center gap-4 px-5 py-3">
                 <div
                   class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                  [ngClass]="
-                    log.exitPassType === 'salida'
-                      ? 'bg-orange-50 border border-orange-200'
-                      : 'bg-green-50 border border-green-200'
-                  ">
-                  @if (log.exitPassType === "salida") {
-                    <svg
-                      class="w-3.5 h-3.5 text-orange-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7" />
-                    </svg>
-                  } @else {
-                    <svg
-                      class="w-3.5 h-3.5 text-green-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M7 16l-4-4m0 0l4-4m-4 4h14" />
-                    </svg>
-                  }
+                  [ngClass]="lc.wrapper">
+                  <app-loader
+                    [name]="lc.iconName"
+                    [hostClass]="lc.icon"></app-loader>
                 </div>
-                <div class="flex-1">
-                  <p class="text-sm font-semibold text-gray-700 capitalize">
-                    {{ log.exitPassType }}
-                  </p>
-                </div>
+                <p
+                  class="text-sm font-semibold text-gray-700 flex-1 capitalize">
+                  {{ log.exitPassType }}
+                </p>
                 <p class="text-xs text-gray-400 font-mono flex-shrink-0">
                   {{ log.createdAt | date: "dd/MM/yyyy HH:mm" }}
                 </p>

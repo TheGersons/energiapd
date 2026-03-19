@@ -15,7 +15,7 @@ class ToolRepository {
 
   async findAvailable(): Promise<ITool[]> {
     return await prisma.tool.findMany({
-      where: { status: true },
+      where: { available: true },
       orderBy: {
         createdAt: "asc",
       },
