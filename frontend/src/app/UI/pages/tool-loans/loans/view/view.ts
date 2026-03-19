@@ -53,7 +53,6 @@ export type signatureType = 'delivery' | 'return' | 'approval';
   styleUrl: './view.scss',
 })
 export class View implements OnInit, AfterViewInit {
-  // ── ViewChild refs ───────────────────────────────────────────
   @ViewChild('signaturePad') public signaturePad!: SignaturePadComponent;
   @ViewChild('deliverySignaturePad')
   public deliverySignaturePad!: SignaturePadComponent;
@@ -67,7 +66,6 @@ export class View implements OnInit, AfterViewInit {
     canvasHeight: 200,
   };
 
-  // ── Servicios ────────────────────────────────────────────────
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly findOneLoan = inject(FindOneLoanUseCase);
@@ -78,16 +76,14 @@ export class View implements OnInit, AfterViewInit {
   private readonly extendLoan = inject(ExtendLoanUseCase);
   private readonly toastr = inject(ToastrService);
 
-  // ── IDs de sala por etapa ────────────────────────────────────
   private readonly sessionId = uuidv4();
   private readonly deliverySessionId = uuidv4();
   private readonly returnSessionId = uuidv4();
 
-  readonly url = `${environment.host}firma-herramientas/${this.sessionId}/`;
+  readonly url = `${environment.host}firma-herramientas/${this.sessionId}/approval`;
   readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}/delivery`;
   readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}/return`;
 
-  // ── Tabs ─────────────────────────────────────────────────────
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
   signatureActions: Record<string, (val: string) => void> = {
@@ -96,7 +92,6 @@ export class View implements OnInit, AfterViewInit {
     approval: (val) => this.signatureImage.set(val),
   };
 
-  // ── Campos del préstamo ──────────────────────────────────────
   createdAt = signal<string>('');
   loanName = signal<string>('');
   loanDepartment = signal<string>('');
@@ -107,11 +102,9 @@ export class View implements OnInit, AfterViewInit {
   loanReturnDate = signal<string>('');
   loanTools = signal<ToolModel[]>([]);
 
-  // ── Aprobación ───────────────────────────────────────────────
   signatureImage = signal<string>('');
   showPcPad = signal<boolean>(false);
 
-  // ── Entrega ──────────────────────────────────────────────────
   deliverySignatureImage = signal<string>('');
   showDeliveryPcPad = signal<boolean>(false);
   deliveryNotes = signal<string>('');
@@ -131,7 +124,6 @@ export class View implements OnInit, AfterViewInit {
       `${environment.host}pase-salida/${this.loanResource.value()?.loanId ?? ''}`,
   );
 
-  // ── Devolución ───────────────────────────────────────────────
   returnSignatureImage = signal<string>('');
   showReturnPcPad = signal<boolean>(false);
   returnNotes = signal<string>('');
@@ -148,12 +140,48 @@ export class View implements OnInit, AfterViewInit {
       this.allReturnToolsVerified() && this.returnSignatureImage().length > 0,
   );
 
-  // ── Ampliación ───────────────────────────────────────────────
+  readonly approvalEntry = computed(() =>
+    this.loanResource
+      .value()
+      ?.approves?.find((a) => a.approveType === 'approval'),
+  );
+
+  readonly deliveryEntry = computed(() =>
+    this.loanResource
+      .value()
+      ?.approves?.find((a) => a.approveType === 'delivery'),
+  );
+
+  readonly returnEntry = computed(() =>
+    this.loanResource
+      .value()
+      ?.approves?.find((a) => a.approveType === 'return'),
+  );
+
+  selectAllDelivery(): void {
+    if (this.allToolsVerified()) {
+      this.verifiedTools.set(new Set());
+    } else {
+      this.verifiedTools.set(
+        new Set(this.loanTools().map((t) => t.toolId ?? '')),
+      );
+    }
+  }
+
+  selectAllReturn(): void {
+    if (this.allReturnToolsVerified()) {
+      this.returnVerifiedTools.set(new Set());
+    } else {
+      this.returnVerifiedTools.set(
+        new Set(this.loanTools().map((t) => t.toolId ?? '')),
+      );
+    }
+  }
+
   showExtendModal = signal<boolean>(false);
   extendReturnDate = signal<string>('');
   extendNotes = signal<string>('');
 
-  // ── Resource ─────────────────────────────────────────────────
   loanResource = resource({
     params: () => this.route.snapshot.paramMap.get('id'),
     loader: async ({ params: id }) => {
@@ -184,7 +212,6 @@ export class View implements OnInit, AfterViewInit {
     this.signaturePad?.clear();
   }
 
-  // ── Patch ────────────────────────────────────────────────────
   patchForm(data: LoanResponseModel) {
     this.createdAt.set(data.createdAt);
     this.loanName.set(data.loanName);
@@ -200,7 +227,6 @@ export class View implements OnInit, AfterViewInit {
     this.extendReturnDate.set(data.loanReturnDate?.slice(0, 16) ?? '');
   }
 
-  // ── Helpers de verificación ──────────────────────────────────
   toggleToolVerified(toolId: string) {
     this.verifiedTools.update((prev) => {
       const next = new Set(prev);
@@ -223,7 +249,6 @@ export class View implements OnInit, AfterViewInit {
     return this.returnVerifiedTools().has(toolId);
   }
 
-  // ── Confirmación de firmas en PC ─────────────────────────────
   confirmPcSignature(pad: SignaturePadComponent) {
     this.signatureImage.set(pad.toDataURL());
     this.showPcPad.set(false);
@@ -237,46 +262,17 @@ export class View implements OnInit, AfterViewInit {
     this.showReturnPcPad.set(false);
   }
 
-  // ── Estado visual de cada paso ───────────────────────────────
-  // Cada paso tiene su propio estado derivado del historial de
-  // progresión, independiente del estado actual del préstamo.
-  //
-  // Flujo:  Pendiente → Aprobado → Entregado → Devuelto
-  //         Pendiente → Denegado
-  //
-  // 'done'    = paso completado (verde)
-  // 'active'  = paso en curso  (azul / ámbar)
-  // 'pending' = paso no alcanzado aún (gris)
-  // 'denied'  = paso denegado (rojo) — solo aplica al paso 1
   readonly stepStates = computed(() => {
     const status = this.loanStatus();
     const order = ['Pendiente', 'Aprobado', 'Entregado', 'Devuelto'];
-    const idx = order.indexOf(status); // -1 si es Denegado u otro
+    const idx = order.indexOf(status);
 
     return {
-      // Paso 1 — Aprobación
-      approval:
-        status === 'Denegado'
-          ? 'denied'
-          : idx >= 1
-            ? 'done' // Aprobado, Entregado, Devuelto
-            : 'active', // Pendiente
+      approval: status === 'Denegado' ? 'denied' : idx >= 1 ? 'done' : 'active',
 
-      // Paso 2 — Entrega
-      delivery:
-        idx >= 2
-          ? 'done' // Entregado, Devuelto
-          : idx === 1
-            ? 'active' // Aprobado
-            : 'pending',
+      delivery: idx >= 2 ? 'done' : idx === 1 ? 'active' : 'pending',
 
-      // Paso 3 — Devolución
-      return:
-        idx >= 3
-          ? 'done' // Devuelto
-          : idx === 2
-            ? 'active' // Entregado
-            : 'pending',
+      return: idx >= 3 ? 'done' : idx === 2 ? 'active' : 'pending',
     } as const;
   });
 
@@ -289,7 +285,6 @@ export class View implements OnInit, AfterViewInit {
     }[state];
   }
 
-  // Línea conectora entre pasos
   stepLineClass(state: 'active' | 'done' | 'pending' | 'denied'): string {
     return {
       done: 'bg-green-400',
@@ -408,7 +403,6 @@ export class View implements OnInit, AfterViewInit {
     this.location.back();
   }
 
-  // ── Helpers de estilo ────────────────────────────────────────
   statusLabel(status: string): string {
     const map: Record<string, string> = {
       Pendiente: 'Pendiente',

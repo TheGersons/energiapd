@@ -178,10 +178,9 @@
     <!-- ============================================================ -->
     @if (sTab() === "state") {
       <div class="p-6 space-y-8">
-        <!-- ========== SECCIÓN: APROBACIÓN ========== -->
+        <!-- ════════ SECCIÓN: APROBACIÓN ════════ -->
         <section>
           <div class="flex items-center gap-2 mb-4">
-            <!-- Círculo del paso — estado fijo según historial -->
             <div
               [class]="
                 'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ' +
@@ -215,7 +214,6 @@
                 1
               }
             </div>
-
             <h3
               class="text-sm font-bold text-gray-700 uppercase tracking-wider">
               Aprobación
@@ -223,31 +221,28 @@
             <div
               class="flex-1 h-px"
               [class]="stepLineClass(stepStates().approval)"></div>
-
-            <!-- Badge del paso — siempre muestra el estado propio del paso, no el global -->
             @if (stepStates().approval === "done") {
               <span
-                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 border border-green-200">
-                Aprobado ✓
-              </span>
+                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 border border-green-200"
+                >Aprobado ✓</span
+              >
             } @else if (stepStates().approval === "denied") {
               <span
-                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200">
-                Denegado
-              </span>
+                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200"
+                >Denegado</span
+              >
             } @else {
               <span
-                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                Pendiente de aprobación
-              </span>
+                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+                >Pendiente</span
+              >
             }
           </div>
 
-          <!-- Pendiente de aprobación: vista del aprobador -->
+          <!-- Pendiente: panel del aprobador -->
           @if (loanStatus() === "Pendiente") {
             <div *hasPermission="['prestamo-herramientas:autorizar']">
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <!-- Panel principal de aprobación -->
                 <div
                   class="lg:col-span-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                   <div
@@ -270,7 +265,6 @@
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all"
                         rows="3"></textarea>
                     </div>
-
                     @if (signatureImage()) {
                       <div
                         class="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
@@ -305,8 +299,6 @@
                     </button>
                   </div>
                 </div>
-
-                <!-- Panel de firma -->
                 <div
                   class="border-2 border-dashed border-blue-200 rounded-xl p-5 flex flex-col items-center justify-center gap-4 bg-blue-50/30 min-h-[260px]">
                   @if (!signatureImage()) {
@@ -361,16 +353,11 @@
                       <p class="text-sm font-bold text-green-700">
                         ¡Firma lista!
                       </p>
-                      <p class="text-[11px] text-gray-500 mt-1">
-                        Puedes proceder con la aprobación.
-                      </p>
                     </div>
                   }
                 </div>
               </div>
             </div>
-
-            <!-- Pendiente: vista del solicitante sin permiso de aprobar -->
             <div *hasNoPermission="['prestamo-herramientas:autorizar']">
               <div
                 class="border border-amber-200 bg-amber-50 rounded-xl p-5 flex items-start gap-4">
@@ -385,15 +372,14 @@
                     En revisión
                   </p>
                   <p class="text-sm text-amber-700 mt-0.5">
-                    La solicitud está siendo revisada por el responsable. No se
-                    requieren acciones de tu parte.
+                    La solicitud está siendo revisada por el responsable.
                   </p>
                 </div>
               </div>
             </div>
           }
 
-          <!-- Aprobado -->
+          <!-- Aprobado / Entregado / Devuelto -->
           @if (
             loanStatus() === "Aprobado" ||
             loanStatus() === "Entregado" ||
@@ -419,16 +405,15 @@
                 <p class="text-sm font-semibold text-green-800">
                   Solicitud aprobada
                 </p>
-                @if (loanResource.value()?.approves?.length) {
+                @if (approvalEntry()?.approveUser?.name) {
                   <p class="text-xs text-green-600 mt-0.5">
-                    Aprobada por
-                    {{ loanResource.value()?.approves![0]?.approveUser?.name }}
+                    Aprobado por
+                    <strong>{{ approvalEntry()!.approveUser.name }}</strong>
                   </p>
                 }
               </div>
               <time class="text-xs text-gray-400">{{
-                loanResource.value()?.approves![0]?.createdAt
-                  | date: "dd/MM/yy HH:mm"
+                approvalEntry()?.createdAt | date: "dd/MM/yy HH:mm"
               }}</time>
             </div>
           }
@@ -455,15 +440,18 @@
                 <p class="text-sm font-semibold text-red-800">
                   Solicitud denegada
                 </p>
-                <p class="text-xs text-red-600 mt-0.5">
-                  Esta solicitud fue rechazada por el aprobador.
-                </p>
+                @if (approvalEntry()?.approveUser?.name) {
+                  <p class="text-xs text-red-600 mt-0.5">
+                    Denegado por
+                    <strong>{{ approvalEntry()!.approveUser.name }}</strong>
+                  </p>
+                }
               </div>
             </div>
           }
         </section>
 
-        <!-- ========== SECCIÓN: ENTREGA ========== -->
+        <!-- ════════ SECCIÓN: ENTREGA ════════ -->
         @if (loanStatus() !== "Pendiente" && loanStatus() !== "Denegado") {
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -488,7 +476,6 @@
                   2
                 }
               </div>
-
               <h3
                 class="text-sm font-bold text-gray-700 uppercase tracking-wider">
                 Entrega de herramientas
@@ -496,21 +483,20 @@
               <div
                 class="flex-1 h-px"
                 [class]="stepLineClass(stepStates().delivery)"></div>
-
               @if (stepStates().delivery === "done") {
                 <span
-                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                  Entregado ✓
-                </span>
+                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200"
+                  >Entregado ✓</span
+                >
               } @else {
                 <span
-                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                  Pendiente de entrega
-                </span>
+                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+                  >Pendiente de entrega</span
+                >
               }
             </div>
 
-            <!-- Estado: ya entregado -->
+            <!-- Ya entregado -->
             @if (loanStatus() === "Entregado" || loanStatus() === "Devuelto") {
               <div
                 class="border border-blue-200 bg-blue-50 rounded-xl p-5 flex items-start gap-4">
@@ -528,91 +514,27 @@
                       d="M20 7l-8 4-8-4m16 0v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7m16 0l-8 4-8-4" />
                   </svg>
                 </div>
-                <div>
+                <div class="flex-1">
                   <p class="text-sm font-semibold text-blue-800">
-                    Herramientas entregadas
+                    Herramientas entregadas al solicitante
                   </p>
-                  <p class="text-xs text-blue-600 mt-0.5">
-                    Las herramientas fueron entregadas al solicitante
-                  </p>
+                  @if (deliveryEntry()?.approveUser?.name) {
+                    <p class="text-xs text-blue-600 mt-0.5">
+                      Entregado por
+                      <strong>{{ deliveryEntry()!.approveUser.name }}</strong>
+                    </p>
+                  }
                 </div>
+                <time class="text-xs text-gray-400">{{
+                  deliveryEntry()?.createdAt | date: "dd/MM/yy HH:mm"
+                }}</time>
               </div>
             }
 
-            @if (loanStatus() === "Entregado" || loanStatus() === "Devuelto") {
-              <div
-                class="mt-4 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div
-                  class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
-                  <div
-                    class="w-5 h-5 bg-slate-800 rounded-md flex items-center justify-center flex-shrink-0">
-                    <svg
-                      class="w-3 h-3 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
-                  </div>
-                  <h4 class="text-sm font-semibold text-slate-700">
-                    Pase de Salida
-                  </h4>
-                </div>
-
-                <div class="p-5 flex flex-col sm:flex-row items-center gap-5">
-                  <!-- QR -->
-                  <div
-                    class="flex-shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm">
-                    <qrcode
-                      [qrdata]="passUrl()"
-                      [width]="140"
-                      [margin]="1"
-                      [errorCorrectionLevel]="'M'">
-                    </qrcode>
-                  </div>
-
-                  <!-- Info -->
-                  <div class="flex-1 text-center sm:text-left">
-                    <p class="text-sm font-bold text-slate-800">
-                      Código de verificación generado
-                    </p>
-                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                      El solicitante debe mostrar este QR al personal de garita
-                      al
-                      <strong>salir</strong> y al <strong>ingresar</strong> a
-                      las instalaciones.
-                    </p>
-                    <a
-                      [href]="passUrl()"
-                      target="_blank"
-                      class="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-blue-600 hover:text-blue-800 underline underline-offset-2 transition-colors">
-                      Ver pase completo
-                      <svg
-                        class="w-3 h-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2.5"
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Estado: aprobado, pendiente de entrega — solo almacén puede ver este panel -->
+            <!-- Aprobado, pendiente de entrega -->
             @if (loanStatus() === "Aprobado") {
               <div *hasPermission="['prestamo-herramientas:entregar']">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                  <!-- Panel principal de entrega -->
                   <div
                     class="lg:col-span-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
                     <div
@@ -620,31 +542,43 @@
                       <span class="text-sm font-semibold text-gray-700"
                         >Confirmar salida de almacén</span
                       >
-                      <!-- Progreso de verificación -->
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs text-gray-500">
-                          {{ verifiedCount() }}/{{ loanTools().length }}
-                          verificadas
-                        </span>
-                        <div
-                          class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            class="h-full rounded-full transition-all duration-300"
-                            [class]="
-                              allToolsVerified()
-                                ? 'bg-green-500'
-                                : 'bg-blue-500'
-                            "
-                            [style.width.%]="
+                      <div class="flex items-center gap-3">
+                        <!-- Seleccionar todas -->
+                        <button
+                          type="button"
+                          (click)="selectAllDelivery()"
+                          class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                          {{
+                            allToolsVerified()
+                              ? "Quitar todas"
+                              : "Seleccionar todas"
+                          }}
+                        </button>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs text-gray-500"
+                            >{{ verifiedCount() }}/{{
                               loanTools().length
-                                ? (verifiedCount() / loanTools().length) * 100
-                                : 0
-                            "></div>
+                            }}
+                            verificadas</span
+                          >
+                          <div
+                            class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              class="h-full rounded-full transition-all duration-300"
+                              [class]="
+                                allToolsVerified()
+                                  ? 'bg-green-500'
+                                  : 'bg-blue-500'
+                              "
+                              [style.width.%]="
+                                loanTools().length
+                                  ? (verifiedCount() / loanTools().length) * 100
+                                  : 0
+                              "></div>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    <!-- Checklist de herramientas (altura fija + scroll) -->
                     <div class="overflow-y-auto" style="max-height: 260px">
                       @for (
                         tool of loanTools();
@@ -659,13 +593,10 @@
                               ? 'bg-green-50'
                               : 'hover:bg-gray-50')
                           ">
-                          <!-- Índice -->
                           <span
                             class="text-xs font-bold text-gray-400 w-4 flex-shrink-0"
                             >{{ i + 1 }}</span
                           >
-
-                          <!-- Miniatura -->
                           <div
                             class="w-8 h-8 rounded-md overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0">
                             @if (tool.toolImg) {
@@ -682,8 +613,6 @@
                               </div>
                             }
                           </div>
-
-                          <!-- Info -->
                           <div class="flex-1 min-w-0">
                             <p
                               class="text-sm font-medium text-gray-800 truncate leading-tight">
@@ -694,20 +623,16 @@
                               {{ tool.toolSerial || "N/A" }}
                             </p>
                           </div>
-
-                          <!-- Estado visual -->
                           @if (isToolVerified(tool.toolId ?? "")) {
                             <span
-                              class="text-xs font-semibold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0">
-                              ✓ OK
-                            </span>
+                              class="text-xs font-semibold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0"
+                              >✓ OK</span
+                            >
                           } @else {
                             <span class="text-xs text-gray-400 flex-shrink-0"
                               >Pendiente</span
                             >
                           }
-
-                          <!-- Checkbox oculto (accesible) -->
                           <input
                             [id]="'tool-check-' + i"
                             type="checkbox"
@@ -717,21 +642,18 @@
                         </label>
                       }
                     </div>
-
-                    <!-- Zona inferior: observaciones + firma capturada -->
                     <div class="p-5 space-y-3 border-t border-gray-100">
                       <div>
                         <label
-                          class="block text-xs font-semibold text-gray-600 mb-1.5">
-                          Observaciones de entrega (opcional)
-                        </label>
+                          class="block text-xs font-semibold text-gray-600 mb-1.5"
+                          >Observaciones de entrega (opcional)</label
+                        >
                         <textarea
                           [(ngModel)]="deliveryNotes"
                           placeholder="Estado de las herramientas al momento de la entrega..."
                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all"
                           rows="2"></textarea>
                       </div>
-
                       @if (deliverySignatureImage()) {
                         <div
                           class="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
@@ -751,11 +673,8 @@
                         </div>
                       }
                     </div>
-
-                    <!-- Pie: validaciones + botón -->
                     <div
                       class="px-5 py-4 bg-gray-50 border-t border-gray-200 space-y-2 mt-auto">
-                      <!-- Avisos de bloqueo -->
                       @if (!allToolsVerified()) {
                         <p
                           class="text-xs text-amber-600 flex items-center gap-1.5">
@@ -810,8 +729,7 @@
                       </button>
                     </div>
                   </div>
-
-                  <!-- Panel firma del almacenista (altura fija, siempre alineado) -->
+                  <!-- Panel firma entrega -->
                   <div
                     class="border-2 border-dashed border-blue-200 rounded-xl p-5 flex flex-col items-center justify-center gap-4 bg-blue-50/30">
                     @if (!deliverySignatureImage()) {
@@ -861,16 +779,11 @@
                         <p class="text-sm font-bold text-green-700">
                           ¡Firma lista!
                         </p>
-                        <p class="text-[11px] text-gray-500 mt-1">
-                          Puedes confirmar la entrega.
-                        </p>
                       </div>
                     }
                   </div>
                 </div>
               </div>
-
-              <!-- Sin permiso de entrega: mensaje informativo -->
               <div *hasNoPermission="['prestamo-herramientas:entregar']">
                 <div
                   class="border border-gray-200 bg-gray-50 rounded-xl p-5 flex items-start gap-4">
@@ -893,8 +806,7 @@
                       Pendiente de entrega por almacén
                     </p>
                     <p class="text-sm text-gray-500 mt-0.5">
-                      El encargado de almacén debe confirmar la salida física de
-                      las herramientas.
+                      El encargado de almacén debe confirmar la salida física.
                     </p>
                   </div>
                 </div>
@@ -903,7 +815,7 @@
           </section>
         }
 
-        <!-- ========== SECCIÓN: DEVOLUCIÓN ========== -->
+        <!-- ════════ SECCIÓN: DEVOLUCIÓN ════════ -->
         @if (loanStatus() === "Entregado" || loanStatus() === "Devuelto") {
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -928,7 +840,6 @@
                   3
                 }
               </div>
-
               <h3
                 class="text-sm font-bold text-gray-700 uppercase tracking-wider">
                 Devolución
@@ -936,8 +847,6 @@
               <div
                 class="flex-1 h-px"
                 [class]="stepLineClass(stepStates().return)"></div>
-
-              <!-- Botón ampliar plazo -->
               @if (stepStates().return === "active") {
                 <div
                   *hasPermission="[
@@ -962,17 +871,16 @@
                   </button>
                 </div>
               }
-
               @if (stepStates().return === "done") {
                 <span
-                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-300">
-                  Devuelto ✓
-                </span>
+                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-300"
+                  >Devuelto ✓</span
+                >
               } @else {
                 <span
-                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                  Pendiente de devolución
-                </span>
+                  class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+                  >Pendiente</span
+                >
               }
             </div>
 
@@ -994,22 +902,27 @@
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div>
+                <div class="flex-1">
                   <p class="text-sm font-semibold text-gray-800">
-                    Herramientas devueltas
+                    Herramientas devueltas al almacén
                   </p>
-                  <p class="text-xs text-gray-500 mt-0.5">
-                    El solicitante devolvió todas las herramientas al almacén.
-                  </p>
+                  @if (returnEntry()?.approveUser?.name) {
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      Recibido por
+                      <strong>{{ returnEntry()!.approveUser.name }}</strong>
+                    </p>
+                  }
                 </div>
+                <time class="text-xs text-gray-400">{{
+                  returnEntry()?.createdAt | date: "dd/MM/yy HH:mm"
+                }}</time>
               </div>
             }
 
-            <!-- Pendiente de devolución — encargado de almacén -->
+            <!-- Entregado, pendiente de devolución -->
             @if (loanStatus() === "Entregado") {
               <div *hasPermission="['prestamo-herramientas:entregar']">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                  <!-- Panel de devolución -->
                   <div
                     class="lg:col-span-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
                     <div
@@ -1017,33 +930,45 @@
                       <span class="text-sm font-semibold text-gray-700"
                         >Confirmar recepción en almacén</span
                       >
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs text-gray-500"
-                          >{{ returnVerifiedCount() }}/{{
-                            loanTools().length
+                      <div class="flex items-center gap-3">
+                        <!-- Seleccionar todas -->
+                        <button
+                          type="button"
+                          (click)="selectAllReturn()"
+                          class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                          {{
+                            allReturnToolsVerified()
+                              ? "Quitar todas"
+                              : "Seleccionar todas"
                           }}
-                          verificadas</span
-                        >
-                        <div
-                          class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            class="h-full rounded-full transition-all duration-300"
-                            [class]="
-                              allReturnToolsVerified()
-                                ? 'bg-green-500'
-                                : 'bg-blue-500'
-                            "
-                            [style.width.%]="
+                        </button>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs text-gray-500"
+                            >{{ returnVerifiedCount() }}/{{
                               loanTools().length
-                                ? (returnVerifiedCount() / loanTools().length) *
-                                  100
-                                : 0
-                            "></div>
+                            }}
+                            verificadas</span
+                          >
+                          <div
+                            class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              class="h-full rounded-full transition-all duration-300"
+                              [class]="
+                                allReturnToolsVerified()
+                                  ? 'bg-green-500'
+                                  : 'bg-blue-500'
+                              "
+                              [style.width.%]="
+                                loanTools().length
+                                  ? (returnVerifiedCount() /
+                                      loanTools().length) *
+                                    100
+                                  : 0
+                              "></div>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    <!-- Checklist -->
                     <div class="overflow-y-auto" style="max-height: 260px">
                       @for (
                         tool of loanTools();
@@ -1109,8 +1034,6 @@
                         </label>
                       }
                     </div>
-
-                    <!-- Observaciones + firma capturada -->
                     <div class="p-5 space-y-3 border-t border-gray-100">
                       <div>
                         <label
@@ -1145,8 +1068,6 @@
                         </div>
                       }
                     </div>
-
-                    <!-- Avisos + botón confirmar -->
                     <div
                       class="px-5 py-4 bg-gray-50 border-t border-gray-200 space-y-2 mt-auto">
                       @if (!allReturnToolsVerified()) {
@@ -1203,8 +1124,7 @@
                       </button>
                     </div>
                   </div>
-
-                  <!-- Panel firma -->
+                  <!-- Panel firma devolución -->
                   <div
                     class="border-2 border-dashed border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center gap-4 bg-gray-50/60">
                     @if (!returnSignatureImage()) {
@@ -1254,16 +1174,11 @@
                         <p class="text-sm font-bold text-green-700">
                           ¡Firma lista!
                         </p>
-                        <p class="text-[11px] text-gray-500 mt-1">
-                          Puedes confirmar la recepción.
-                        </p>
                       </div>
                     }
                   </div>
                 </div>
               </div>
-
-              <!-- Sin permiso de entrega -->
               <div *hasNoPermission="['prestamo-herramientas:entregar']">
                 <div
                   class="border border-gray-200 bg-gray-50 rounded-xl p-5 flex items-start gap-4">
@@ -1286,8 +1201,8 @@
                       Pendiente de devolución
                     </p>
                     <p class="text-sm text-gray-500 mt-0.5">
-                      El encargado de almacén debe confirmar la recepción física
-                      de las herramientas.
+                      El encargado de almacén debe confirmar la recepción
+                      física.
                     </p>
                   </div>
                 </div>
@@ -1409,11 +1324,9 @@
                       </p>
                       <p class="text-xs text-gray-500 mt-0.5">
                         Acción realizada por usuario
-                        <code class="text-xs bg-gray-100 px-1 rounded"
-                          >{{
-                            approve.approveUser.name 
-                          }}</code
-                        >
+                        <code class="text-xs bg-gray-100 px-1 rounded">{{
+                          approve.approveUser.name
+                        }}</code>
                       </p>
                     </div>
                     <time class="text-xs text-gray-400">{{
