@@ -10,13 +10,16 @@ import { LoadPermissionsUseCase } from '@domain/permission/usecase/loadPermissio
 })
 export class AuthenticateUseCase implements UseCase<
   { login: string; password: string },
-  string
+  { idUser: string; requestChangePass: boolean }
 > {
   private authRepository = inject(AuthRepository);
   private loadPermissions = inject(LoadPermissionsUseCase);
   private router = inject(Router);
 
-  execute(params: { login: string; password: string }): Observable<string> {
+  execute(params: {
+    login: string;
+    password: string;
+  }): Observable<{ idUser: string; requestChangePass: boolean }> {
     return this.authRepository.authenticate(params.login, params.password).pipe(
       switchMap(() => this.loadPermissions.execute()),
       map(() => ''),

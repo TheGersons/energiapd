@@ -79,6 +79,34 @@ class UserController {
     }
   };
 
+  changePassword = async ({ body }: Request, res: Response) => {
+    try {
+      if (
+        !("idUser" in body) ||
+        !("password" in body) ||
+        !("requestChangePass" in body)
+      ) {
+        errorResponse(res, 400, "Campos faltantes");
+        return;
+      }
+      const rs = await userRepository.changePassword(
+        body.idUser,
+        body.password,
+        body.requestChangePass,
+      );
+
+      res.status(200).json(rs);
+    } catch (error) {
+      console.error("[UserController.changePassword]", error);
+      errorResponse(
+        res,
+        500,
+        "Error al cambiar contraseña.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
+
   activeCount = async (req: Request, res: Response): Promise<void> => {
     try {
       const rs = await userRepository.activeCount();

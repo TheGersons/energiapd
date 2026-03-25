@@ -15,9 +15,12 @@ export class AuthImplementation extends AuthRepository {
 
   private readonly TOKEN_KEY = 'at';
 
-  override authenticate(login: string, password: string): Observable<string> {
+  override authenticate(
+    login: string,
+    password: string,
+  ): Observable<{ idUser: string; requestChangePass: boolean }> {
     return this.http
-      .post<string>(`${this.baseURL}`, {
+      .post<{ idUser: string; requestChangePass: boolean }>(`${this.baseURL}`, {
         password,
         login,
       })

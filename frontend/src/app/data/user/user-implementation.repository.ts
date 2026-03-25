@@ -67,4 +67,16 @@ export class UserImplementation extends UserRepository {
   override totalCount(): Observable<number> {
     return this.http.get<number>(`${this.baseURL}/totalCount`);
   }
+
+  override changePassword(
+    userId: string,
+    pass: string,
+    changePassword: boolean,
+  ): Observable<string> {
+    return this.http.patch<string>(this.baseURL, {
+      idUser: userId,
+      password: pass,
+      requestChangePass: changePassword,
+    });
+  }
 }

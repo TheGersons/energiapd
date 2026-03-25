@@ -1,4 +1,4 @@
-import { Location } from '@angular/common';
+import { Location, NgClass } from '@angular/common';
 import {
   Component,
   computed,
@@ -36,11 +36,13 @@ import { PlaneRoleModel } from '@domain/role/role.model';
 import { UpdateUserUseCase } from '@domain/user/usecase/updateUser.usecase';
 import { FindAllDepartmentsUseCase } from '@domain/department/usecase/findAllDepartments.usecase';
 import { DepartmentModel } from '@domain/department/department.model';
+import { ChangePassUseCase } from '@domain/user/usecase/changePass.usecase';
+import { validate } from 'uuid';
 
 @Component({
   selector: 'app-create',
   standalone: true,
-  imports: [NgSelectModule, Loader, FormField, FormsModule],
+  imports: [NgSelectModule, Loader, FormField, FormsModule, NgClass],
   templateUrl: './create.html',
   styleUrl: './create.scss',
 })
@@ -57,12 +59,14 @@ export class Create {
   private readonly findOneUser = inject(FindOneUserUseCase);
   private readonly updateUser = inject(UpdateUserUseCase);
   private readonly findAllDepartments = inject(FindAllDepartmentsUseCase);
+  private readonly changePassword = inject(ChangePassUseCase);
 
   // State
   showPassword = signal(false);
   isEditMode = computed(() => !!this.route.snapshot.paramMap.get('id'));
   sRole: PlaneRoleModel[] = [];
   sDepartment?: DepartmentModel;
+  showPasswordSection = signal(false);
 
   userModel = signal<UserFormModel>({
     userId: '',
@@ -229,7 +233,9 @@ export class Create {
 
     const password = passwordArray.sort(() => Math.random() - 0.5).join('');
 
-    navigator.clipboard.writeText(password);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(password);
+    }
     this.userForm.userPass().setControlValue(password);
     this.toastr.info('Contraseña generada y copiada');
   }
@@ -241,6 +247,31 @@ export class Create {
   isFieldInvalid(fieldName: keyof UserPayloadModel): boolean {
     const field = (this.userForm as any)[fieldName]?.();
     return !!(field?.touched() && field?.errors().length > 0);
+  }
+
+  async onChangePass(event: Event) {
+    event.preventDefault();
+    const passwordField = this.userForm.userPass();
+
+    passwordField.markAsTouched();
+
+    if (passwordField.valid()) {
+      const response = await firstValueFrom(
+        this.changePassword.execute({
+          userId: this.userForm().controlValue().userId ?? '',
+          changePassword: this.userForm().controlValue().needChangePass,
+          pass: this.userForm().controlValue().userPass,
+        }),
+      );
+
+      if (validate(response)) {
+        this.toastr.success('Contraseña cambiada con éxito.');
+      } else {
+        this.toastr.success('Ha ocurrido un error.');
+      }
+    } else {
+      this.toastr.warning('La contraseña no cumple con los requisitos');
+    }
   }
 
   goBack(): void {

@@ -104,9 +104,8 @@ class UserRepository {
     return await prisma.$transaction(async (tx) => {
       let totalChanges = 0;
 
-      const hashedPassword = await hash(password, 10);
       await tx.user.update({
-        data: { ...userDTO, password: hashedPassword },
+        data: { ...userDTO },
         where: { id },
       });
       totalChanges++;
@@ -122,6 +121,21 @@ class UserRepository {
 
       return totalChanges;
     });
+  }
+
+  async changePassword(
+    idUser: string,
+    password: string,
+    requestChangePass: boolean,
+  ): Promise<string> {
+    const hashedPassword = await hash(password, 10);
+
+    return (
+      await prisma.user.update({
+        where: { id: idUser },
+        data: { password: hashedPassword, requestChangePass },
+      })
+    ).id;
   }
 
   async activeCount(): Promise<number> {

@@ -52,7 +52,12 @@ class AuthRepository {
         },
       });
 
-      return { accessToken, refreshToken };
+      return {
+        accessToken,
+        refreshToken,
+        idUser: user.id,
+        requestChangePass: user.requestChangePass,
+      };
     } catch (error) {
       throw error;
     }

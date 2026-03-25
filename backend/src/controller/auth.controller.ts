@@ -34,7 +34,7 @@ class AuthController {
           signed: true,
         })
         .status(200)
-        .json("ok");
+        .json({ idUser: rs.idUser, requestChangePass: rs.requestChangePass });
     } catch (error: any) {
       const status = error?.code || 500;
       errorResponse(res, status, this.getErrorMessage(error));
