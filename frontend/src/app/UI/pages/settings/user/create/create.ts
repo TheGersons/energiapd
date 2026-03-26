@@ -258,7 +258,7 @@ export class Create {
     if (passwordField.valid()) {
       const response = await firstValueFrom(
         this.changePassword.execute({
-          userId: this.userForm().controlValue().userId ?? '',
+          userId: this.userForm().controlValue().userId,
           changePassword: this.userForm().controlValue().needChangePass,
           pass: this.userForm().controlValue().userPass,
         }),

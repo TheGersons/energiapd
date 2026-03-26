@@ -243,6 +243,14 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'cambiar-contraseña',
+    loadComponent: () =>
+      import('@ui/template/change-password/change-password').then(
+        (m) => m.ChangePassword,
+      ),
+  },
+
   // --- COMODÍN ---
   { path: '**', redirectTo: 'iniciar-sesion' },
 ];

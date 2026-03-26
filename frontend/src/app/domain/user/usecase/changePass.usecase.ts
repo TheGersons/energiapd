@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class ChangePassUseCase implements UseCase<
   {
-    userId: string;
+    userId?: string;
     pass: string;
     changePassword: boolean;
   },
@@ -17,14 +17,14 @@ export class ChangePassUseCase implements UseCase<
   private repository = inject(UserRepository);
 
   execute(params: {
-    userId: string;
+    userId?: string;
     pass: string;
     changePassword: boolean;
   }): Observable<string> {
     return this.repository.changePassword(
-      params.userId,
       params.pass,
       params.changePassword,
+      params.userId,
     );
   }
 }

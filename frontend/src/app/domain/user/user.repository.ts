@@ -10,8 +10,8 @@ export abstract class UserRepository {
   abstract inactiveCount(): Observable<number>;
   abstract totalCount(): Observable<number>;
   abstract changePassword(
-    userId: string,
     pass: string,
     changePassword: boolean,
+    userId?: string,
   ): Observable<string>;
 }

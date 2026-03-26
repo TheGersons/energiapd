@@ -79,20 +79,23 @@ class UserController {
     }
   };
 
-  changePassword = async ({ body }: Request, res: Response) => {
+  changePassword = async (req: Request, res: Response) => {
     try {
       if (
-        !("idUser" in body) ||
-        !("password" in body) ||
-        !("requestChangePass" in body)
+        !("idUser" in req.body) ||
+        !("password" in req.body) ||
+        !("requestChangePass" in req.body)
       ) {
         errorResponse(res, 400, "Campos faltantes");
         return;
       }
+
+      const idUser = req.body.idUser || (req as any).idUser;
+
       const rs = await userRepository.changePassword(
-        body.idUser,
-        body.password,
-        body.requestChangePass,
+        idUser,
+        req.body.password,
+        req.body.requestChangePass,
       );
 
       res.status(200).json(rs);

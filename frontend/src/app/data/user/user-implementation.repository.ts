@@ -69,9 +69,9 @@ export class UserImplementation extends UserRepository {
   }
 
   override changePassword(
-    userId: string,
     pass: string,
     changePassword: boolean,
+    userId?: string,
   ): Observable<string> {
     return this.http.patch<string>(this.baseURL, {
       idUser: userId,

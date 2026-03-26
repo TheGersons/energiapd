@@ -75,6 +75,41 @@ class AuthController {
       );
     }
   };
+
+  logout = async (req: Request, res: Response) => {
+    try {
+      if (!req.signedCookies?.accessToken) {
+        errorResponse(res, 401, "No se pudo leer el refresh token");
+        return;
+      }
+
+      if (!("idUser" in req)) {
+        errorResponse(res, 401, "No se pudo leer el idUsuario");
+        return;
+      }
+
+      const { accessToken } = req.signedCookies;
+
+      const rs = await authRepository.logout((req as any).idUser, accessToken);
+      if (rs < 1) {
+        errorResponse(res, 404, "Usuario o sesión no encontrada.");
+        return;
+      }
+
+      res
+        .status(200)
+        .json("ok")
+        .clearCookie("accessToken")
+        .clearCookie("refreshToken");
+    } catch (error) {
+      errorResponse(
+        res,
+        500,
+        "Error al cerrar la sesión.",
+        this.getErrorMessage(error),
+      );
+    }
+  };
 }
 
 export const authController = new AuthController();

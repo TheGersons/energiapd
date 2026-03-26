@@ -123,6 +123,17 @@ class AuthRepository {
       throw { code: 500, message: "Error interno en el proceso de refresco" };
     }
   }
+
+  async logout(idUser: string, accessToken: string): Promise<number> {
+    return (
+      await prisma.session.deleteMany({
+        where: {
+          idUser,
+          accessToken,
+        },
+      })
+    ).count;
+  }
 }
 
 export const authRepository = new AuthRepository();
