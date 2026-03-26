@@ -42,8 +42,8 @@ export class Auth {
           password: authForm.password,
         }),
       ).catch((error) => {
+        this.isLoading.set(false);
         if (error.statusCode === 401) {
-          this.isLoading.set(false);
           this.toastr.warning('Usuario o contraseña incorrecta');
         }
       });
