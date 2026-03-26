@@ -98,9 +98,9 @@ class AuthController {
 
       res
         .status(200)
-        .json("ok")
         .clearCookie("accessToken")
-        .clearCookie("refreshToken");
+        .clearCookie("refreshToken")
+        .json(rs);
     } catch (error) {
       errorResponse(
         res,

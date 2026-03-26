@@ -35,8 +35,8 @@ export class AuthImplementation extends AuthRepository {
     return this.http.post<string>(`${this.baseURL}/refresh`, {});
   }
 
-  override logout(): Observable<string> {
-    return this.http.post<string>(`${this.baseURL}/logout`, {});
+  override logout(): Observable<number> {
+    return this.http.post<number>(`${this.baseURL}/logout`, {});
   }
 
   override check(): Observable<{ ok: boolean }> {

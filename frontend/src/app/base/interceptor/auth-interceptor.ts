@@ -89,7 +89,7 @@ function handle401Error(
       }),
       catchError((err) => {
         isRefreshing = false;
-        return los.execute({}).pipe(
+        return los.execute().pipe(
           switchMap(() => {
             router.navigate(['/iniciar-sesion']);
             return throwError(() => err);

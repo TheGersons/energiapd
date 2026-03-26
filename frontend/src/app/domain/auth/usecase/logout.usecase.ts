@@ -6,10 +6,10 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class LogoutUseCase implements UseCase<{}, string> {
+export class LogoutUseCase implements UseCase<void, number> {
   private authRepository = inject(AuthRepository);
 
-  execute(params: {}): Observable<string> {
+  execute(params: void): Observable<number> {
     return this.authRepository.logout();
   }
 }
