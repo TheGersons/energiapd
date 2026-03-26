@@ -16,6 +16,8 @@ export class Auth {
 
   isLoading = signal(false);
 
+  showNewPassword = signal(false);
+
   // Modelo de datos
   authModel = signal({
     login: '',
