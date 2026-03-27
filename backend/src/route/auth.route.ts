@@ -15,7 +15,7 @@ class AuthRoute {
     this.router.get("/check", validateToken, (req, res) => {
       res.status(200).json({ ok: true });
     });
-    this.router.post("/refresh", validateToken, authController.refreshToken);
+    this.router.post("/refresh", authController.refreshToken);
     this.router.post("/logout", validateToken, authController.logout);
     this.router.post("/forgotPassword", authController.forgotPassword);
   }
