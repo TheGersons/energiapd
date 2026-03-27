@@ -44,4 +44,10 @@ export class AuthImplementation extends AuthRepository {
       withCredentials: true,
     });
   }
+
+  override forgotPassword(userMail: string): Observable<boolean> {
+    return this.http.post<boolean>(`${this.baseURL}/forgotPassword`, {
+      email: userMail,
+    });
+  }
 }

@@ -251,6 +251,11 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'olvide-contraseña',
+    loadComponent: ()=> import('@ui/template/forgot-pass/forgot-pass').then(m => m.ForgotPass)
+  },
+
   // --- COMODÍN ---
   { path: '**', redirectTo: 'iniciar-sesion' },
 ];

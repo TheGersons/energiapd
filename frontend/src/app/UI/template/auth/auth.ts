@@ -3,10 +3,12 @@ import { form, required, submit, FormField } from '@angular/forms/signals';
 import { AuthenticateUseCase } from '@domain/auth/usecase/authenticate.usecase';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, EMPTY, firstValueFrom } from 'rxjs';
+import { RouterLink } from "@angular/router";
+import { Loader } from "@ui/icons/loader";
 
 @Component({
   selector: 'app-auth',
-  imports: [FormField],
+  imports: [FormField, RouterLink, Loader],
   templateUrl: './auth.html',
   styleUrl: './auth.scss',
 })

@@ -1,8 +1,10 @@
 import prisma from "@database/index";
-import { compare } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { buildFingerprint, signToken } from "session";
 import { verify } from "jsonwebtoken";
 import { Request } from "express";
+import { mailService } from "mail/resetPassword.mail";
+import { randomBytes, randomInt } from "crypto";
 
 class AuthRepository {
   /**
@@ -133,6 +135,59 @@ class AuthRepository {
         },
       })
     ).count;
+  }
+
+  async forgotPassword(email: string) {
+    const rs = await prisma.user.findUnique({ where: { email } });
+
+    if (!rs) return;
+
+    const pass = this.generateSecurePassword(8);
+
+    await prisma.user.update({
+      where: { email },
+      data: { requestChangePass: true, password: await hash(pass, 10) },
+    });
+
+    await mailService.send({
+      to: email,
+      subject: "Restablece tu contraseña",
+      html: mailService.resetPasswordTemplate(rs.fullname, pass),
+    });
+  }
+
+  generateSecurePassword(length: number = 12): string {
+    // Forzamos mínimo 8 para que quepan todos los tipos
+    const finalLength = length < 8 ? 8 : length;
+
+    const sets = {
+      upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      lower: "abcdefghijklmnopqrstuvwxyz",
+      number: "0123456789",
+      special: "!@#$*", // Caracteres seguros para emails y bases de datos
+    };
+
+    const allChars = Object.values(sets).join("");
+    let password: string[] = [];
+
+    // 1. Aseguramos al menos uno de cada uno (Requisito estricto)
+    password.push(sets.upper[randomInt(sets.upper.length)]);
+    password.push(sets.number[randomInt(sets.number.length)]);
+    password.push(sets.special[randomInt(sets.special.length)]);
+    password.push(sets.lower[randomInt(sets.lower.length)]);
+
+    // 2. Rellenamos el resto hasta llegar al length deseado
+    for (let i = password.length; i < finalLength; i++) {
+      password.push(allChars[randomInt(allChars.length)]);
+    }
+
+    // 3. Mezclamos (Shuffle) usando Fisher-Yates para evitar patrones
+    for (let i = password.length - 1; i > 0; i--) {
+      const j = randomInt(i + 1);
+      [password[i], password[j]] = [password[j], password[i]];
+    }
+
+    return password.join("");
   }
 }
 

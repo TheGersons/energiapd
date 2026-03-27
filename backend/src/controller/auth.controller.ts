@@ -110,6 +110,24 @@ class AuthController {
       );
     }
   };
+
+  forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorResponse(res, 400, "Correo electrónico no válido.");
+        return;
+      }
+      await authRepository.forgotPassword(email);
+      res.status(200).json({
+        ok: true,
+      });
+    } catch (error) {
+      res.status(200).json({
+        ok: true,
+      });
+    }
+  };
 }
 
 export const authController = new AuthController();

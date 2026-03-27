@@ -6,19 +6,9 @@
     <div class="text-center mb-8">
       <div
         class="w-14 h-14 bg-slate-900 rounded-2xl inline-flex items-center justify-center mb-4 shadow-lg">
-        <svg
-          class="w-7 h-7 text-white"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.6"
-            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-        </svg>
+        <app-loader name="epd" hostClass="w-7 h-7"></app-loader>
       </div>
-      <h1 class="text-xl font-bold text-slate-800">Panel de Administración</h1>
+      <h1 class="text-xl font-bold text-slate-800">Energía PD</h1>
       <p class="text-slate-500 text-sm mt-1">
         Ingresa tus credenciales para continuar
       </p>
@@ -60,7 +50,8 @@
             <button
               type="button"
               (click)="showNewPassword.set(!showNewPassword())"
-              class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600">
+              class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600"
+              tabindex="-1">
               <svg
                 class="w-4 h-4"
                 fill="none"
@@ -119,14 +110,12 @@
       </form>
     </div>
 
-    <!-- Public loan link -->
     <div class="text-center mt-5">
       <p class="text-xs text-slate-400">
-        ¿Necesitas solicitar un préstamo de herramientas?
         <a
-          routerLink="/prestamo-herramientas/crear"
+          routerLink="/olvide-contraseña"
           class="text-slate-600 hover:text-slate-900 font-semibold underline underline-offset-2 ml-1 transition-colors">
-          Solicitar aquí
+          Olvidé la contraseña
         </a>
       </p>
     </div>

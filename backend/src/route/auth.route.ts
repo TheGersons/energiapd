@@ -17,6 +17,7 @@ class AuthRoute {
     });
     this.router.post("/refresh", validateToken, authController.refreshToken);
     this.router.post("/logout", validateToken, authController.logout);
+    this.router.post("/forgotPassword", authController.forgotPassword);
   }
 }
 
