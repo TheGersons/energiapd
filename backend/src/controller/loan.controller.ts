@@ -217,6 +217,7 @@ class LoanController {
       }
       res.status(200).json(rs);
     } catch (error) {
+      console.error("[LoanController.extend]", error);
       errorResponse(
         res,
         500,

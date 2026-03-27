@@ -1,5 +1,6 @@
 import { ILoan, ILoanDTO, ILoanResponse } from "@type/loan.type";
 import prisma from "@database/index";
+import { LoanMailService } from "mail/loan.mail";
 
 class LoanRepository {
   /**
@@ -82,7 +83,55 @@ class LoanRepository {
           createMany: { data: tools },
         },
       },
+      include: {
+        loanDetails: {
+          include: {
+            tool: true,
+          },
+        },
+      },
     });
+
+    const authorizers = await prisma.user.findMany({
+      where: {
+        userRoles: {
+          some: {
+            role: {
+              rolePermission: {
+                some: {
+                  permission: {
+                    slug: "prestamo-herramientas:autorizar",
+                  },
+                },
+              },
+            },
+          },
+        },
+        status: true,
+        idDepartment: loanDTO.idDepartment,
+      },
+      select: {
+        email: true,
+      },
+    });
+
+    LoanMailService.send({
+      to: authorizers.map((a) => a.email),
+      subject: `Solicitud de préstamo de herramientas #${rs.id.slice(0, 8)}`,
+      html: LoanMailService.loanApprovalTemplate({
+        approvalUrl: `http:localhost:4200/herramienta/prestamos/ver/${rs.id}`,
+        authorizerName: "Estimados Autorizadores",
+        requestDate: rs.createdAt.toLocaleDateString(),
+        requesterName: rs.name,
+        returnDate: rs.returnDate.toLocaleDateString(),
+        tools: rs.loanDetails.map((detail) => ({
+          brand: detail.tool.brand,
+          name: detail.tool.name,
+          serial: detail.tool.serial,
+        })),
+      }),
+    });
+
     return rs.id;
   }
 
