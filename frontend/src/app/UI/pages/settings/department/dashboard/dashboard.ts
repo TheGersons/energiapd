@@ -26,13 +26,16 @@ export class Dashboard {
     loader: () => firstValueFrom(this.findAllDepartments.execute()),
   });
 
-  navigate(type: number) {
-    if (type === 2) {
-      const id = Array.from(this.selection())[0];
-      this.router.navigate(['/configuraciones/departamentos/editar', id]);
-      return;
-    }
+
+  goToCreate() {
     this.router.navigate(['/configuraciones/departamentos/crear']);
+  }
+
+  goToEdit() {
+    const selectedIds = Array.from(this.selection());
+    if (selectedIds.length === 1) {
+      this.router.navigate(['/configuraciones/departamentos/editar', selectedIds[0]]);
+    }
   }
 
   onSelectRow(id: string) {

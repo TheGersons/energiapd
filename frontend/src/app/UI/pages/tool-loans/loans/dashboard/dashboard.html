@@ -7,12 +7,6 @@
         Gestión de préstamos de herramientas
       </p>
     </div>
-    <button
-      (click)="navigate(1)"
-      class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors">
-      <app-loader name="plus" hostClass="w-4 h-4 text-white"></app-loader>
-      Nueva solicitud
-    </button>
   </div>
 
   <!-- ── Tarjetas de estadísticas ───────────────────────────── -->
@@ -162,7 +156,7 @@
       <!-- Acciones contextuales -->
       <div class="flex items-center gap-1.5">
         <button
-          (click)="navigate(1)"
+          (click)="goToCreate()"
           title="Nueva solicitud"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
           <app-loader
@@ -175,7 +169,7 @@
             'prestamo-herramientas:entregar',
             'prestamo-herramientas:autorizar',
           ]"
-          (click)="navigate(2)"
+          (click)="goToEdit()"
           [disabled]="!canEdit()"
           title="Ver detalle"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">

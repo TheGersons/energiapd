@@ -7,13 +7,6 @@
         Gestión de departamentos de la organización
       </p>
     </div>
-    <button
-      *hasPermission="['departamentos:crear']"
-      (click)="navigate(1)"
-      class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors">
-      <app-loader name="plus" hostClass="w-4 h-4 text-white"></app-loader>
-      Nuevo departamento
-    </button>
   </div>
 
   <!-- Tarjeta de estadísticas -->
@@ -43,7 +36,7 @@
       <div class="flex items-center gap-1.5">
         <button
           *hasPermission="['departamentos:crear']"
-          (click)="navigate(1)"
+          (click)="goToCreate()"
           title="Nuevo"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
           <app-loader
@@ -60,7 +53,7 @@
         </button>
         <button
           *hasPermission="['departamentos:editar']"
-          (click)="navigate(2)"
+          (click)="goToEdit()"
           [disabled]="!canEdit()"
           title="Editar"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
@@ -129,7 +122,7 @@
                     No hay departamentos registrados
                   </p>
                   <button
-                    (click)="navigate(1)"
+                    (click)="goToCreate()"
                     class="text-xs text-blue-600 hover:underline">
                     Agregar el primero
                   </button>

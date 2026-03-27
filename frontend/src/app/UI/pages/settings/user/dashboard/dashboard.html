@@ -7,12 +7,6 @@
         Administración de usuarios del sistema
       </p>
     </div>
-    <button
-      (click)="navigate()"
-      class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors">
-      <app-loader name="plus" hostClass="w-4 h-4 text-white"></app-loader>
-      Nuevo usuario
-    </button>
   </div>
 
   <!-- Tarjetas de estadísticas -->
@@ -73,7 +67,7 @@
       class="px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
         <button
-          (click)="navigate()"
+          (click)="goToCreate()"
           title="Nuevo"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
           <app-loader
@@ -82,7 +76,7 @@
         </button>
         <button
           [disabled]="canEdit()"
-          (click)="navigate()"
+          (click)="goToEdit()"
           title="Editar"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
           <app-loader

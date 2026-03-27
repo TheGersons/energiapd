@@ -3,7 +3,6 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FindAllLoansUseCase } from '@domain/loan/usecase/FindAllLoans.usecase';
-import { LoanModel } from '@domain/loan/loal.model';
 import { Loader } from '@ui/icons/loader';
 import { HasPermissionDirective } from '@base/directive/has-permission.directive';
 import { firstValueFrom } from 'rxjs';
@@ -26,7 +25,6 @@ export class Dashboard {
   private readonly router = inject(Router);
   private findAllLoansUseCase = inject(FindAllLoansUseCase);
 
-  // ── Estado de UI ────────────────────────────────────────────
   selection = signal(new Set<string>());
   canEdit = computed(() => this.selection().size === 1);
 
@@ -42,12 +40,10 @@ export class Dashboard {
     'Denegado',
   ];
 
-  // ── Datos ────────────────────────────────────────────────────
   loansResource = resource({
     loader: () => firstValueFrom(this.findAllLoansUseCase.execute()),
   });
 
-  // ── Estadísticas derivadas ───────────────────────────────────
   stats = computed(() => {
     const loans = this.loansResource.value() ?? [];
     return {
@@ -60,7 +56,6 @@ export class Dashboard {
     };
   });
 
-  // ── Préstamos filtrados ──────────────────────────────────────
   filteredLoans = computed(() => {
     const loans = this.loansResource.value() ?? [];
     const query = this.searchQuery().trim().toLowerCase();
@@ -77,7 +72,6 @@ export class Dashboard {
     });
   });
 
-  // ── Helpers de estilo ────────────────────────────────────────
   statusBadgeClass(status: string): string {
     const map: Record<string, string> = {
       Pendiente: 'bg-amber-100  text-amber-700  border border-amber-200',
@@ -130,14 +124,15 @@ export class Dashboard {
     return new Date(returnDate) < new Date();
   }
 
-  // ── Acciones ─────────────────────────────────────────────────
-  navigate(type: number) {
-    if (type === 2) {
-      const id = Array.from(this.selection())[0];
-      this.router.navigate(['/herramientas/prestamos/ver', id]);
-      return;
-    }
+  goToCreate() {
     this.router.navigate(['/herramientas/prestamos/crear']);
+  }
+
+  goToEdit() {
+    const selectedIds = Array.from(this.selection());
+    if (selectedIds.length === 1) {
+      this.router.navigate(['/herramientas/prestamos/ver', selectedIds[0]]);
+    }
   }
 
   onSelectRow(id: string) {

@@ -53,20 +53,20 @@ export class Dashboard {
   // Computed Properties
   readonly selectedCount = computed(() => this.selection().size);
 
-  // Simplificado: true si no hay exactamente 1 elemento
   readonly canEdit = computed(() => this.selectedCount() !== 1);
 
   // Methods
-  navigate(): void {
-    const selectedIds = Array.from(this.selection());
+  goToCreate() {
+    this.router.navigate(['/configuraciones/usuarios/crear']);
+  }
 
+  goToEdit() {
+    const selectedIds = Array.from(this.selection());
     if (selectedIds.length === 1) {
       this.router.navigate([
         '/configuraciones/usuarios/editar',
         selectedIds[0],
       ]);
-    } else {
-      this.router.navigate(['/configuraciones/usuarios/crear']);
     }
   }
 

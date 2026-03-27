@@ -90,7 +90,7 @@
       class="px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
         <button
-          (click)="navigate(1)"
+          (click)="goToCreate()"
           title="Nueva herramienta"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
           <app-loader
@@ -107,7 +107,7 @@
             hostClass="w-5 h-5 text-gray-600 group-hover:text-red-500"></app-loader>
         </button>
         <button
-          (click)="navigate(2)"
+          (click)="goToEdit()"
           [disabled]="canEdit()"
           title="Editar"
           class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
@@ -217,7 +217,7 @@
                     } @else {
                       No hay préstamos registrados
                       <button
-                        (click)="navigate(1)"
+                        (click)="goToCreate()"
                         class="text-xs text-blue-600 hover:underline">
                         Agregar la primera herramienta
                       </button>

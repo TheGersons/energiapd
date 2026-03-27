@@ -122,14 +122,14 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  navigate(type: number) {
-    if (type === 2) {
-      this.router.navigate([
-        '/herramientas/inventario/editar',
-        Array.from(this.selection())[0],
-      ]);
-    } else {
-      this.router.navigate(['/herramientas/inventario/crear']);
+  goToCreate() {
+    this.router.navigate(['/herramientas/inventario/crear']);
+  }
+
+  goToEdit() {
+    const selectedIds = Array.from(this.selection());
+    if (selectedIds.length === 1) {
+      this.router.navigate(['/herramientas/inventario/editar', selectedIds[0]]);
     }
   }
 
