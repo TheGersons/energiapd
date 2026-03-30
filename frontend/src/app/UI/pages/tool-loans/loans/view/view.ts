@@ -34,7 +34,7 @@ import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';
 import { ReturnLoanUseCase } from '@domain/loan/usecase/returnLoan.usecase';
 import { ExtendLoanUseCase } from '@domain/loan/usecase/extendLoan.usecase';
 
-export type signatureType = 'delivery' | 'return' | 'approval';
+export type signatureType = 'delivery' | 'return' | 'approval' | 'extend';
 
 @Component({
   selector: 'app-view',
@@ -79,10 +79,12 @@ export class View implements OnInit, AfterViewInit {
   private readonly sessionId = uuidv4();
   private readonly deliverySessionId = uuidv4();
   private readonly returnSessionId = uuidv4();
+  private readonly extendSessionId = uuidv4();
 
   readonly url = `${environment.host}firma-herramientas/${this.sessionId}/approval`;
   readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}/delivery`;
   readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}/return`;
+  readonly extendUrl = `${environment.host}firma-herramientas/${this.extendSessionId}/extension`;
 
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
@@ -90,6 +92,7 @@ export class View implements OnInit, AfterViewInit {
     delivery: (val) => this.deliverySignatureImage.set(val),
     return: (val) => this.returnSignatureImage.set(val),
     approval: (val) => this.signatureImage.set(val),
+    extend: (val) => this.extendSignatureImage.set(val),
   };
 
   createdAt = signal<string>('');
@@ -127,6 +130,8 @@ export class View implements OnInit, AfterViewInit {
   returnSignatureImage = signal<string>('');
   showReturnPcPad = signal<boolean>(false);
   returnNotes = signal<string>('');
+  extendSignatureImage = signal<string>('');
+  showExtendPcPad = signal<boolean>(false);
   returnVerifiedTools = signal<Set<string>>(new Set());
 
   returnVerifiedCount = computed(() => this.returnVerifiedTools().size);
@@ -138,6 +143,12 @@ export class View implements OnInit, AfterViewInit {
   canConfirmReturn = computed(
     () =>
       this.allReturnToolsVerified() && this.returnSignatureImage().length > 0,
+  );
+
+  canConfirmExtend = computed(
+    () =>
+      this.extendReturnDate().length > 0 &&
+      this.extendSignatureImage().length > 0,
   );
 
   readonly approvalEntry = computed(() =>
@@ -201,6 +212,7 @@ export class View implements OnInit, AfterViewInit {
     this.signatureSocket.joinRoom(this.sessionId);
     this.signatureSocket.joinRoom(this.deliverySessionId);
     this.signatureSocket.joinRoom(this.returnSessionId);
+    this.signatureSocket.joinRoom(this.extendSessionId);
 
     this.signatureSocket.onSignatureReceived().subscribe((data) => {
       const actions = this.signatureActions[data.signatureType];
@@ -260,6 +272,10 @@ export class View implements OnInit, AfterViewInit {
   confirmReturnPcSignature(pad: SignaturePadComponent) {
     this.returnSignatureImage.set(pad.toDataURL());
     this.showReturnPcPad.set(false);
+  }
+  confirmExtendPcSignature(pad: SignaturePadComponent) {
+    this.extendSignatureImage.set(pad.toDataURL());
+    this.showExtendPcPad.set(false);
   }
 
   readonly stepStates = computed(() => {

@@ -1465,7 +1465,69 @@
           </textarea>
         </div>
 
-        <!-- Aviso informativo -->
+        <!-- Firma — mismo estilo QR + hover que aprobación/entrega -->
+        <div
+          class="border-2 border-dashed border-amber-200 rounded-xl p-5 flex flex-col items-center justify-center gap-4 bg-amber-50/30">
+          @if (!extendSignatureImage()) {
+            <p
+              class="text-xs font-bold text-amber-700 uppercase tracking-wider">
+              Firma del autorizador
+            </p>
+            <div
+              class="relative group cursor-pointer"
+              (click)="showExtendPcPad.set(true)">
+              <div
+                class="bg-white p-2 rounded-xl border border-amber-100 shadow-sm">
+                <qrcode
+                  [qrdata]="extendUrl"
+                  [width]="150"
+                  [errorCorrectionLevel]="'M'"></qrcode>
+              </div>
+              <div
+                class="absolute inset-0 bg-amber-600/10 group-hover:bg-amber-600/20 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-all">
+                <span
+                  class="bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded-full font-bold shadow">
+                  FIRMAR EN PC
+                </span>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 text-center leading-relaxed">
+              Escanea el QR con tu móvil<br />o <strong>haz clic</strong> para
+              firmar aquí.
+            </p>
+            <div
+              class="flex items-center gap-1.5 text-[10px] text-amber-500 font-semibold animate-pulse">
+              <div class="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
+              SINCRONIZANDO...
+            </div>
+          } @else {
+            <div class="text-center">
+              <div
+                class="bg-green-100 text-green-600 rounded-full p-3 inline-block mb-2">
+                <svg
+                  class="h-7 w-7"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p class="text-sm font-bold text-green-700">¡Firma lista!</p>
+              <button
+                type="button"
+                (click)="extendSignatureImage.set('')"
+                class="text-[11px] text-red-500 hover:underline mt-1">
+                Quitar firma
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Aviso -->
         <div
           class="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-lg p-3">
           <svg
@@ -1496,7 +1558,7 @@
         </button>
         <button
           (click)="onExtend()"
-          [disabled]="!extendReturnDate()"
+          [disabled]="!canConfirmExtend()"
           class="flex-[2] py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
           <svg
             class="h-4 w-4"
@@ -1515,6 +1577,49 @@
     </div>
   </div>
 }
+
+<!-- ============================================================ -->
+<!-- MODAL: Firma en PC — Ampliación (nuevo, agregar al final    -->
+<!--        de view.html junto a los otros modales de firma)     -->
+<!-- ============================================================ -->
+@if (showExtendPcPad()) {
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-200">
+      <div
+        class="px-6 py-4 bg-amber-50 border-b border-amber-200 flex justify-between items-center">
+        <h3 class="font-bold text-amber-800">Firma del autorizador</h3>
+        <button
+          (click)="showExtendPcPad.set(false)"
+          class="text-gray-400 hover:text-gray-600 text-2xl leading-none">
+          &times;
+        </button>
+      </div>
+      <div class="p-6 flex flex-col items-center gap-4">
+        <div
+          class="bg-white border-2 border-gray-200 rounded-xl shadow-inner overflow-hidden">
+          <signature-pad
+            #extendSignaturePad
+            [options]="signaturePadOptions"></signature-pad>
+        </div>
+        <div class="flex gap-3 w-full">
+          <button
+            (click)="extendSignaturePad.clear()"
+            class="flex-1 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200">
+            Limpiar
+          </button>
+          <button
+            (click)="confirmExtendPcSignature(extendSignaturePad)"
+            class="flex-[2] py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold shadow transition-colors text-sm">
+            Usar esta firma
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 @if (showPcPad()) {
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

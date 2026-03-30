@@ -16,7 +16,7 @@ export class Signature {
   @ViewChild('signature')
   public signaturePad!: SignaturePadComponent;
   sessionId!: string;
-  signatureType!: 'approval' | 'return' | 'delivery';
+  signatureType!: 'approval' | 'return' | 'delivery' | 'extend';
 
   public signaturePadOptions: NgSignaturePadOptions = {
     maxWidth: 0.5,

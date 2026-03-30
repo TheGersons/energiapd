@@ -28,7 +28,7 @@ export class SignatureSocket {
   sendSignature(
     roomId: string,
     base64: string,
-    signatureType: 'delivery' | 'return' | 'approval',
+    signatureType: 'delivery' | 'return' | 'approval' | 'extend',
   ) {
     this.socket.emit('send-signature', { roomId, base64, signatureType });
   }
