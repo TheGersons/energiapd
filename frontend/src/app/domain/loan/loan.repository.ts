@@ -30,6 +30,7 @@ export abstract class LoanRepository {
     loan: string,
     comments: string,
     loanReturn: string,
+    sign: string,
   ): Observable<string>;
   abstract findOnePublicLoan(id: string): Observable<LoanResponseModel>;
 }

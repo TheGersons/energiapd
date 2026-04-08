@@ -137,14 +137,15 @@ enum approveType {
 }
 
 model LoanApproves {
-  id        String      @id @default(uuid())
-  idLoan    String
-  idUser    String
-  approved  Boolean     @default(false)
-  notes     String?
-  type      approveType
-  signature String
-  createdAt DateTime    @default(now())
+  id            String      @id @default(uuid())
+  idLoan        String
+  idUser        String
+  approved      Boolean     @default(false)
+  notes         String?
+  type          approveType
+  signature     String
+  newReturnDate DateTime?
+  createdAt     DateTime    @default(now())
 
   loan Loan @relation(fields: [idLoan], references: [id])
   user User @relation(fields: [idUser], references: [id])

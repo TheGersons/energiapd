@@ -12,9 +12,9 @@
     <div class="w-7 h-px bg-gray-700/80 mb-1"></div>
 
     <!-- Módulos -->
-    @for (m of modules; track m.moduleId) {
+    @for (m of modules(); track m.moduleId) {
       <button
-        *hasPermission="m.permissions ?? []"
+        *hasPermission="modulePermissions()[m.moduleName]"
         (click)="onClickModule(m)"
         [class]="
           'relative w-10 h-10 flex items-center justify-center rounded-xl
@@ -88,6 +88,7 @@
     <nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
       @for (p of pages(); track p.pageId) {
         <a
+          *hasPermission="p.permissions ?? []"
           [routerLink]="p.pageUrl"
           routerLinkActive
           #rla="routerLinkActive"

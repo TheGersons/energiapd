@@ -31,6 +31,7 @@ class LoanRepository {
             approved: true,
             type: true,
             createdAt: true,
+            newReturnDate: true,
             user: {
               select: {
                 fullname: true,
@@ -119,7 +120,7 @@ class LoanRepository {
       to: authorizers.map((a) => a.email),
       subject: `Solicitud de préstamo de herramientas #${rs.id.slice(0, 8)}`,
       html: LoanMailService.loanApprovalTemplate({
-        approvalUrl: `http:localhost:4200/herramienta/prestamos/ver/${rs.id}`,
+        approvalUrl: `${process.env.FRONTEND_URL}/herramienta/prestamos/ver/${rs.id}`,
         authorizerName: "Estimados Autorizadores",
         requestDate: rs.createdAt.toLocaleDateString(),
         requesterName: rs.name,
@@ -271,6 +272,7 @@ class LoanRepository {
             notes,
             type: "extension",
             signature,
+            newReturnDate,
           },
         },
       },

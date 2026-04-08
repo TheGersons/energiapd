@@ -44,7 +44,8 @@ export interface ILoanResponse {
     idLoan: string;
     user: { id: string; fullname: string };
     approved: boolean;
-    type: string;
+    type: "delivery" | "approval" | "extension" | "return";
+    newReturnDate: Date | null;
     createdAt: Date;
   }>;
   notes: string;

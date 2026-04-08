@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { Component, computed, Input, signal } from '@angular/core';
 import { ModuleModel, PageModel } from '@domain/module/module.model';
 import { Loader } from '@ui/icons/loader';
@@ -7,12 +6,7 @@ import { HasPermissionDirective } from '@base/directive/has-permission.directive
 
 @Component({
   selector: 'app-aside',
-  imports: [
-    Loader,
-    RouterLink,
-    RouterLinkActive,
-    HasPermissionDirective,
-  ],
+  imports: [Loader, RouterLink, RouterLinkActive, HasPermissionDirective],
   templateUrl: './aside.html',
   styleUrl: './aside.scss',
 })
@@ -38,19 +32,11 @@ export class Aside {
     },
   ]);
 
-  modules: ModuleModel[] = [
+  modules = signal<ModuleModel[]>([
     {
       moduleId: 'tool-loans',
       moduleName: 'tool-loans',
       moduleLabel: 'Préstamo de Herramientas',
-      permissions: [
-        'inventario-herramienta:leer',
-        'prestamo-herramientas:solicitar',
-        'inventario-herramienta:crear',
-        'prestamo-herramientas:leer',
-        'prestamo-herramientas:entregar',
-        'inventario-herramienta:eliminar',
-      ],
       page: [
         {
           pageId: 'inventory',
@@ -59,6 +45,7 @@ export class Aside {
           pageLabel: 'Inventario',
           pageUrl: '/herramientas/inventario',
           pageDescription: 'Inventario de Herramientas',
+          permissions: ['inventario-herramienta:leer'],
         },
         {
           pageId: 'loans',
@@ -67,6 +54,7 @@ export class Aside {
           pageLabel: 'Préstamos',
           pageUrl: '/herramientas/prestamos',
           pageDescription: 'Gestión de Préstamos',
+          permissions: ['prestamo-herramientas:leer'],
         },
       ],
     },
@@ -74,16 +62,6 @@ export class Aside {
       moduleId: 'settings',
       moduleName: 'settings',
       moduleLabel: 'Configuraciones',
-      permissions: [
-        'permisos:eliminar',
-        'permisos:leer',
-        'usuarios:crear',
-        'usuarios:leer',
-        'permisos:crear',
-        'usuarios:editar',
-        'usuarios:eliminar',
-        'permisos:editar',
-      ],
       page: [
         {
           pageId: 'permissions',
@@ -92,6 +70,7 @@ export class Aside {
           pageLabel: 'Roles y Permisos',
           pageUrl: '/configuraciones/permisos',
           pageDescription: 'Configuración de Roles y Permisos',
+          permissions: ['permisos:leer'],
         },
         {
           pageId: 'users',
@@ -100,6 +79,7 @@ export class Aside {
           pageLabel: 'Usuarios',
           pageUrl: '/configuraciones/usuarios',
           pageDescription: 'Configuración de usuarios',
+          permissions: ['usuarios:leer'],
         },
         {
           pageId: 'departments',
@@ -108,17 +88,31 @@ export class Aside {
           pageLabel: 'Departamentos',
           pageUrl: '/configuraciones/departamentos',
           pageDescription: 'Gestión de departamentos',
+          permissions: ['departamentos:leer'],
         },
       ],
     },
-  ];
+  ]);
 
   sModule = signal(new Set<string>(['tool-loans']));
 
   /** Label del módulo activo para el header del panel */
   currentModuleLabel = computed(() => {
     const activeId = Array.from(this.sModule())[0];
-    return this.modules.find(m => m.moduleId === activeId)?.moduleLabel ?? '';
+    return (
+      this.modules().find((m) => m.moduleId === activeId)?.moduleLabel ?? ''
+    );
+  });
+
+  modulePermissions = computed<Record<string, string[]>>(() => {
+    return this.modules().reduce(
+      (acc, curr) => {
+        acc[curr.moduleName] = curr.page.flatMap((p) => p.permissions || []);
+
+        return acc;
+      },
+      {} as Record<string, string[]>,
+    );
   });
 
   onToggleSidebar() {
@@ -131,7 +125,6 @@ export class Aside {
     this.sModule.set(new Set<string>([module.moduleId ?? '']));
     this.pages.set(module.page);
 
-    // Si el panel está cerrado, abrirlo. Si el mismo módulo se toca de nuevo, togglarlo.
     if (!this.toggleSidebar() || !alreadyActive) {
       this.toggleSidebar.set(true);
     } else {

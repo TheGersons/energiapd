@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LoanModel, LoanResponseModel } from '@domain/loan/loal.model';
+import { LoanResponseModel } from '@domain/loan/loal.model';
 import { FindOneLoanUseCase } from '@domain/loan/usecase/findOneLoan.usecase';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Loader } from '@ui/icons/loader';
@@ -84,7 +84,7 @@ export class View implements OnInit, AfterViewInit {
   readonly url = `${environment.host}firma-herramientas/${this.sessionId}/approval`;
   readonly deliveryUrl = `${environment.host}firma-herramientas/${this.deliverySessionId}/delivery`;
   readonly returnUrl = `${environment.host}firma-herramientas/${this.returnSessionId}/return`;
-  readonly extendUrl = `${environment.host}firma-herramientas/${this.extendSessionId}/extension`;
+  readonly extendUrl = `${environment.host}firma-herramientas/${this.extendSessionId}/extend`;
 
   sTab = signal<'detail' | 'state' | 'actions'>('detail');
 
@@ -392,8 +392,17 @@ export class View implements OnInit, AfterViewInit {
   }
 
   async onExtend() {
-    if (!this.extendReturnDate()) {
-      this.toastr.warning('Selecciona una nueva fecha de retorno.');
+    console.log(
+      new Date(this.extendReturnDate()) < new Date(),
+      new Date(this.extendReturnDate()),
+    );
+    if (
+      !this.extendReturnDate() ||
+      new Date(this.extendReturnDate()) < new Date() ||
+      new Date(this.extendReturnDate()) <
+        new Date(this.loanResource.value()?.loanReturnDate ?? '')
+    ) {
+      this.toastr.warning('Selecciona fecha de retorno válida.');
       return;
     }
 
@@ -402,6 +411,7 @@ export class View implements OnInit, AfterViewInit {
         loan: this.loanResource.value()?.loanId ?? '',
         comments: this.extendNotes(),
         loanReturn: new Date(this.extendReturnDate()).toISOString(),
+        sign: this.extendSignatureImage(),
       }),
     );
 

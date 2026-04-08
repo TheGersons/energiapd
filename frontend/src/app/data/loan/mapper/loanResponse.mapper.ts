@@ -14,6 +14,7 @@ export class LoanResponseMapper extends Mapper<
         state: a.approved,
         approveType: a.type,
         createdAt: a.createdAt,
+        loanNewReturn: a.newReturnDate,
         approveUser: {
           userId: a.user.id,
           name: a.user.fullname,
@@ -59,6 +60,7 @@ export class LoanResponseMapper extends Mapper<
         approved: a.state,
         type: a.approveType,
         createdAt: a.createdAt,
+        newReturnDate: a.loanNewReturn,
         user: {
           id: a.approveUser.userId,
           fullname: a.approveUser.name,

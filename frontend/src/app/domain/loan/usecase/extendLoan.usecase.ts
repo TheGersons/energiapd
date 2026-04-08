@@ -7,7 +7,7 @@ import { LoanRepository } from '../loan.repository';
   providedIn: 'root',
 })
 export class ExtendLoanUseCase implements UseCase<
-  { loan: string; comments: string; loanReturn: string },
+  { loan: string; comments: string; loanReturn: string; sign: string },
   string
 > {
   private repository = inject(LoanRepository);
@@ -15,11 +15,13 @@ export class ExtendLoanUseCase implements UseCase<
     loan: string;
     comments: string;
     loanReturn: string;
+    sign: string;
   }): Observable<string> {
     return this.repository.extendLoan(
       params.loan,
       params.comments,
       params.loanReturn,
+      params.sign,
     );
   }
 }

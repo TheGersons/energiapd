@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { SocketRoutes } from "socket/signature.socket";
+import { v4 } from "uuid";
 
 class Server {
   private app!: Application;
@@ -52,6 +53,7 @@ class Server {
   }
 
   start(): void {
+    console.log(v4())
     this.httpServer.listen(this.app.get("port"), () => {
       console.log("Running on port", this.app.get("port"));
     });

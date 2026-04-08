@@ -44,6 +44,7 @@ export interface LoanResponseModel extends LoanModel {
     state: boolean;
     approveType: 'approval' | 'delivery' | 'return' | 'extension';
     createdAt: string;
+    loanNewReturn: string | null;
     approveUser: {
       userId: string;
       name: string;

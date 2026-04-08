@@ -3,7 +3,6 @@ export interface ModuleModel {
   moduleName: string;
   moduleLabel: string;
   page: PageModel[];
-  permissions?: string[];
 }
 
 export interface PageModel {
@@ -13,4 +12,5 @@ export interface PageModel {
   pageLabel: string;
   pageUrl: string;
   pageDescription: string;
+  permissions?: string[];
 }

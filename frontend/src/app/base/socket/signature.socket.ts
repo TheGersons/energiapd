@@ -30,6 +30,7 @@ export class SignatureSocket {
     base64: string,
     signatureType: 'delivery' | 'return' | 'approval' | 'extend',
   ) {
+    console.log(signatureType);
     this.socket.emit('send-signature', { roomId, base64, signatureType });
   }
 }
