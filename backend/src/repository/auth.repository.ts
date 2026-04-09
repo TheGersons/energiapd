@@ -3,8 +3,9 @@ import { compare, hash } from "bcrypt";
 import { buildFingerprint, signToken } from "session";
 import { verify } from "jsonwebtoken";
 import { Request } from "express";
-import { mailService } from "mail/resetPassword.mail";
+import { mailService } from "@mail/mail.service";
 import { randomBytes, randomInt } from "crypto";
+import { resetPasswordTemplate } from "@mail/resetPassword.mail";
 
 class AuthRepository {
   /**
@@ -152,7 +153,7 @@ class AuthRepository {
     await mailService.send({
       to: email,
       subject: "Restablece tu contraseña",
-      html: mailService.resetPasswordTemplate(rs.fullname, pass),
+      html: resetPasswordTemplate(rs.fullname, pass),
     });
   }
 

@@ -1,6 +1,7 @@
 import { ILoan, ILoanDTO, ILoanResponse } from "@type/loan.type";
 import prisma from "@database/index";
-import { LoanMailService } from "mail/loan.mail";
+import { loanApprovalTemplate } from "@mail/loan.mail";
+import { mailService } from "@mail/mail.service";
 
 class LoanRepository {
   /**
@@ -116,10 +117,10 @@ class LoanRepository {
       },
     });
 
-    LoanMailService.send({
+    mailService.send({
       to: authorizers.map((a) => a.email),
       subject: `Solicitud de préstamo de herramientas #${rs.id.slice(0, 8)}`,
-      html: LoanMailService.loanApprovalTemplate({
+      html: loanApprovalTemplate({
         approvalUrl: `${process.env.FRONTEND_URL}/herramienta/prestamos/ver/${rs.id}`,
         authorizerName: "Estimados Autorizadores",
         requestDate: rs.createdAt.toLocaleDateString(),

@@ -1,44 +1,14 @@
-import nodemailer, { Transporter } from "nodemailer";
-
-interface SendMailOptions {
-  to: string | string[];
-  subject: string;
-  html: string;
-}
-
-class LoanMail {
-  private transporter: Transporter;
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: "zoho",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-  }
-
-  async send({ to, subject, html }: SendMailOptions): Promise<void> {
-    await this.transporter.sendMail({
-      from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_USER}>`,
-      to,
-      subject,
-      html,
-    });
-  }
-
-  loanApprovalTemplate(data: {
-    authorizerName: string;
-    requesterName: string;
-    tools: { name: string; brand: string; serial: string }[];
-    requestDate: string;
-    returnDate: string;
-    approvalUrl: string;
-  }): string {
-    const toolListHtml = data.tools
-      .map(
-        (t) => `
+export const loanApprovalTemplate = (data: {
+  authorizerName: string;
+  requesterName: string;
+  tools: { name: string; brand: string; serial: string }[];
+  requestDate: string;
+  returnDate: string;
+  approvalUrl: string;
+}): string => {
+  const toolListHtml = data.tools
+    .map(
+      (t) => `
         <tr style="border-bottom:1px solid #f1f5f9;">
             <td style="padding:14px 0;">
             <div style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:2px;">${t.name}</div>
@@ -48,10 +18,10 @@ class LoanMail {
             </div>
             </td>
         </tr>`,
-      )
-      .join("");
+    )
+    .join("");
 
-    return `
+  return `
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -133,7 +103,4 @@ class LoanMail {
         </body>
         </html>
   `.trim();
-  }
-}
-
-export const LoanMailService = new LoanMail();
+};
