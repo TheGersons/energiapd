@@ -4,6 +4,7 @@ interface SendMailOptions {
   to: string | string[];
   subject: string;
   html: string;
+  attachments:[{ filename: string; content: string; encoding: string; cid: string }] | undefined;
 }
 
 class MailService {
@@ -19,11 +20,17 @@ class MailService {
     });
   }
 
-  async send({ to, subject, html }: SendMailOptions): Promise<void> {
+  async send({
+    to,
+    subject,
+    attachments,
+    html,
+  }: SendMailOptions): Promise<void> {
     await this.transporter.sendMail({
       from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_USER}>`,
       to,
       subject,
+      attachments,
       html,
     });
   }

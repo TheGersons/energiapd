@@ -152,6 +152,7 @@ class AuthRepository {
 
     await mailService.send({
       to: email,
+      attachments: undefined,
       subject: "Restablece tu contraseña",
       html: resetPasswordTemplate(rs.fullname, pass),
     });

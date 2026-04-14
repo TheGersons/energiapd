@@ -1,8 +1,21 @@
-import { Component, computed, Input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  Input,
+  OnInit,
+  signal,
+} from '@angular/core';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { ModuleModel, PageModel } from '@domain/module/module.model';
-import { Loader } from '@ui/icons/loader';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HasPermissionDirective } from '@base/directive/has-permission.directive';
+import { Loader } from '@ui/icons/loader';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-aside',
@@ -10,29 +23,12 @@ import { HasPermissionDirective } from '@base/directive/has-permission.directive
   templateUrl: './aside.html',
   styleUrl: './aside.scss',
 })
-export class Aside {
+export class Aside implements OnInit {
   @Input() toggleSidebar = signal<boolean>(false);
 
-  pages = signal<PageModel[]>([
-    {
-      pageId: 'inventory',
-      moduleId: 'tool-loans',
-      pageName: 'inventory',
-      pageLabel: 'Inventario',
-      pageUrl: '/herramientas/inventario',
-      pageDescription: 'Inventario de Herramientas',
-    },
-    {
-      pageId: 'loans',
-      moduleId: 'tool-loans',
-      pageName: 'loans',
-      pageLabel: 'Préstamos',
-      pageUrl: '/herramientas/prestamos',
-      pageDescription: 'Gestión de Préstamos',
-    },
-  ]);
+  private readonly router = inject(Router);
 
-  modules = signal<ModuleModel[]>([
+  readonly modules = signal<ModuleModel[]>([
     {
       moduleId: 'tool-loans',
       moduleName: 'tool-loans',
@@ -94,9 +90,9 @@ export class Aside {
     },
   ]);
 
-  sModule = signal(new Set<string>(['tool-loans']));
+  pages = signal<PageModel[]>([]);
+  sModule = signal(new Set<string>());
 
-  /** Label del módulo activo para el header del panel */
   currentModuleLabel = computed(() => {
     const activeId = Array.from(this.sModule())[0];
     return (
@@ -107,13 +103,34 @@ export class Aside {
   modulePermissions = computed<Record<string, string[]>>(() => {
     return this.modules().reduce(
       (acc, curr) => {
-        acc[curr.moduleName] = curr.page.flatMap((p) => p.permissions || []);
-
+        acc[curr.moduleName] = curr.page.flatMap(
+          (p) => (p as any).permissions ?? [],
+        );
         return acc;
       },
       {} as Record<string, string[]>,
     );
   });
+
+  ngOnInit(): void {
+    this.activateModuleForUrl(this.router.url);
+
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe((e: any) => this.activateModuleForUrl(e.urlAfterRedirects));
+  }
+
+  private activateModuleForUrl(url: string): void {
+    const matched = this.modules().find((m) =>
+      m.page.some((p) => url.startsWith(p.pageUrl)),
+    );
+
+    if (matched) {
+      this.sModule.set(new Set([matched.moduleId ?? '']));
+      this.pages.set(matched.page);
+      this.toggleSidebar.set(true);
+    }
+  }
 
   onToggleSidebar() {
     this.toggleSidebar.set(!this.toggleSidebar());
@@ -122,7 +139,7 @@ export class Aside {
   onClickModule(module: ModuleModel) {
     const alreadyActive = this.sModule().has(module.moduleId ?? '');
 
-    this.sModule.set(new Set<string>([module.moduleId ?? '']));
+    this.sModule.set(new Set([module.moduleId ?? '']));
     this.pages.set(module.page);
 
     if (!this.toggleSidebar() || !alreadyActive) {

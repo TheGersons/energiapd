@@ -8,6 +8,7 @@ import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { SocketRoutes } from "socket/signature.socket";
 import { v4 } from "uuid";
+import { loanTask } from "jobs/loanExpiry.task";
 
 class Server {
   private app!: Application;
@@ -20,7 +21,7 @@ class Server {
     this.routes();
     this.httpServer = http.createServer(this.app);
     this.io = new SocketIOServer(this.httpServer, { cors: { origin: "*" } });
-
+    loanTask.initLoanJob();
     this.listenSockets();
   }
 
@@ -53,7 +54,6 @@ class Server {
   }
 
   start(): void {
-    console.log(v4())
     this.httpServer.listen(this.app.get("port"), () => {
       console.log("Running on port", this.app.get("port"));
     });

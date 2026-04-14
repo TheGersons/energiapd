@@ -166,6 +166,7 @@ class LoanController {
       }
       res.status(200).json(rs);
     } catch (error) {
+      console.log(error);
       errorResponse(
         res,
         500,

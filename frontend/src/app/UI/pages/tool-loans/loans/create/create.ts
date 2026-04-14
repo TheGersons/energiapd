@@ -6,18 +6,18 @@ import {
   pattern,
   required,
   submit,
+  validate,
 } from '@angular/forms/signals';
 import { FindAllDepartmentsUseCase } from '@domain/department/usecase/findAllDepartments.usecase';
 import { LoanFormModel, LoanModelDTO } from '@domain/loan/loal.model';
 import { CreateLoanlUseCase } from '@domain/loan/usecase/createLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
-import { FindAllToolsUseCase } from '@domain/tool/usecase/findAllTools.usecase';
 import { Loader } from '@ui/icons/loader';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { validate } from 'uuid';
 import { NgSelectComponent } from '@ng-select/ng-select';
+import { validate as uuid } from 'uuid';
 import { FindAllPublicToolsUseCase } from '@domain/tool/usecase/findAllPublicTools.usecase';
 
 @Component({
@@ -70,11 +70,24 @@ export class Create {
     pattern(fields.loanDni, /^\d{4}\d{4}\d{5}$/, {
       message: 'Formato incorrecto.',
     });
+    validate(fields.loanReturnDate, ({ value }) => {
+      if (new Date(value()) < new Date()) {
+        return {
+          kind: 'invalid-date',
+          message: 'La fecha no puede ser menor a la actual.',
+        };
+      }
+      return null;
+    });
+    required(fields.loanDepartment, { message: 'Este campo es requerido.' });
   });
 
   async onCreate(event: Event) {
     event.preventDefault();
     try {
+      if (this.tools().size == 0) {
+        throw 'Debe seleccionar por lo menos una herramienta.';
+      }
       await submit(this.loanForm, async () => {
         const form = this.loanForm().controlValue();
 
@@ -91,7 +104,7 @@ export class Create {
 
         const response = await firstValueFrom(this.createLoan.execute(dto));
 
-        if (!validate(response)) throw 'Ha ocurrido un error inesperado';
+        if (!uuid(response)) throw 'Ha ocurrido un error inesperado';
 
         this.toastr.success('Préstamo creado exitosamente.');
       });
