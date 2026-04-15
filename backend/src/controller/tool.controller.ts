@@ -77,16 +77,38 @@ class ToolController {
   update = async (req: Request, res: Response): Promise<void> => {
     try {
       const _file = req.file as Express.Multer.File | undefined;
+      let finalImageUrl = req.body.image;
+
+      if (_file) {
+        const currentTool = await toolRepository.findOne(req.body.id);
+
+        if (currentTool && currentTool.image) {
+          try {
+            const oldFileName = currentTool.fileName;
+            if (oldFileName) {
+              await this.deleteFromNextcloud(oldFileName);
+            }
+          } catch (delError) {
+            console.error(
+              "No se pudo eliminar la imagen anterior, continuando...",
+              delError,
+            );
+          }
+        }
+
+        const uuid = req.body.id;
+        const extension = _file.originalname.split(".").pop();
+        const fileName = `${uuid}.${extension}`;
+
+        await this.uploadToNextcloud(fileName, _file);
+        finalImageUrl = await this.getNextcloudShareUrl(fileName);
+      }
 
       const rs = await toolRepository.update({
         ...req.body,
-        image: !_file ? req.body.image : req.body.image,
+        image: finalImageUrl,
         available: req.body.available === "true",
       });
-
-      if (_file) {
-        await this.uploadToNextcloud(req.body.id, _file);
-      }
 
       res.status(200).json(rs);
     } catch (error) {
@@ -148,7 +170,7 @@ class ToolController {
         body: new Uint8Array(file.buffer),
       },
     );
-
+    console.log(response);
     if (!response.ok) throw new Error("Error al subir archivo a Nextcloud");
   }
 

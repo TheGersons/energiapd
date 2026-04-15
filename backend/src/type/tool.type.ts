@@ -6,6 +6,7 @@ export interface ITool {
   model: string;
   serial: string;
   image: string;
+  fileName?: string;
   available: boolean;
   code: string;
   createdAt?: Date;

@@ -97,6 +97,7 @@ model Tool {
   model       String
   serial      String
   image       String
+  imageName   String?
   available   Boolean      @default(true)
   code        String       @unique
   createdAt   DateTime     @default(now())
