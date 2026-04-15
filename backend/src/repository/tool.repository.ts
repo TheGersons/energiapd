@@ -7,6 +7,9 @@ class ToolRepository {
    */
   async findAll(): Promise<ITool[]> {
     return await prisma.tool.findMany({
+      where: {
+        status: true,
+      },
       orderBy: {
         createdAt: "asc",
       },
@@ -15,7 +18,7 @@ class ToolRepository {
 
   async findAvailable(): Promise<ITool[]> {
     return await prisma.tool.findMany({
-      where: { available: true },
+      where: { available: true, status: true },
       orderBy: {
         createdAt: "asc",
       },
@@ -60,6 +63,22 @@ class ToolRepository {
    * Realiza un borrado lógico cambiando el estado a inactivo.
    */
   async delete(id: string): Promise<number> {
+    const dependencies = await prisma.loan.findMany({
+      where: {
+        loanDetails: {
+          some: {
+            idTool: id,
+          },
+        },
+      },
+    });
+    if (dependencies.length) {
+      throw {
+        message: "Esta herramienta no puede ser eliminada.",
+        name: "Dependencia",
+        code: 409,
+      };
+    }
     const rs = await prisma.tool.updateMany({
       data: { status: false },
       where: { id },

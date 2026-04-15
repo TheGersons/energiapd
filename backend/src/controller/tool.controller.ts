@@ -64,13 +64,19 @@ class ToolController {
       }
       const rs = await toolRepository.delete(id as string);
       res.status(200).json(rs);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "Dependencia") {
+        errorResponse(res, error.code, error.message);
+        return;
+      }
+
       errorResponse(
         res,
         500,
         "Error al eliminar la herramienta.",
         this.getErrorMessage(error),
       );
+      return;
     }
   };
 

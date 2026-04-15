@@ -15,6 +15,7 @@ import { firstValueFrom, timestamp } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { FindAllToolsUseCase } from '@domain/tool/usecase/findAllTools.usecase';
 import { DeleteToolUseCase } from '@domain/tool/usecase/deleteTool.usecase';
+import { ToastrService } from 'ngx-toastr';
 
 type StatusFilter = 'Todos' | 'Disponible' | 'Prestadas';
 
@@ -34,6 +35,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private deleteTool = inject(DeleteToolUseCase);
 
   private router = inject(Router);
+  private toastr = inject(ToastrService);
 
   private readonly COMPONENT_KEY = 'tool-inventory-dashboard';
 
@@ -133,9 +135,14 @@ export class Dashboard implements OnInit, OnDestroy {
     }
   }
 
-  onDelete() {
+  async onDelete() {
     if (!this.canEdit()) {
-      firstValueFrom(this.deleteTool.execute(Array.from(this.selection())[0]));
+      const rs = await firstValueFrom(
+        this.deleteTool.execute(Array.from(this.selection())[0]),
+      );
+      if (rs > 0) {
+        this.toastr.success('La herramienta se ha eliminado exitosamente.');
+      }
     }
   }
 
