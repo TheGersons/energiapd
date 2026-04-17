@@ -4,7 +4,7 @@ import { ExitLoanModel } from '@domain/exitLoan/exitLoan.model';
 import { ExitLoanRepository } from '@domain/exitLoan/exitLoan.reposotory';
 import { map, Observable } from 'rxjs';
 import { ExitLoanEntity } from './exitPass.entity';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { ExitLoansMapper } from './mapper/exitLoans.mapper';
 import { ExitLoanMapper } from './mapper/exitLoan.mapper';
 

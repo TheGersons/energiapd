@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec energiapd_client *)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec energiapd_client *)",
+      "Bash(curl -sI http://localhost:4000/)",
+      "Bash(curl -sI http://localhost:4000/dashboard)",
+      "Bash(curl -s http://localhost:4000/dashboard)",
+      "Bash(docker compose up *)",
+      "Bash(curl -sI http://localhost:4000/iniciar-sesion)",
+      "Bash(curl -sI http://localhost:4000/main-2C2YHZ2K.js)",
+      "Bash(curl -sI http://localhost:4000/api/apiRequest/)",
+      "Bash(curl -sI http://localhost:3001/api/apiRequest/)",
+      "Bash(curl -s http://localhost:4000/api/apiRequest/)",
+      "Bash(curl -s http://localhost:3001/api/apiRequest/)",
+      "Bash(MSYS_NO_PATHCONV=1 docker logs energiapd_client *)",
+      "Bash(curl -sI --max-time 3 http://localhost:3001/api/apiRequest/)"
+    ]
+  }
+}

@@ -2,7 +2,7 @@ import { ModuleRepository } from '@domain/module/module.repository';
 import { ModuleMapper } from './mapper/module-page.mapper';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { ModuleModel } from '@domain/module/module.model';
 import { map, Observable } from 'rxjs';
 import { ModuleEntity } from './entity/module.entity';

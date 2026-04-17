@@ -27,7 +27,7 @@ import {
   NgSignaturePadOptions,
   SignaturePadComponent,
 } from '@almothafar/angular-signature-pad';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { ApproveLoanUseCase } from '@domain/loan/usecase/approveLoan.usecase';
 import { ToolModel } from '@domain/tool/tool.model';
 import { DeliverLoanUseCase } from '@domain/loan/usecase/deliverLoan.usecase';

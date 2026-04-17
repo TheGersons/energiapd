@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: energiapd_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "${DB_PORT_EXTERNAL}:5432"
+
+  api:
+    build: ./backend
+    container_name: energiapd_api
+    environment:
+      PORT: ${API_PORT}
+      # Armamos la URL de Prisma dinámicamente
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public&timezone=UTC-6
+
+      NEXTCLOUD_BASEURL: ${NC_URL}
+      NEXTCLOUD_WEBDAV_URL: ${NC_URL}/remote.php/dav/files/master/Aplicativos/Herramientas/
+      NEXTCLOUD_USERNAME: ${NC_USER}
+      NEXTCLOUD_PASSWORD: ${NC_PASS}
+
+      SECRET: ${SECRET}
+      SECRET_REFRESH: ${SECRET_REFRESH}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_FROM_NAME: "No Responder"
+
+      FRONTEND_URL: http://${SERVER_IP}:${CLIENT_PORT}
+    expose:
+      - "${API_PORT}"
+    depends_on:
+      - db
+
+  client:
+    build:
+      context: ./frontend
+      args:
+        - SERVER_IP=${SERVER_IP}
+        - API_PORT=${API_PORT}
+        - CLIENT_PORT=${CLIENT_PORT}
+    container_name: energiapd_client
+    ports:
+      - "${CLIENT_PORT}:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

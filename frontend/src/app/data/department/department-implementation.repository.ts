@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DepartmentRepository } from '@domain/department/department.repository';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { DepartmentMapper } from './mapper/department.mapper';
 import { DepartmentsMapper } from './mapper/departments.mapper';
 import { DepartmentModel } from '@domain/department/department.model';

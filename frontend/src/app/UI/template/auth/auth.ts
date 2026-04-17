@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { form, required, submit, FormField } from '@angular/forms/signals';
 import { AuthenticateUseCase } from '@domain/auth/usecase/authenticate.usecase';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, EMPTY, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { RouterLink } from "@angular/router";
 import { Loader } from "@ui/icons/loader";
 
@@ -17,7 +17,6 @@ export class Auth {
   private authenticate = inject(AuthenticateUseCase);
 
   isLoading = signal(false);
-
   showNewPassword = signal(false);
 
   // Modelo de datos

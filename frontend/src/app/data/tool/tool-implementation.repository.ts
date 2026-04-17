@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ToolMapper } from './mapper/tool.mapper';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { ToolModel } from '@domain/tool/tool.model';
 import { map, Observable } from 'rxjs';
 import { ToolEntity } from './tool.entity';

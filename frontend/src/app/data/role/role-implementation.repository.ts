@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { RoleRepository } from '@domain/role/role.repository';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { PlaneRoleModel, RoleModel } from '@domain/role/role.model';
 import { map, Observable } from 'rxjs';
 import { PlaneRoleEntity, RoleEntity } from './role.entity';

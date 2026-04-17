@@ -29,9 +29,8 @@ class Server {
     this.app.use(
       cors({
         origin: [
-          "http://192.168.10.252:4201",
-          "http://192.168.10.252:4201",
           "http://localhost:4200",
+          process.env.FRONTEND_URL ?? "",
         ],
         credentials: true,
       }),

@@ -6,7 +6,7 @@ import {
   UserResponseModel,
 } from '@domain/user/user.model';
 import { UserRepository } from '@domain/user/user.repository';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 import { UserEntity, UserResponseEntity } from './user.entity';
 import { UsersMapper } from './mapper/users.mapper';

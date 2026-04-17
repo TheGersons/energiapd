@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { LoanDtoMapper } from './mapper/loanDTO.mapper';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environments/environment.development';
+import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 import { LoanRepository } from '@domain/loan/loan.repository';
 import {
